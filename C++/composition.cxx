@@ -1,15 +1,5 @@
-#include <iostream>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <cmath>
-#include <utility>
-#include <cerrno>
 
-#include <Eigen>
-#include <Eigen/Dense>
-
-/* -------------- 
+/* -----------------------------------------------------------------------------------------------------------------------
    
    Calculate the clustering of the mixed lipid bilayer through a DBSCAN algorithm --- How does the DBSCAN algorithm work?
    
@@ -19,30 +9,9 @@
    
    Two main algorithms are required, where there are 
    
-   -------------- */
+  ----------------------------------------------------------------------------------------------------------------------- */
 
-/* Function to find the center of mass of the C12E2 */
 
-using namespace Eigen;
-
-#define minClust 5 // the minimum sizes cluster we want to count as a cluster
-
-// --- notification of end of a function --- //
-void die (const char *message) {
-  if (errno) {
-    perror(message);
-  } else {
-    std::cout << message << std::endl;
-  }
-  exit(1);
-}
-double CenterOfMass(double H7, double H6_1,double H6_2,double T3_1, double T3_2, double T3_3, double T4);
-double truedist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z);
-struct pointCluster {
-  std::vector<int> clusterIndices;
-};
-
-pointCluster* regionQuery (int , double*, double*, double*, double*, double*, double*);
 
 // -------------------------------//
 // DBSCAN algorithm -  Pseudocode://
@@ -74,13 +43,43 @@ void regionQuery(double Distcriteria, double (*COMref) (double)) {
 }  
 */
 
-// The struct to construct the array 
+/* Function to find the center of mass of the C12E2 */
+
+#include <iostream>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <cmath>
+#include <utility>
+#include <cerrno>
+#include <Eigen>
+#include <Eigen/Dense>
+
+using namespace Eigen;
+#define minClust 5 // the minimum sizes cluster we want to count as a cluster
+
+double CenterOfMass(double H7, double H6_1,double H6_2,double T3_1, double T3_2, double T3_3, double T4);
+double trueDist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z);
+
+// Constants
+
+int MimicCounter = 0;    
+int PolymerCounter = 0;
+
+// struct to add up the indices of the cluster around it, if the number of the surrounding is
+
+struct pointCluster {
+  std::vector<int> clusterIndices;
+};
+pointCluster* regionQuery (int , double*, double*, double*, double*, double*, double*);
+
+/* The struct to construct the array */
 struct C12E2_skeleton {
   int index[7];
 };
 
-// struct to add up the indices of the cluster around it, if the number of the surrounding is
-
+struct C12E2_skeleton C12E2_struct[numberOfPolymers];
+struct C12E2_skeleton C12E2M_struct[numberOfPolymers];
 
 // Not currently being used
 std::vector<int> C12E2I;
@@ -88,11 +87,37 @@ std::vector<int> C12E2MI;
 // Not currently being used
 std::map<int, C12E2_skeleton> C12E2_M;
 std::map<int, C12E2_skeleton> C12E2M_M;
+
 // The regionQuery returns the number of points that are within the criteria of being a cluster - i.e. a distance costraint and a type
 // constaint for the lipid. We already have a type constraint in terms of the struct arrays for the C12E2 and the C12E2-M structs so we
 // dont need to worry about that, but we need to worry about the region and indices we want to return
-int MimicCounter = 0;    
-int PolymerCounter = 0;
+
+
+
+void analysis (double* C12E2xCOM, double* C12E2yCOM, double* C12E2zCOM, int* PolymerCounter, struct* C12E2_skeleton) {  
+  for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
+    for (int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; j++) {      
+      if (headGroupC12_E2xCOM[i] !=headGroupC12_E2xCOM[j] && headGroupC12_E2yCOM[i] !=headGroupC12_E2yCOM[j] && headGroupC12_E2zCOM[i] !=headGroupC12_E2zCOM[j]) {
+	if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= 7.000 ) {    
+	  if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= 7.000) {
+	    if (headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j] !=0 && sqrt(pow(headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j],2)) <= 7.000) {
+	      PolymerCounter++;
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+
+void die (const char *message) {
+  if (errno) {
+    perror(message);
+  } else {
+    std::cout << message << std::endl;
+  }
+  exit(1);
+}
 
 int main () 
 {
@@ -121,7 +146,6 @@ int main ()
   /* Parameters to loop over an entire dump file */ 
 
   int numberofSS = 1000; /*The number of screenshots in the dump file*/
-  int SSno = 0; /*the nth screenshot we are at*/
 
   /* MISC */
 
@@ -275,9 +299,6 @@ int main ()
   C12E2MI.clear();
 
   // Structs to keep the index of each polymer and it's individual CG bead indices
-  
-  struct C12E2_skeleton C12E2_struct[numberOfPolymers];
-  struct C12E2_skeleton C12E2M_struct[numberOfPolymers];
 
   // Structs to keep the indices of the CG beads 
   
@@ -453,36 +474,20 @@ int main ()
 
   }
 
-  // loop over the values
-  
-  
-
-  for (int i = 0; i <= 999; i++){
-
-    // Loop to ensure that each struct has been constructed properly 
-    // This has been checked
-    // std::cout << C12E2M_struct[i].index[1] << " " << C12E2_struct[i].index[1] << " " << i  << std::endl;
-  }
-  
-  for(SSno=0; SSno<numberofSS; SSno++) {
-    
+  // loop over the values  
+  for (int SSno=0; SSno < numberofSS; SSno++) {  
      //  printf("This is the data for trajectory no %d \n", SSno); 
     l = 0;
     n = 0;
-    
-    for(k=0;k<nlines;k++) { 
-   
+    for (k = 0; k < nlines; k++) { 
       fgets(line,sizeof(line),ipf);
-      
       //while (fgets(line,sizeof(line),ipf) != NULL) {
       if (l < 5) {	
 	/* We are doing nothing */
 	//	printf("%s l= %d", line,l);
 	l++;
       }
-      
       else if ((l > 4 && l < 8)) {
-      
 	/*We are scanning the bit with just the box parameters*/
 	sscanf(line, "%lf %lf", &box1, &box2);
 	//	printf("%lf %lf \n",box1,box2 );
@@ -494,9 +499,7 @@ int main ()
 	/* We are doing nothing */
 	l++;
       }
-    
       else {
-
 	//	printf(" ***** l = %d \n",l );
 	/* convert the text to numbers */
 	sscanf(line,"%d %d %lf %lf %lf",&index,&atomtype,&x,&y,&z);
@@ -510,7 +513,6 @@ int main ()
        	//printf("%d %d %lf %lf %lf\n",index,atomtype,x,y,z);
       }
     }
-    
     // We can hold a value in the i array, then check it with the j loop
     // we want to put the r threshold (the zone where if in it, we want to consider it as phase separated)
     
@@ -569,20 +571,14 @@ int main ()
   
     
     for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
-
       //double truedist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z) {
-
       // See if the distance between the nanopparticle is smaller than 15 
       //std::cout << zco[71312] << std::endl;
-
-       if(truedist(xco[71312], yco[71312], zco[71312], headGroupC12_E2xCOM[i], headGroupC12_E2yCOM[i], headGroupC12_E2zCOM[i]) <= 25.000) { 
-
+       if (trueDist(xco[71312], yco[71312], zco[71312], headGroupC12_E2xCOM[i], headGroupC12_E2yCOM[i], headGroupC12_E2zCOM[i]) <= 25.000) { 
 	 // Check if the c12e2 molecule is on the top layer or the bottom layer
-	 
 	 if (headGroupC12_E2zCOM[i] > zco[71312]) {
 	   tophead++;
 	 }
-	 
 	 else if (headGroupC12_E2zCOM[i] < zco[71312]) {
 	   downhead++;
 	 }
@@ -590,7 +586,7 @@ int main ()
        }
      
       
-       if(truedist(xco[71312], yco[71312], zco[71312], headGroupMIMICxCOM[i], headGroupMIMICyCOM[i], headGroupMIMICzCOM[i] ) <= 25.000) { 
+       if(trueDist(xco[71312], yco[71312], zco[71312], headGroupMIMICxCOM[i], headGroupMIMICyCOM[i], headGroupMIMICzCOM[i] ) <= 25.000) { 
 	 
 	 if (headGroupMIMICzCOM[i] > zco[71312]) {
 	   mimictophead++;
@@ -652,9 +648,7 @@ int main ()
     //	std::cout << SSno << " " << PolymerCounter << " " << MimicCounter <<  std::endl;
   }
   
-  return 0;
-
-    
+  return 0;    
 }
 
 
@@ -672,7 +666,6 @@ double ChainOrder(double H7_x, double H7_y, double H7_z, double H6_1_x, double H
   double COM;
 }
 
-
 /* Function to calculate the centre of mass of each molecule */
 
 double CenterOfMass(double H7, double H6_1, double H6_2, double T3_1, double T3_2, double T3_3, double T4) {  
@@ -683,24 +676,18 @@ double CenterOfMass(double H7, double H6_1, double H6_2, double T3_1, double T3_
   double T3coord_2 = T3_2; 
   double T3coord_3 = T3_3; 
   double T4coord = T4; 
-  double COM;
-  
+  double COM; 
   COM = (( H7coord ) + ( H6coord_1 ) + ( H6coord_2 ) + ( T3coord_1 )  + ( T3coord_2 )  +( T3coord_3 )  + ( T4coord ))/7; 
-
   /* With this COM definition we now know the COM in each cartesian coordinate */ 
-
   return COM; 
 }  
 
-double truedist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z) {
-
+double trueDist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z) {
   double dist = pow((pow(COM1x-COM2x,2.0) + pow(COM1y-COM2y,2.0) + pow(COM1z-COM2z,2.0)),0.5);
-
   return dist;
 }
 
 pointCluster* regionQuery (int D, double *xarray1, double *yarray1, double *zarray1, double *xarray2, double *yarray2, double *zarray2) {
-
   pointCluster A[1000];
 
   for (int i = 0; i <= sizeof(xarray1)/sizeof(int)-1; i++) {
@@ -709,40 +696,10 @@ pointCluster* regionQuery (int D, double *xarray1, double *yarray1, double *zarr
       
       if (i == j) continue;
       
-      if (truedist(xarray1[i], xarray1[i], xarray1[i], xarray2[j], xarray2[j], xarray2[j]) <= D) {
+      if (trueDist(xarray1[i], xarray1[i], xarray1[i], xarray2[j], xarray2[j], xarray2[j]) <= D) {
 	A[i].clusterIndices.push_back(j);
       }      
       return A;
     }
   }
 }
-
-//void DBSCAN() {
-//}
-/*Function to take into account the periodic boundary conditions*/ 
-/* void minimum_image(double *xcoord7, double *xcoord6_1, double *xcoord6_2, double *xcoord3_1, double *xcoordin3_2, double xcoordin3_3, double xcoordin4,double boxlength)  */
-
-/* { */
-  
-/*   double box = xboxlength;  */
-
-/*   //with 7, we move the headgroup  */
-
-/*   if (*xcoord7 - *xcoordx6_1 > boxlength/2 ) { */
-
-/*     *xccord7 = *xccord7 - xboxlength;  */
- 
-/*   } */
-
-/*   else if (*xcoord7 - *xcoordx6_1 > boxlength/2) { */
-
-
-
-
-/*   } */
-  
-
-
-/* } */
-
-

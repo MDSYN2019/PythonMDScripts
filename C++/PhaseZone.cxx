@@ -1,10 +1,56 @@
 #include <iostream>
+#include <iostream>
+#include <iomanip>
 #include <vector>
-#include <map>
 #include <algorithm>
+#include <map>
 #include <cmath>
 #include <utility>
 #include <cerrno>
+
+
+#define minClust 5 // the minimum sizes cluster we want to count as a cluster
+
+double CenterOfMass(double H7, double H6_1,double H6_2,double T3_1, double T3_2, double T3_3, double T4);
+double truedist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z);
+
+void die (const char *message) {
+  if (errno) {
+    perror(message);
+  } else {
+    std::cout << message << std::endl;
+  }
+  exit(1);
+}
+
+struct pointCluster {
+  std::vector<int> clusterIndices;
+};
+
+pointCluster* regionQuery (int , double*, double*, double*, double*, double*, double*);
+
+
+// The struct to construct the array 
+
+struct C12E2_skeleton {
+  int index[7];
+};
+
+// struct to add up the indices of the cluster around it, if the number of the surrounding is
+
+std::vector<int> C12E2I;
+std::vector<int> C12E2MI;
+std::map<int, C12E2_skeleton> C12E2_M;
+std::map<int, C12E2_skeleton> C12E2M_M;
+
+// The regionQuery returns the number of points that are within the criteria of being a cluster - i.e. a distance costraint and a type
+// constaint for the lipid. We already have a type constraint in terms of the struct arrays for the C12E2 and the C12E2-M structs so we
+// dont need to worry about that, but we need to worry about the region and indices we want to return
+
+int MimicCounter = 0;    
+int PolymerCounter = 0;
+
+
 
 /* -------------- 
    
@@ -20,27 +66,11 @@
 
 /* Function to find the center of mass of the C12E2 */
 
-#define minClust 5 // the minimum sizes cluster we want to count as a cluster
-
 // --- notification of end of a function --- //
 
-void die (const char *message) {
-  if (errno) {
-    perror(message);
-  } else {
-    std::cout << message << std::endl;
-  }
-  exit(1);
-}
 
-double CenterOfMass(double H7, double H6_1,double H6_2,double T3_1, double T3_2, double T3_3, double T4);
-double truedist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z);
 
-struct pointCluster {
-  std::vector<int> clusterIndices;
-};
 
-pointCluster* regionQuery (int , double*, double*, double*, double*, double*, double*);
 
 //double regionQuery (int P, int D);
 
@@ -74,42 +104,20 @@ void regionQuery(double Distcriteria, double (*COMref) (double)) {
   COMref = CenterOfMass;  
 }  
 */
-
-// The struct to construct the array 
-struct C12E2_skeleton {
-  int index[7];
-};
-
-// struct to add up the indices of the cluster around it, if the number of the surrounding is
+const int numberofatoms = 71313;  
+int boxdim = 3;
+int atomtype; 
+double x,y,z; /*coordinates for the atoms in the box*/
+double xco[numberofatoms],yco[numberofatoms],zco[numberofatoms];
 
 
-// Not currently being used
-std::vector<int> C12E2I;
-std::vector<int> C12E2MI;
-// Not currently being used
-std::map<int, C12E2_skeleton> C12E2_M;
-std::map<int, C12E2_skeleton> C12E2M_M;
-
-// The regionQuery returns the number of points that are within the criteria of being a cluster - i.e. a distance costraint and a type
-// constaint for the lipid. We already have a type constraint in terms of the struct arrays for the C12E2 and the C12E2-M structs so we
-// dont need to worry about that, but we need to worry about the region and indices we want to return
-int MimicCounter = 0;    
-int PolymerCounter = 0;
-
-int main () 
-{
-  
+int main () {  
   /* Declaration of variables */ 
   
-  const int numberofatoms = 71313;  
-  int boxdim = 3;
-  double x,y,z; /*coordinates for the atoms in the box*/
-  int atomtype; 
-
+  
   /* x,y,z array to store all the values we read in from the dump file in order */
   
-  double xco[numberofatoms],yco[numberofatoms],zco[numberofatoms];
-
+ 
   /* ditto for a and b, which represent index and atomtype respectively */
 
   int a[numberofatoms],b[numberofatoms];
