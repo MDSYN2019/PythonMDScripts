@@ -62,9 +62,7 @@ using namespace Eigen;
 pointCluster* regionQuery (int , double*, double*, double*, double*, double*, double*);
 double CenterOfMass(double H7, double H6_1,double H6_2,double T3_1, double T3_2, double T3_3, double T4);
 double trueDist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z);
-
 // Constants
-
 int MimicCounter = 0;    
 int PolymerCounter = 0;
 
@@ -96,8 +94,28 @@ std::map<int, C12E2_skeleton> C12E2M_M; // Not currently being used
 // constaint for the lipid. We already have a type constraint in terms of the struct arrays for the C12E2 and the C12E2-M structs so we
 // dont need to worry about that, but we need to worry about the region and indices we want to return
 
-void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values) {  
 
+double CenterOfMass(double H7, double H6_1, double H6_2, double T3_1, double T3_2, double T3_3, double T4) {  
+  double H7coord = H7;
+  double H6coord_1 = H6_1;
+  double H6coord_2 = H6_2;
+  double T3coord_1 = T3_1; 
+  double T3coord_2 = T3_2; 
+  double T3coord_3 = T3_3; 
+  double T4coord = T4; 
+  double COM; 
+  COM = (( H7coord ) + ( H6coord_1 ) + ( H6coord_2 ) + ( T3coord_1 )  + ( T3coord_2 )  +( T3coord_3 )  + ( T4coord ))/7; 
+  /* With this COM definition we now know the COM in each cartesian coordinate */ 
+  return COM; 
+}  
+
+
+void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values) {  
+  for (std::vector<int>::iterator it = values.begin() ; it !=values.end(); ++it) {
+    for (std::vector<int>::iterator it2 = values.begin() ; it2 !=values.end(); ++it2) {
+    }
+  }
+ 
   for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
     for (int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; j++) {      
 
@@ -261,56 +279,54 @@ int main ()
 
   class compute {
   private:
+    double xco[numberofatoms], yco[numberofatoms], zco[numberofatoms];
     FILE *ipf; /* input file */
-    
-    std::vector<double> headGroupC12_E2xCOM;
-    std::vector<double> headGroupC12_E2yCOM;
-    std::vector<double> headGroupC12_E2zCOM;
-  
-    std::vector<double> headGroupMIMICxCOM;
-    std::vector<double> headGroupMIMICyCOM;
-    std::vector<double> headGroupMIMICzCOM;
+    std::vector<double> headGroupC12_E2xCOM; // COM C12E2 X
+    std::vector<double> headGroupC12_E2yCOM; // COM C12E2 Y
+    std::vector<double> headGroupC12_E2zCOM; // COM C12E2 Z
+
+    std::vector<double> headGroupMIMICxCOM; // COM MIMIC X
+    std::vector<double> headGroupMIMICyCOM; // COM MIMIC Y
+    std::vector<double> headGroupMIMICzCOM; // COM MIMIC Z
 
     // -----------------------------------------------------------------------//
-    // Defining normals (A13 -- A12_1 -- A12_2 -- A9_1 -- A9_2 -- A9_3 -- A10 //
+    // Defining normals (A7 -- A6_1 -- A6_2 -- A3_1 -- A3_2 -- A3_3 -- A4     //
     // -----------------------------------------------------------------------//
 
-    int A7, A6_1, A6_2, A3_1, A3_2, A3_3, A4;
-    // Second Batch
-    int A7_2, A6_1_2, A6_2_2, A3_1_2, A3_2_2, A3_3_2, A4_2;
-    // Third Batch
-    int A7_3, A6_1_3, A6_2_3, A3_1_3, A3_2_3, A3_3_3, A4_3; 
-    // Fourth Batch 
-    int A7_4, A6_1_4, A6_2_4, A3_1_4, A3_2_4, A3_3_4, A4_4;
+    int A7, A6_1, A6_2, A3_1, A3_2, A3_3, A4; // First Batch
+    int A7_2, A6_1_2, A6_2_2, A3_1_2, A3_2_2, A3_3_2, A4_2; // Second Batch
+    int A7_3, A6_1_3, A6_2_3, A3_1_3, A3_2_3, A3_3_3, A4_3; // Third Batch 
+    int A7_4, A6_1_4, A6_2_4, A3_1_4, A3_2_4, A3_3_4, A4_4; // Fourth Batch
 
     // ----------------------------------------------------------------------//
     // Defining mimics (A13 -- A12_1 -- A12_2 -- A9_1 -- A9_2 -- A9_3 -- A10 //
     // ----------------------------------------------------------------------//
 
-    // First Batch
-    int A13, A12_1, A12_2, A9_1, A9_2, A9_3, A10;
-    // Second Batch
-    int A13_2, A12_1_2, A12_2_2, A9_1_2, A9_2_2, A9_3_2, A10_2;
-    // Third Batch
-    int A13_3, A12_1_3, A12_2_3, A9_1_3, A9_2_3, A9_3_3, A10_3;
-    // Fourth Batch
-    int A13_4, A12_1_4, A12_2_4, A9_1_4, A9_2_4, A9_3_4, A10_4; 
-    
-    double xco[numberofatoms],yco[numberofatoms],zco[numberofatoms];
+    int A13, A12_1, A12_2, A9_1, A9_2, A9_3, A10; // First Batch
+    int A13_2, A12_1_2, A12_2_2, A9_1_2, A9_2_2, A9_3_2, A10_2; // Second Batch
+    int A13_3, A12_1_3, A12_2_3, A9_1_3, A9_2_3, A9_3_3, A10_3; // Third Batch
+    int A13_4, A12_1_4, A12_2_4, A9_1_4, A9_2_4, A9_3_4, A10_4; // Fourth Batch
+
+    int numberOfPolymers = 1000; // The number of polymers of each type - C12E2 or mimic 
+    int indexCG = 7;
+    int MimicCounter = 0;    
+    int PolymerCounter = 0;
+
   public:
-    void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values) {  
+    void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values, double distance) { 
+      for (std::vector<int>::iterator it = values.begin() ; it !=values.end(); ++it) {
+	for (std::vector<int>::iterator it2 = values.begin(); it2 !=values.end(); ++it2) {
 
-      for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
-	
+	}
+      }
+      
+      
+      for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {	
 	for (int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; j++) {      
-
 	  if (headGroupC12_E2xCOM[i] !=headGroupC12_E2xCOM[j] && headGroupC12_E2yCOM[i] !=headGroupC12_E2yCOM[j] && headGroupC12_E2zCOM[i] !=headGroupC12_E2zCOM[j]) {
-
-	    if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= 7.000 ) {    
-
-	      if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= 7.000) {
-
-		if (headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j] !=0 && sqrt(pow(headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j],2)) <= 7.000) {
+	    if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= distance ) {  
+	      if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= distance) {
+		if (headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j] !=0 && sqrt(pow(headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j],2)) <= distance) {
 		  PolymerCounter++;
 		}
 	      }
@@ -319,7 +335,95 @@ int main ()
 	}
       }
     }
-  };
+
+    void clear() {
+      C12E2I.clear();
+      C12E2MI.clear();
+    }
+
+    void allocation() {
+      for (int i = 0; i <= 249; i++) {
+
+	A7 = 7*(i);
+	A6_1= 7*(i) + 1;
+	A6_2= 7*(i) + 2;
+	A3_1 = 7*(i) + 3;
+	A3_2 = 7*(i) + 4;
+	A3_3 = 7*(i) + 5;
+	A4 = 7*(i) + 6;
+    
+	// Second batch
+    
+	A7_2 = 7*(i) + 3501;
+	A6_1_2 = 7*(i) + 3502;
+	A6_2_2 = 7*(i) + 3503;
+	A3_1_2 = 7*(i) + 3504;
+	A3_2_2 = 7*(i) + 3505;
+	A3_3_2 = 7*(i) + 3506;
+	A4_2 = 7*(i) + 3507;
+    
+	// Third batch
+      
+	A7_3 = 7*(i) + 7001;
+	A6_1_3 = 7*(i) + 7002;
+	A6_2_3 = 7*(i) + 7003;
+	A3_1_3 = 7*(i) + 7004;
+	A3_2_3 = 7*(i) + 7005;
+	A3_3_3 = 7*(i) + 7006;
+	A4_3 = 7*(i) + 7007;
+    
+	// Fourth batch
+    
+	A7_4 = 7*(i)  + 10501;
+	A6_1_4 = 7*(i) + 10502;
+	A6_2_4 = 7*(i) + 10503;
+	A3_1_4 = 7*(i) + 10504;
+	A3_2_4 = 7*(i) + 10505;
+	A3_3_4 = 7*(i) + 10506;
+	A4_4 = 7*(i) + 10507;
+    
+	//  --- C12E2-M --- //
+    
+	A13 = 7*(i) + 1751;
+	A12_1= 7*(i) + 1752;
+	A12_2= 7*(i) + 1753;
+	A9_1 = 7*(i) + 1754;
+	A9_2 = 7*(i) + 1755;
+	A9_3 = 7*(i) + 1756;
+	A10 = 7*(i) + 1757;
+    
+	/* Mimic atoms - Second batch */
+      
+	A13_2 = 7*(i) + 5251;
+	A12_1_2 = 7*(i) + 5252;
+	A12_2_2 = 7*(i) + 5253;
+	A9_1_2 = 7*(i) + 5254;
+	A9_2_2 = 7*(i) + 5255;
+	A9_3_2 = 7*(i) + 5256;
+	A10_2 = 7*(i) + 5257;
+    
+	/* Mimic atoms - Third batch */
+    
+	A13_3 = 7*(i) + 8751;
+	A12_1_3 = 7*(i) + 8752;
+	A12_2_3 = 7*(i) + 8753;
+	A9_1_3 = 7*(i) + 8754;
+	A9_2_3 = 7*(i) + 8755;
+	A9_3_3 = 7*(i) + 8756;
+	A10_3 = 7*(i) + 8757;
+    
+	/* Mimic atoms - Fourth batch */
+ 
+	A13_4 = 7*(i) + 12251;
+	A12_1_4 = 7*(i) + 12252;
+	A12_2_4 = 7*(i) + 12253;
+	A9_1_4 = 7*(i) + 12254;
+	A9_2_4 = 7*(i) + 12255;
+	A9_3_4 = 7*(i) + 12256;
+	A10_4 = 7*(i) + 12257;   
+      }
+
+    };
   
   int numberOfPolymers = 1000; // The number of polymers of each type - C12E2 or mimic 
   int indexCG = 7;
@@ -356,19 +460,14 @@ int main ()
   
   /* open file for reading */
   ipf = fopen("dump.out", "r");
-  
   /* check for error opening file */
-    
   if(ipf == NULL) {  
     printf("Error opening file\n");
     exit(1);
   }
-  
   /* get a line from the file */
   /* fgets() returns NULL when it reaches an error or end of file */   
-  
   int nlines = numberofatoms + 9;      
- 
   // Ensure that the vectors are cleared first.
 
   C12E2I.clear();
@@ -379,7 +478,6 @@ int main ()
   // Structs to keep the indices of the CG beads 
   
   for (int i = 0; i <= 249; i++) {
-    
     // Allocate the first batch of indices    
     // --- C12E2 --- //
     // First batch
@@ -551,7 +649,7 @@ int main ()
   }
 
   // loop over the values  
-  for (int SSno=0; SSno < numberofSS; SSno++) {  
+  for (int SSno = 0; SSno < numberofSS; SSno++) {  
      //  printf("This is the data for trajectory no %d \n", SSno); 
     l = 0;
     n = 0;
@@ -764,10 +862,9 @@ double trueDist(double COM1x, double COM1y, double COM1z, double COM2x, double C
 }
 
 pointCluster* regionQuery (int D, double *xarray1, double *yarray1, double *zarray1, double *xarray2, double *yarray2, double *zarray2) {
+
   pointCluster A[1000];
-
   for (int i = 0; i <= sizeof(xarray1)/sizeof(int)-1; i++) {
-
     for (int j = 0; i <= sizeof(xarray1)/sizeof(int)-1; j++) {
       
       if (i == j) continue;
