@@ -1,7 +1,10 @@
 
-/* -----------------------------------------------------------------------------------------------------------------------
-   
-   Calculate the clustering of the mixed lipid bilayer through a DBSCAN algorithm --- How does the DBSCAN algorithm work?
+/* --------------------------------------------------------------------------------
+   ---------------------------------------------------------------------------------
+   |Calculate the Clustering of the Mixed Lipid Bilayer through a DBSCAN Algorithm | 
+   ---------------------------------------------------------------------------------
+
+   How does the DBSCAN algorithm work?
    
    -> Point P in a cluster is a 'core' point if there are a critical number of the same type of points within a distance E.
    -> Point Q is a point in the cluster if there is a clear vector towards that from any of the elements of the P vector 
@@ -9,9 +12,7 @@
    
    Two main algorithms are required, where there are 
    
-  ----------------------------------------------------------------------------------------------------------------------- */
-
-
+  --------------------------------------------------------------------------------*/
 
 // -------------------------------//
 // DBSCAN algorithm -  Pseudocode://
@@ -52,12 +53,13 @@ void regionQuery(double Distcriteria, double (*COMref) (double)) {
 #include <cmath>
 #include <utility>
 #include <cerrno>
+
 #include <Eigen>
 #include <Eigen/Dense>
 
 using namespace Eigen;
 #define minClust 5 // the minimum sizes cluster we want to count as a cluster
-
+pointCluster* regionQuery (int , double*, double*, double*, double*, double*, double*);
 double CenterOfMass(double H7, double H6_1,double H6_2,double T3_1, double T3_2, double T3_3, double T4);
 double trueDist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z);
 
@@ -71,7 +73,6 @@ int PolymerCounter = 0;
 struct pointCluster {
   std::vector<int> clusterIndices;
 };
-pointCluster* regionQuery (int , double*, double*, double*, double*, double*, double*);
 
 /* The struct to construct the array */
 struct C12E2_skeleton {
@@ -81,22 +82,25 @@ struct C12E2_skeleton {
 struct C12E2_skeleton C12E2_struct[numberOfPolymers];
 struct C12E2_skeleton C12E2M_struct[numberOfPolymers];
 
+std::vector<C12E2_skeleton> C12E2_struct; // NumberOfPolymers
+std::vector<C12E2_skeleton> C12E2M_struct; // NumberOfPolymers
+
 // Not currently being used
 std::vector<int> C12E2I;
 std::vector<int> C12E2MI;
-// Not currently being used
-std::map<int, C12E2_skeleton> C12E2_M;
-std::map<int, C12E2_skeleton> C12E2M_M;
+
+std::map<int, C12E2_skeleton> C12E2_M; // Not currently being used
+std::map<int, C12E2_skeleton> C12E2M_M; // Not currently being used
 
 // The regionQuery returns the number of points that are within the criteria of being a cluster - i.e. a distance costraint and a type
 // constaint for the lipid. We already have a type constraint in terms of the struct arrays for the C12E2 and the C12E2-M structs so we
 // dont need to worry about that, but we need to worry about the region and indices we want to return
 
+void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, struct& C12E2_skeleton) {  
 
-
-void analysis (double* C12E2xCOM, double* C12E2yCOM, double* C12E2zCOM, int* PolymerCounter, struct* C12E2_skeleton) {  
   for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
     for (int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; j++) {      
+
       if (headGroupC12_E2xCOM[i] !=headGroupC12_E2xCOM[j] && headGroupC12_E2yCOM[i] !=headGroupC12_E2yCOM[j] && headGroupC12_E2zCOM[i] !=headGroupC12_E2zCOM[j]) {
 	if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= 7.000 ) {    
 	  if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= 7.000) {
@@ -260,6 +264,10 @@ int main ()
     
   /* Array for the C12E2 groups */
 
+  std::vector<double> headGroupC12_E2xCOM;
+  std::vector<double> headGroupC12_E2yCOM;
+  std::vector<double> headGroupC12_E2zCOM;
+  
   double headGroupC12_E2xCOM[numberOfPolymers];
   double headGroupC12_E2yCOM[numberOfPolymers];
   double headGroupC12_E2zCOM[numberOfPolymers];
