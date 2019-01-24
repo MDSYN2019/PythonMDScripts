@@ -96,7 +96,7 @@ std::map<int, C12E2_skeleton> C12E2M_M; // Not currently being used
 // constaint for the lipid. We already have a type constraint in terms of the struct arrays for the C12E2 and the C12E2-M structs so we
 // dont need to worry about that, but we need to worry about the region and indices we want to return
 
-void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, struct& C12E2_skeleton) {  
+void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values) {  
 
   for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
     for (int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; j++) {      
@@ -258,15 +258,83 @@ int main ()
   /* Array to store in C12E2 only */ 
 
   /* This will have to change */
+
+  class compute {
+  private:
+    FILE *ipf; /* input file */
+    
+    std::vector<double> headGroupC12_E2xCOM;
+    std::vector<double> headGroupC12_E2yCOM;
+    std::vector<double> headGroupC12_E2zCOM;
+  
+    std::vector<double> headGroupMIMICxCOM;
+    std::vector<double> headGroupMIMICyCOM;
+    std::vector<double> headGroupMIMICzCOM;
+
+    // -----------------------------------------------------------------------//
+    // Defining normals (A13 -- A12_1 -- A12_2 -- A9_1 -- A9_2 -- A9_3 -- A10 //
+    // -----------------------------------------------------------------------//
+
+    int A7, A6_1, A6_2, A3_1, A3_2, A3_3, A4;
+    // Second Batch
+    int A7_2, A6_1_2, A6_2_2, A3_1_2, A3_2_2, A3_3_2, A4_2;
+    // Third Batch
+    int A7_3, A6_1_3, A6_2_3, A3_1_3, A3_2_3, A3_3_3, A4_3; 
+    // Fourth Batch 
+    int A7_4, A6_1_4, A6_2_4, A3_1_4, A3_2_4, A3_3_4, A4_4;
+
+    // ----------------------------------------------------------------------//
+    // Defining mimics (A13 -- A12_1 -- A12_2 -- A9_1 -- A9_2 -- A9_3 -- A10 //
+    // ----------------------------------------------------------------------//
+
+    // First Batch
+    int A13, A12_1, A12_2, A9_1, A9_2, A9_3, A10;
+    // Second Batch
+    int A13_2, A12_1_2, A12_2_2, A9_1_2, A9_2_2, A9_3_2, A10_2;
+    // Third Batch
+    int A13_3, A12_1_3, A12_2_3, A9_1_3, A9_2_3, A9_3_3, A10_3;
+    // Fourth Batch
+    int A13_4, A12_1_4, A12_2_4, A9_1_4, A9_2_4, A9_3_4, A10_4; 
+    
+    double xco[numberofatoms],yco[numberofatoms],zco[numberofatoms];
+  public:
+    void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values) {  
+
+      for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
+	
+	for (int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; j++) {      
+
+	  if (headGroupC12_E2xCOM[i] !=headGroupC12_E2xCOM[j] && headGroupC12_E2yCOM[i] !=headGroupC12_E2yCOM[j] && headGroupC12_E2zCOM[i] !=headGroupC12_E2zCOM[j]) {
+
+	    if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= 7.000 ) {    
+
+	      if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= 7.000) {
+
+		if (headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j] !=0 && sqrt(pow(headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j],2)) <= 7.000) {
+		  PolymerCounter++;
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  };
   
   int numberOfPolymers = 1000; // The number of polymers of each type - C12E2 or mimic 
   int indexCG = 7;
     
-  /* Array for the C12E2 groups */
-
+  /* Vector for the C12E2 groups */
+  
   std::vector<double> headGroupC12_E2xCOM;
   std::vector<double> headGroupC12_E2yCOM;
   std::vector<double> headGroupC12_E2zCOM;
+
+  /* Vector for the C12E2-M groups */
+  
+  std::vector<double> headGroupMIMICxCOM;
+  std::vector<double> headGroupMIMICyCOM;
+  std::vector<double> headGroupMIMICzCOM;
   
   double headGroupC12_E2xCOM[numberOfPolymers];
   double headGroupC12_E2yCOM[numberOfPolymers];
@@ -521,6 +589,7 @@ int main ()
        	//printf("%d %d %lf %lf %lf\n",index,atomtype,x,y,z);
       }
     }
+
     // We can hold a value in the i array, then check it with the j loop
     // we want to put the r threshold (the zone where if in it, we want to consider it as phase separated)
     
@@ -528,9 +597,9 @@ int main ()
     // make sure that we do not read atoms of the same molecule 
     
 
-    /* There are 1000 polymers, of C12E2 and mimic type, but because the  */
-    
+    // ------------------------------------------------------------------------- //
     // --------------------- Array of the center of masses --------------------- //
+    // ------------------------------------------------------------------------- //
     
     // We are implementing a pseudo DBSCAN algorithm
     
@@ -546,12 +615,11 @@ int main ()
     // Calculating the COM of the C12E2
     // The COM components are divided into the x, y, and z coordinates
 
-      //  std::cout << *it << std::endl;
-      //  std::cout << C12E2I.size() << "\n" << std::endl;
+    //  std::cout << *it << std::endl;
+    //  std::cout << C12E2I.size() << "\n" << std::endl;
 
     for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
-      
-      // Calculating the centers of mass for the C12E2      
+            // Calculating the centers of mass for the C12E2      
        headGroupC12_E2xCOM[i] = CenterOfMass(xco[C12E2_struct[i].index[0]],xco[C12E2_struct[i].index[1]],xco[C12E2_struct[i].index[2]],xco[C12E2_struct[i].index[3]],xco[C12E2_struct[i].index[4]],xco[C12E2_struct[i].index[5]],xco[C12E2_struct[i].index[6]]); 
        headGroupC12_E2yCOM[i] = CenterOfMass(yco[C12E2_struct[i].index[0]],yco[C12E2_struct[i].index[1]],yco[C12E2_struct[i].index[2]],yco[C12E2_struct[i].index[3]],yco[C12E2_struct[i].index[4]],yco[C12E2_struct[i].index[5]],yco[C12E2_struct[i].index[6]]); 
        headGroupC12_E2zCOM[i] = CenterOfMass(zco[C12E2_struct[i].index[0]],zco[C12E2_struct[i].index[1]],zco[C12E2_struct[i].index[2]],zco[C12E2_struct[i].index[3]],zco[C12E2_struct[i].index[4]],zco[C12E2_struct[i].index[5]],zco[C12E2_struct[i].index[6]]); 
