@@ -1,8 +1,9 @@
 
 /* --------------------------------------------------------------------------------
-   ---------------------------------------------------------------------------------
-   |Calculate the Clustering of the Mixed Lipid Bilayer through a DBSCAN Algorithm | 
-   ---------------------------------------------------------------------------------
+
+  ---------------------------------------------------------------------------------
+  |Calculate the Clustering of the Mixed Lipid Bilayer through a DBSCAN Algorithm | 
+  ---------------------------------------------------------------------------------
 
    How does the DBSCAN algorithm work?
    
@@ -14,9 +15,9 @@
    
   --------------------------------------------------------------------------------*/
 
-// -------------------------------//
-// DBSCAN algorithm -  Pseudocode://
-// -------------------------------//
+//  ----------------------------------
+//  | DBSCAN algorithm -  Pseudocode:|
+//  ----------------------------------
 
 /*
 DBSCAN(D, eps, MinPts) {
@@ -222,13 +223,10 @@ int main ()
   int A3_2_4; 
   int A3_3_4; 
   int A4_4;
-
-  // -------------------------------------------------//
-
   
-  // -------------------------------------------------//
-  /* Defining mimics (A13 -- A12_1 -- A12_2 -- A9_1 -- A9_2 -- A9_3 -- A10) */
-  // -------------------------------------------------//
+  // ------------------------------------------------------------------------//
+  // Defining mimics (A13 -- A12_1 -- A12_2 -- A9_1 -- A9_2 -- A9_3 -- A10) */
+  // ------------------------------------------------------------------------//
 
   // First Batch
 
@@ -313,10 +311,18 @@ int main ()
     int PolymerCounter = 0;
 
   public:
-    void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values, double distance) { 
+    void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values, double distance){ 
       for (std::vector<int>::iterator it = values.begin() ; it !=values.end(); ++it) {
 	for (std::vector<int>::iterator it2 = values.begin(); it2 !=values.end(); ++it2) {
-
+	  if (headGroupC12_E2xCOM[i] !=headGroupC12_E2xCOM[j] && headGroupC12_E2yCOM[i] !=headGroupC12_E2yCOM[j] && headGroupC12_E2zCOM[i] !=headGroupC12_E2zCOM[j]) {
+	    if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= distance ) {  
+	      if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= distance) {
+		if (headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j] !=0 && sqrt(pow(headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j],2)) <= distance) {
+		  PolymerCounter++;
+		}
+	      }
+	    }
+	  }	  
 	}
       }
       
@@ -332,6 +338,7 @@ int main ()
 	      }
 	    }
 	  }
+
 	}
       }
     }
@@ -342,8 +349,21 @@ int main ()
     }
 
     void allocation() {
+      
       for (int i = 0; i <= 249; i++) {
 
+	// C12E2 batches
+	int batch1 = 0;
+	int batch2 = 3500;
+	int batch3 = 7000;
+	int batch4 = 10500;
+
+	// C12E2-M batches
+	int batch1M = 1750;
+	int batch2M = 5250;	
+	int batch3M = 8750;
+	int batch4M = 12250;
+	
 	A7 = 7*(i);
 	A6_1= 7*(i) + 1;
 	A6_2= 7*(i) + 2;
@@ -688,6 +708,7 @@ int main ()
       }
     }
 
+  
     // We can hold a value in the i array, then check it with the j loop
     // we want to put the r threshold (the zone where if in it, we want to consider it as phase separated)
     
