@@ -47,6 +47,28 @@ void regionQuery(double Distcriteria, double (*COMref) (double)) {
 
 /* Function to find the center of mass of the C12E2 */
 
+
+// ------------------------------------------------------------------------- //
+//                       Array of the center of masses                       //
+// ------------------------------------------------------------------------- //
+
+/*
+ We are implementing a pseudo DBSCAN algorithm
+    
+ To measure the distance between the points, we measure the distances between //
+ the centers of masses (COM). The DBSCAN algorithm originally requires to     //
+ calculate the `anchor' COMs, which are decided through a nearest neighbour   //
+ calculation. In the schematic below, 
+
+ O  O  O ---> X  -|
+  \/ \/           | -- the O's show the 'anchor', and the X's show the increasing cluster
+   O  O ---- X   -|
+    
+ Calculating the COM of the C12E2
+ The COM components are divided into the x, y, and z coordinates
+
+*/
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -80,14 +102,11 @@ struct C12E2_skeleton {
 
 struct C12E2_skeleton C12E2_struct[numberOfPolymers];
 struct C12E2_skeleton C12E2M_struct[numberOfPolymers];
-
 std::vector<C12E2_skeleton> C12E2_struct; // NumberOfPolymers
 std::vector<C12E2_skeleton> C12E2M_struct; // NumberOfPolymers
-
 // Not currently being used
 std::vector<int> C12E2I;
 std::vector<int> C12E2MI;
-
 std::map<int, C12E2_skeleton> C12E2_M; // Not currently being used
 std::map<int, C12E2_skeleton> C12E2M_M; // Not currently being used
 
@@ -97,6 +116,7 @@ std::map<int, C12E2_skeleton> C12E2M_M; // Not currently being used
 
 
 double CenterOfMass(double H7, double H6_1, double H6_2, double T3_1, double T3_2, double T3_3, double T4) {  
+
   double H7coord = H7;
   double H6coord_1 = H6_1;
   double H6coord_2 = H6_2;
@@ -105,33 +125,13 @@ double CenterOfMass(double H7, double H6_1, double H6_2, double T3_1, double T3_
   double T3coord_3 = T3_3; 
   double T4coord = T4; 
   double COM; 
+
   COM = (( H7coord ) + ( H6coord_1 ) + ( H6coord_2 ) + ( T3coord_1 )  + ( T3coord_2 )  +( T3coord_3 )  + ( T4coord ))/7; 
+
   /* With this COM definition we now know the COM in each cartesian coordinate */ 
   return COM; 
+
 }  
-
-
-void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values) {  
-  for (std::vector<int>::iterator it = values.begin() ; it !=values.end(); ++it) {
-    for (std::vector<int>::iterator it2 = values.begin() ; it2 !=values.end(); ++it2) {
-    }
-  }
- 
-  for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
-    for (int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; j++) {      
-
-      if (headGroupC12_E2xCOM[i] !=headGroupC12_E2xCOM[j] && headGroupC12_E2yCOM[i] !=headGroupC12_E2yCOM[j] && headGroupC12_E2zCOM[i] !=headGroupC12_E2zCOM[j]) {
-	if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= 7.000 ) {    
-	  if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= 7.000) {
-	    if (headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j] !=0 && sqrt(pow(headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j],2)) <= 7.000) {
-	      PolymerCounter++;
-	    }
-	  }
-	}
-      }
-    }
-  }
-}
 
 void die (const char *message) {
   if (errno) {
@@ -276,9 +276,133 @@ int main ()
   /* This will have to change */
 
   class compute {
+  public:
+    compute(); // Default constructor
+    compute(std::string file); // constructor reading file     
+
+    void allocation() {
+      for (int i = 0; i <= 249; i++) {
+	// C12E2 batches
+	int batch1 = 0;
+	int batch2 = 3500;
+	int batch3 = 7000;
+	int batch4 = 10500;
+
+	// C12E2-M batches
+	int batch1M = 1750;
+	int batch2M = 5250;	
+	int batch3M = 8750;
+	int batch4M = 12250;
+
+	// Alloate index
+	
+	A7 = 7*(i);
+	A6_1= 7*(i) + 1;
+	A6_2= 7*(i) + 2;
+	A3_1 = 7*(i) + 3;
+	A3_2 = 7*(i) + 4;
+	A3_3 = 7*(i) + 5;
+	A4 = 7*(i) + 6;
+    
+	// Second batch
+    
+	A7_2 = 7*(i) + batch2 + 1;
+	A6_1_2 = 7*(i) + batch2 + 2;
+	A6_2_2 = 7*(i) + batch2 + 3;
+	A3_1_2 = 7*(i) + batch2 + 4;
+	A3_2_2 = 7*(i) + batch2 + 5;
+	A3_3_2 = 7*(i) + batch2 + 6;
+	A4_2 = 7*(i) + batch2 + 7;
+    
+	// Third batch
+      
+	A7_3 = 7*(i) + batch3 + 1;
+	A6_1_3 = 7*(i) + batch3 + 2;
+	A6_2_3 = 7*(i) + batch3 + 3;
+	A3_1_3 = 7*(i) + batch3 + 4;
+	A3_2_3 = 7*(i) + batch3 + 5;
+	A3_3_3 = 7*(i) + batch3 + 6;
+	A4_3 = 7*(i) + batch3 + 7;
+    
+	// Fourth batch
+    
+	A7_4 = 7*(i)  + batch4 + 1;
+	A6_1_4 = 7*(i) + batch4 + 2;
+	A6_2_4 = 7*(i) + batch4 + 3;
+	A3_1_4 = 7*(i) + batch4 + 4;
+	A3_2_4 = 7*(i) + batch4 + 5;
+	A3_3_4 = 7*(i) + batch4 + 6;
+	A4_4 = 7*(i) + batch4 + 7;
+    
+	//  --- C12E2-M --- //
+    
+	A13 = 7*(i) + batch1M + 1;
+	A12_1= 7*(i) + batch1M + 2;
+	A12_2= 7*(i) + batch1M + 3;
+	A9_1 = 7*(i) + batch1M + 4;
+	A9_2 = 7*(i) + batch1M + 5;
+	A9_3 = 7*(i) + batch1M + 6;
+	A10 = 7*(i) + batch1M + 7;
+    
+	/* Mimic atoms - Second batch */
+      
+	A13_2 = 7*(i) + batch2M + 1;
+	A12_1_2 = 7*(i) + batch2M + 2;
+	A12_2_2 = 7*(i) + batch2M + 3;
+	A9_1_2 = 7*(i) + batch2M + 4;
+	A9_2_2 = 7*(i) + batch2M + 5;
+	A9_3_2 = 7*(i) + batch2M + 6;
+	A10_2 = 7*(i) + batch2M + 7;
+    
+	/* Mimic atoms - Third batch */
+    
+	A13_3 = 7*(i) + batch3M + 1;
+	A12_1_3 = 7*(i) + batch3M + 2;
+	A12_2_3 = 7*(i) + batch3M + 3;
+	A9_1_3 = 7*(i) + batch3M + 4;
+	A9_2_3 = 7*(i) + batch3M + 5;
+	A9_3_3 = 7*(i) + batch3M + 6;
+	A10_3 = 7*(i) + batch3M + 7;
+    
+	/* Mimic atoms - Fourth batch */
+ 
+	A13_4 = 7*(i) + batch4M + 1;
+	A12_1_4 = 7*(i) + batch4M + 2;
+	A12_2_4 = 7*(i) + batch4M + 3;
+	A9_1_4 = 7*(i) + batch4M + 4;
+	A9_2_4 = 7*(i) + batch4M + 5;
+	A9_3_4 = 7*(i) + batch4M + 6;
+	A10_4 = 7*(i) + batch4M + 7;   
+
+      }
+      
+    void Analysis(vector<double>* C12E2xCOM, vector<double>* C12E2yCOM, vector<double>* C12E2zCOM, std::vector<C12E2_skeleton>* values, double* distance) { 
+      
+      for (unsigned i : indices(C12E2xCOM)) { // 
+	for (unsigned j : indices(C12E2xCOM)) { // 
+	  if (C12E2xCOM[i] != C12E2xCOM[j] && C12E2yCOM[i] != C12E2yCOM[j] && C12E2zCOM[i] != C12E2zCOM[j]) {	    
+	    if (C12E2xCOM[i] - C12E2xCOM[j] !=0 && sqrt(pow(C12E2xCOM[i] - C12E2xCOM[j],2)) <= distance) {
+	      if (C12E2yCOM[i] - C12E2yCOM[j] !=0 && sqrt(pow(C12E2yCOM[i] - C12E2xCOMy[j],2)) <= distance) {
+		if (C12E2zCOM[i] - C12E2zCOM[j] !=0 && sqrt(pow(C12E2zCOM[i] - C12E2zCOM[j],2)) <= distance) {
+		  PolymerCounter++;
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+      
+    void clear() {
+      C12E2I.clear();
+      C12E2MI.clear();
+    }
+    
   private:
-    double xco[numberofatoms], yco[numberofatoms], zco[numberofatoms];
+    double xco[numberofatoms], yco[numberofatoms], zco[numberofatoms]; // Will eventually replace with the vectors below
+    std::vector<double> xco, yco, zco; 
     FILE *ipf; /* input file */
+    
     std::vector<double> headGroupC12_E2xCOM; // COM C12E2 X
     std::vector<double> headGroupC12_E2yCOM; // COM C12E2 Y
     std::vector<double> headGroupC12_E2zCOM; // COM C12E2 Z
@@ -308,143 +432,10 @@ int main ()
     int numberOfPolymers = 1000; // The number of polymers of each type - C12E2 or mimic 
     int indexCG = 7;
     int MimicCounter = 0;    
-    int PolymerCounter = 0;
-
-  public:
-    void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values, double distance){ 
-      for (std::vector<int>::iterator it = values.begin() ; it !=values.end(); ++it) {
-	for (std::vector<int>::iterator it2 = values.begin(); it2 !=values.end(); ++it2) {
-	  if (headGroupC12_E2xCOM[i] !=headGroupC12_E2xCOM[j] && headGroupC12_E2yCOM[i] !=headGroupC12_E2yCOM[j] && headGroupC12_E2zCOM[i] !=headGroupC12_E2zCOM[j]) {
-	    if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= distance ) {  
-	      if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= distance) {
-		if (headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j] !=0 && sqrt(pow(headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j],2)) <= distance) {
-		  PolymerCounter++;
-		}
-	      }
-	    }
-	  }	  
-	}
-      }
-      
-      
-      for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {	
-	for (int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; j++) {      
-	  if (headGroupC12_E2xCOM[i] !=headGroupC12_E2xCOM[j] && headGroupC12_E2yCOM[i] !=headGroupC12_E2yCOM[j] && headGroupC12_E2zCOM[i] !=headGroupC12_E2zCOM[j]) {
-	    if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= distance ) {  
-	      if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= distance) {
-		if (headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j] !=0 && sqrt(pow(headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j],2)) <= distance) {
-		  PolymerCounter++;
-		}
-	      }
-	    }
-	  }
-
-	}
-      }
-    }
-
-    void clear() {
-      C12E2I.clear();
-      C12E2MI.clear();
-    }
-
-    void allocation() {
-      
-      for (int i = 0; i <= 249; i++) {
-
-	// C12E2 batches
-	int batch1 = 0;
-	int batch2 = 3500;
-	int batch3 = 7000;
-	int batch4 = 10500;
-
-	// C12E2-M batches
-	int batch1M = 1750;
-	int batch2M = 5250;	
-	int batch3M = 8750;
-	int batch4M = 12250;
-	
-	A7 = 7*(i);
-	A6_1= 7*(i) + 1;
-	A6_2= 7*(i) + 2;
-	A3_1 = 7*(i) + 3;
-	A3_2 = 7*(i) + 4;
-	A3_3 = 7*(i) + 5;
-	A4 = 7*(i) + 6;
-    
-	// Second batch
-    
-	A7_2 = 7*(i) + 3501;
-	A6_1_2 = 7*(i) + 3502;
-	A6_2_2 = 7*(i) + 3503;
-	A3_1_2 = 7*(i) + 3504;
-	A3_2_2 = 7*(i) + 3505;
-	A3_3_2 = 7*(i) + 3506;
-	A4_2 = 7*(i) + 3507;
-    
-	// Third batch
-      
-	A7_3 = 7*(i) + 7001;
-	A6_1_3 = 7*(i) + 7002;
-	A6_2_3 = 7*(i) + 7003;
-	A3_1_3 = 7*(i) + 7004;
-	A3_2_3 = 7*(i) + 7005;
-	A3_3_3 = 7*(i) + 7006;
-	A4_3 = 7*(i) + 7007;
-    
-	// Fourth batch
-    
-	A7_4 = 7*(i)  + 10501;
-	A6_1_4 = 7*(i) + 10502;
-	A6_2_4 = 7*(i) + 10503;
-	A3_1_4 = 7*(i) + 10504;
-	A3_2_4 = 7*(i) + 10505;
-	A3_3_4 = 7*(i) + 10506;
-	A4_4 = 7*(i) + 10507;
-    
-	//  --- C12E2-M --- //
-    
-	A13 = 7*(i) + 1751;
-	A12_1= 7*(i) + 1752;
-	A12_2= 7*(i) + 1753;
-	A9_1 = 7*(i) + 1754;
-	A9_2 = 7*(i) + 1755;
-	A9_3 = 7*(i) + 1756;
-	A10 = 7*(i) + 1757;
-    
-	/* Mimic atoms - Second batch */
-      
-	A13_2 = 7*(i) + 5251;
-	A12_1_2 = 7*(i) + 5252;
-	A12_2_2 = 7*(i) + 5253;
-	A9_1_2 = 7*(i) + 5254;
-	A9_2_2 = 7*(i) + 5255;
-	A9_3_2 = 7*(i) + 5256;
-	A10_2 = 7*(i) + 5257;
-    
-	/* Mimic atoms - Third batch */
-    
-	A13_3 = 7*(i) + 8751;
-	A12_1_3 = 7*(i) + 8752;
-	A12_2_3 = 7*(i) + 8753;
-	A9_1_3 = 7*(i) + 8754;
-	A9_2_3 = 7*(i) + 8755;
-	A9_3_3 = 7*(i) + 8756;
-	A10_3 = 7*(i) + 8757;
-    
-	/* Mimic atoms - Fourth batch */
- 
-	A13_4 = 7*(i) + 12251;
-	A12_1_4 = 7*(i) + 12252;
-	A12_2_4 = 7*(i) + 12253;
-	A9_1_4 = 7*(i) + 12254;
-	A9_2_4 = 7*(i) + 12255;
-	A9_3_4 = 7*(i) + 12256;
-	A10_4 = 7*(i) + 12257;   
-      }
+    int PolymerCounter = 0;    
 
     };
-  
+    
   int numberOfPolymers = 1000; // The number of polymers of each type - C12E2 or mimic 
   int indexCG = 7;
     
@@ -477,27 +468,32 @@ int main ()
   /* pointer for the dump file */
 
   FILE *ipf; /* input file */
-  
   /* open file for reading */
-  ipf = fopen("dump.out", "r");
-  /* check for error opening file */
-  if(ipf == NULL) {  
-    printf("Error opening file\n");
-    exit(1);
-  }
-  /* get a line from the file */
-  /* fgets() returns NULL when it reaches an error or end of file */   
-  int nlines = numberofatoms + 9;      
-  // Ensure that the vectors are cleared first.
+
+    ipf = fopen("dump.final", "r");
+    /* check for error opening file */
+    if(ipf == NULL) {  
+      printf("Error opening file\n");
+      exit(1);
+    }
+
+    /* get a line from the file */
+
+    /* fgets() returns NULL when it reaches an error or end of file */   
+
+    int nlines = numberofatoms + 9;      
+
+    // Ensure that the vectors are cleared first.
 
   C12E2I.clear();
   C12E2MI.clear();
 
   // Structs to keep the index of each polymer and it's individual CG bead indices
-
   // Structs to keep the indices of the CG beads 
-  
+
+    
   for (int i = 0; i <= 249; i++) {
+
     // Allocate the first batch of indices    
     // --- C12E2 --- //
     // First batch
@@ -582,13 +578,7 @@ int main ()
     A10_4 = 7*(i)+ 12257;
         
     // ----------- C12E2 indicies ----------- //
-
-    //std::map<int, int[7]> C12E2_M;
-    //std::map<int, int[7]> C12E2M_M;
-
-
-    // C12E2 assignment
-
+ 
     C12E2_struct[i].index[0] = A7;
     C12E2_struct[i].index[1] = A6_1;
     C12E2_struct[i].index[2] = A6_2;
@@ -654,7 +644,6 @@ int main ()
     C12E2M_struct[i+750].index[4] = A9_2_4;
     C12E2M_struct[i+750].index[5] = A9_3_4;
     C12E2M_struct[i+750].index[6] = A10_4;
-
     
     C12E2_skeleton arrM1 = {A13, A12_1, A12_2, A9_1, A9_2, A9_3, A10};  // First array batch
     C12E2_skeleton arrM2 = {A13_2, A12_1_2, A12_2_2, A9_1_2, A9_2_2, A9_3_2, A10_2}; // Second array batch
@@ -715,24 +704,6 @@ int main ()
     // We need to first catagorize polymer 7 6 3 4 as one type of polymer, and set 12 11 10 9 as the second. 
     // make sure that we do not read atoms of the same molecule 
     
-
-    // ------------------------------------------------------------------------- //
-    // --------------------- Array of the center of masses --------------------- //
-    // ------------------------------------------------------------------------- //
-    
-    // We are implementing a pseudo DBSCAN algorithm
-    
-    // To measure the distance between the points, we measure the distances between //
-    // the centers of masses (COM). The DBSCAN algorithm originally requires to     //
-    // calculate the `anchor' COMs, which are decided through a nearest neighbour   //
-    // calculation. In the schematic below, 
-    
-    // O  O  O ---> X  -|
-    //  \/ \/           | -- the O's show the 'anchor', and the X's show the increasing cluster
-    //   O  O ---- X   -|
-    
-    // Calculating the COM of the C12E2
-    // The COM components are divided into the x, y, and z coordinates
 
     //  std::cout << *it << std::endl;
     //  std::cout << C12E2I.size() << "\n" << std::endl;
@@ -872,18 +843,15 @@ double CenterOfMass(double H7, double H6_1, double H6_2, double T3_1, double T3_
   double T3coord_3 = T3_3; 
   double T4coord = T4; 
   double COM; 
-  COM = (( H7coord ) + ( H6coord_1 ) + ( H6coord_2 ) + ( T3coord_1 )  + ( T3coord_2 )  +( T3coord_3 )  + ( T4coord ))/7; 
+  COM = (( H7coord ) + ( H6coord_1 ) + ( H6coord_2 ) + ( T3coord_1 )  + ( T3coord_2 )  + (T3coord_3)  + (T4coord)) / 7; 
   /* With this COM definition we now know the COM in each cartesian coordinate */ 
   return COM; 
 }  
-
 double trueDist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z) {
   double dist = pow((pow(COM1x-COM2x,2.0) + pow(COM1y-COM2y,2.0) + pow(COM1z-COM2z,2.0)),0.5);
   return dist;
 }
-
 pointCluster* regionQuery (int D, double *xarray1, double *yarray1, double *zarray1, double *xarray2, double *yarray2, double *zarray2) {
-
   pointCluster A[1000];
   for (int i = 0; i <= sizeof(xarray1)/sizeof(int)-1; i++) {
     for (int j = 0; i <= sizeof(xarray1)/sizeof(int)-1; j++) {
@@ -897,3 +865,29 @@ pointCluster* regionQuery (int D, double *xarray1, double *yarray1, double *zarr
     }
   }
 }
+
+
+/* 
+void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values) {  
+
+  for (std::vector<int>::iterator it = values.begin() ; it !=values.end(); ++it) {
+    for (std::vector<int>::iterator it2 = values.begin() ; it2 !=values.end(); ++it2) {
+    }
+  }
+ 
+  for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
+    for (int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; j++) {      
+
+      if (headGroupC12_E2xCOM[i] !=headGroupC12_E2xCOM[j] && headGroupC12_E2yCOM[i] !=headGroupC12_E2yCOM[j] && headGroupC12_E2zCOM[i] !=headGroupC12_E2zCOM[j]) {
+	if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= 7.000 ) {    
+	  if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= 7.000) {
+	    if (headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j] !=0 && sqrt(pow(headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j],2)) <= 7.000) {
+	      PolymerCounter++;
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+*./
