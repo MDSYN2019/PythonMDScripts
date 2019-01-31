@@ -15,27 +15,28 @@
    
   --------------------------------------------------------------------------------*/
 
-//  ----------------------------------
-//  | DBSCAN algorithm -  Pseudocode:|
-//  ----------------------------------
+/*
+ ----------------------------------
+ | DBSCAN algorithm -  Pseudocode:|
+ ----------------------------------
+*/
 
 /*
-DBSCAN(D, eps, MinPts) {
-C = 0
-for each point P in dataset D {
+  DBSCAN(D, eps, MinPts) {
+  C = 0
+  for each point P in dataset D {
   if P is visited 
-     continue next point 
+  continue next point 
   mark P as visited
   NeighbourPts = regionQuery(P, eps)
   if Sizeof(NeighbourPts) < MinPts
-     mark P as NOISE
+  mark P as NOISE
   else {
-     C = next cluster
-     expandCluster(P, NeighbourPts, C, eps, MinPits)
+  C = next cluster
+  expandCluster(P, NeighbourPts, C, eps, MinPits)
   }
- }
-}
-
+  }
+  }
  */
 
 /*
@@ -399,7 +400,8 @@ int main ()
     }
     
   private:
-    double xco[numberofatoms], yco[numberofatoms], zco[numberofatoms]; // Will eventually replace with the vectors below
+    
+    double xco[numberofatoms], yco[numberofatoms], zco[numberofatoms]; 
     std::vector<double> xco, yco, zco; 
     FILE *ipf; /* input file */
     
