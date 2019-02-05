@@ -76,8 +76,12 @@ void regionQuery(double Distcriteria, double (*COMref) (double)) {
 #include <cmath>
 #include <utility>
 #include <cerrno>
+#include <cstdlib> 
+#include <cmath>
 #include <Eigen>
+
 #include <Eigen/Dense>
+#include <boost/progress.hpp>
 
 using namespace Eigen;
 
@@ -139,8 +143,6 @@ public:
       for (int k = 0; k < nlines; k++) { 
 	// get a line from the file 
 	// fgets() returns NULL when it reaches an error or end of file  
-	
-	
 	fgets(line,sizeof(line),ipf);
 	//while (fgets(line,sizeof(line),ipf) != NULL) {
 	if (l < 5) {	
@@ -179,24 +181,28 @@ public:
 
   void CompositionProfile() {        
     /*      
-      Calculating the composition profile 
+    
+	    Calculating the composition profile 
+    
     */
+    
+    for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) { // TODO
 
-    for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
       //double truedist(double COM1x, double COM1y, double COM1z, double COM2x, double COM2y, double COM2z) {
       // See if the distance between the nanopparticle is smaller than 15 
       //std::cout << zco[71312] << std::endl;
-       if (trueDist(xco[71312], yco[71312], zco[71312], headGroupC12_E2xCOM[i], headGroupC12_E2yCOM[i], headGroupC12_E2zCOM[i]) <= 25.000) { 
-	 // Check if the c12e2 molecule is on the top layer or the bottom layer
-	 if (headGroupC12_E2zCOM[i] > zco[71312]) { // If on the top layer
-	   tophead++;
-	 }
-	 else if (headGroupC12_E2zCOM[i] < zco[71312]) { // If on the bottom layer
-	   downhead++;
-	 }
-       }
-     
-       // This time, working with mimics 
+
+      if (trueDist(xco[71312], yco[71312], zco[71312], headGroupC12_E2xCOM[i], headGroupC12_E2yCOM[i], headGroupC12_E2zCOM[i]) <= 25.000) { 
+	// Check if the c12e2 molecule is on the top layer or the bottom layer
+	if (headGroupC12_E2zCOM[i] > zco[71312]) { // If on the top layer
+	  tophead++;
+	}
+	else if (headGroupC12_E2zCOM[i] < zco[71312]) { // If on the bottom layer
+	  downhead++;
+	}
+      }
+      
+      // This time, working with mimics 
        if(trueDist(xco[71312], yco[71312], zco[71312], headGroupMIMICxCOM[i], headGroupMIMICyCOM[i], headGroupMIMICzCOM[i] ) <= 25.000) { 
 	 if (headGroupMIMICzCOM[i] > zco[71312]) {
 	   mimictophead++;
@@ -219,7 +225,7 @@ public:
       
       Each batch has 250 molecules, which is why we loop from 0 to 249 
     */
-
+    
     for (int i = 0; i <= 249; i++) {
       // C12E2 batches
       int batch1 = 0;
@@ -425,26 +431,23 @@ public:
 	}
       }
     }
-
-  
 private:    
   // Vectors to store trajectory values 
-  std::vector< std::vector<double> > xco; 
-  std::vector< std::vector<double> > yco; 
-  std::vector< std::vector<double> > zco; 
+  std::vector< std::vector<double>> xco; 
+  std::vector< std::vector<double>> yco; 
+  std::vector< std::vector<double>> zco; 
   std::vector< std::vector<int>> a;
   std::vector< std::vector<int>> b;
   //double xco[numberofatoms],yco[numberofatoms],zco[numberofatoms]; 
   /* ditto for a and b, which represent index and atomtype respectively */
   //int a[numberofatoms],b[numberofatoms];
-
   // double xco[numberofatoms], yco[numberofatoms], zco[numberofatoms]; 
-  FILE *ipf; /* input file */
-  
+  FILE *ipf; /* input file */  
+  // COM vectors - C12E2
   std::vector<double> headGroupC12_E2xCOM; // COM C12E2 X
   std::vector<double> headGroupC12_E2yCOM; // COM C12E2 Y
   std::vector<double> headGroupC12_E2zCOM; // COM C12E2 Z
-  
+  // COM vectors - C12E2-M
   std::vector<double> headGroupMIMICxCOM; // COM MIMIC X
   std::vector<double> headGroupMIMICyCOM; // COM MIMIC Y
   std::vector<double> headGroupMIMICzCOM; // COM MIMIC Z
@@ -452,7 +455,6 @@ private:
   // -----------------------------------------------------------------------//
   // Defining normals (A7 -- A6_1 -- A6_2 -- A3_1 -- A3_2 -- A3_3 -- A4     //
   // -----------------------------------------------------------------------//
-  
   int A7, A6_1, A6_2, A3_1, A3_2, A3_3, A4; // First Batch
   int A7_2, A6_1_2, A6_2_2, A3_1_2, A3_2_2, A3_3_2, A4_2; // Second Batch
   int A7_3, A6_1_3, A6_2_3, A3_1_3, A3_2_3, A3_3_3, A4_3; // Third Batch 
@@ -460,8 +462,7 @@ private:
   
   // ----------------------------------------------------------------------//
   // Defining mimics (A13 -- A12_1 -- A12_2 -- A9_1 -- A9_2 -- A9_3 -- A10 //
-  // ----------------------------------------------------------------------//
-  
+  // ----------------------------------------------------------------------//  
   int A13, A12_1, A12_2, A9_1, A9_2, A9_3, A10; // First Batch
   int A13_2, A12_1_2, A12_2_2, A9_1_2, A9_2_2, A9_3_2, A10_2; // Second Batch
   int A13_3, A12_1_3, A12_2_3, A9_1_3, A9_2_3, A9_3_3, A10_3; // Third Batch
