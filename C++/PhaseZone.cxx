@@ -474,7 +474,7 @@ int main () {
     // std::cout << C12E2M_struct[i].index[1] << " " << C12E2_struct[i].index[1] << " " << i  << std::endl;
   }
   
-  for(SSno=0; SSno<numberofSS; SSno++) {
+  for(SSno = 0; SSno < numberofSS; SSno++) {
     
      //  printf("This is the data for trajectory no %d \n", SSno); 
     l = 0;
