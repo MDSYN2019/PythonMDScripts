@@ -118,12 +118,14 @@ void die (const char *message) {
 //pointCluster* regionQuery (int , double*, double*, double*, double*, double*, double*);
 //#define minClust 5 // the minimum sizes cluster we want to count as a cluster
 class compute {
+
 public:
   compute(); // Default constructor
   compute(std::string file); // constructor reading file
+  
   void storeFile() {    
     // open file for reading 
-    ipf = fopen("dump.final", "r");  
+    ipf = fopen("dump.final", "r");  // Needs correction 
     // check for error opening file */
     if (ipf == NULL) {  
       std::cout << "Error opening file\n";
@@ -488,100 +490,8 @@ private:
   char line[100];  
 };
 
-
-
 int main (int argc, char *argv[])  {
-
-
   return 0;    
 }
 
-
-
-/* Function to calculate the order parameter per chain 
- */
-
-
-
-
-/*
-pointCluster* regionQuery (int D, double *xarray1, double *yarray1, double *zarray1, double *xarray2, double *yarray2, double *zarray2) {
-  pointCluster A[1000];
-
-  for (int i = 0; i <= sizeof(xarray1)/sizeof(int)-1; i++) {
-    for (int j = 0; i <= sizeof(xarray1)/sizeof(int)-1; j++) {    
-      if (i == j) continue;
-      if (trueDist(xarray1[i], xarray1[i], xarray1[i], xarray2[j], xarray2[j], xarray2[j]) <= D) {
-	A[i].clusterIndices.push_back(j);
-      }      
-      return A;
-    }
-  }
-}
-*/
-
-/* 
-void Analysis(double& C12E2xCOM, double& C12E2yCOM, double& C12E2zCOM, int& PolymerCounter, std::vector<C12E2_skeleton>& values) {  
-
-  for (std::vector<int>::iterator it = values.begin() ; it !=values.end(); ++it) {
-    for (std::vector<int>::iterator it2 = values.begin() ; it2 !=values.end(); ++it2) {
-    }
-  }
- 
-  for (int i = 0; i <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; i++) {
-    for (int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1])-1; j++) {      
-
-      if (headGroupC12_E2xCOM[i] !=headGroupC12_E2xCOM[j] && headGroupC12_E2yCOM[i] !=headGroupC12_E2yCOM[j] && headGroupC12_E2zCOM[i] !=headGroupC12_E2zCOM[j]) {
-	if (headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j] !=0 && sqrt(pow(headGroupC12_E2xCOM[i] - headGroupC12_E2xCOM[j],2)) <= 7.000 ) {    
-	  if (headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j] !=0 && sqrt(pow(headGroupC12_E2yCOM[i] - headGroupC12_E2yCOM[j],2)) <= 7.000) {
-	    if (headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j] !=0 && sqrt(pow(headGroupC12_E2zCOM[i] - headGroupC12_E2zCOM[j],2)) <= 7.000) {
-	      PolymerCounter++;
-	    }
-	  }
-	}
-      }
-    }
-  }
-}
-*./
-
-  // Structs to keep the index of each polymer and it's individual CG bead indices
-  // Structs to keep the indices of the CG beads 
-
-
-
-
-// struct to add up the indices of the cluster around it, if the number of the surrounding is
-
-struct pointCluster {
-  std::vector<int> clusterIndices;
-};
-
-/* The struct to construct the array */
-
-/*
-struct C12E2_skeleton {
-  int index[7];
-};
-
-struct C12E2_skeleton C12E2_struct[numberOfPolymers];
-struct C12E2_skeleton C12E2M_struct[numberOfPolymers];
-
-// Not currently being used - might have to change.
-
-std::vector<C12E2_skeleton> C12E2_struct; // NumberOfPolymers
-std::vector<C12E2_skeleton> C12E2M_struct; // NumberOfPolymers
-
-// Not currently being used
-std::vector<int> C12E2I;
-std::vector<int> C12E2MI;
-
-std::map<int, C12E2_skeleton> C12E2_M; // Not currently being used
-std::map<int, C12E2_skeleton> C12E2M_M; // Not currently being used
-
-// The regionQuery returns the number of points that are within the criteria of being a cluster - i.e. a distance costraint and a type
-// constaint for the lipid. We already have a type constraint in terms of the struct arrays for the C12E2 and the C12E2-M structs so we
-// dont need to worry about that, but we need to worry about the region and indices we want to return
-
-*/
 
