@@ -43,7 +43,7 @@
 
 /* Function to calculate the centre of mass of each molecule */
 
-int numberofSS = 100; /*The number of screenshots in the dump file*/
+const int numberofSS = 100; /*The number of screenshots in the dump file*/
 const int numberOfPolymers = 1000; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
 const int indexCG = 7;
@@ -52,7 +52,6 @@ const int boxdim = 3;
 struct C12E2_skeleton {                                                                                                                              
   int index[7];
 };
-
 
 double CenterOfMass(double* H7, double* H6_1, double* H6_2, double* T3_1, double* T3_2, double* T3_3, double* T4) {  
   // Need to update
@@ -75,6 +74,276 @@ void die (const char *message) {
   }
   exit(1);
 }
+
+void compute::storeFile() {    
+    boost::progress_display show_progress(numberofSS);
+    // open file for reading 
+    ipf = fopen("dump.final", "r");  // Needs correction 
+    // check for error opening file */
+    if (ipf == NULL) {  
+      std::cout << "Error opening file\n";
+      exit(1);
+    }
+    // loop over the values  
+    for (int SSno = 0; SSno < numberofSS; SSno++) {  
+      //  printf("This is the data for trajectory no %d \n", SSno); 
+      l = 0;
+      n = 0;
+      index = 0;
+      a.clear();
+      b.clear();
+      xco.clear();
+      yco.clear();
+      zco.clear();
+
+      for (int k = 0; k < nlines; k++) { 
+	// get a line from the file 
+	// fgets() returns NULL when it reaches an error or end of file  
+
+	fgets(line,sizeof(line),ipf);
+	//while (fgets(line,sizeof(line),ipf) != NULL) {
+
+	if (l < 5) {	
+	  /* We are doing nothing */
+	  //	printf("%s l= %d", line,l);
+	  l++;
+	}
+	else if ((l > 4 && l < 8)) {
+	  /*We are scanning the bit with just the box parameters*/
+	  sscanf(line, "%lf %lf", &box1, &box2);
+	  //	printf("%lf %lf \n",box1,box2 );
+	  boxlength[l-5] = box2-box1; 
+	  l++;
+	}
+	else if (l == 8) {
+	  // printf(" **** l= %d \n",l);
+	  /* We are doing nothing */
+	  l++;
+	}
+	else {
+	  //	printf(" ***** l = %d \n",l );
+	  /* convert the text to numbers */
+	  sscanf(line,"%d %d %lf %lf %lf",&index,&atomtype,&x,&y,&z);
+	  //std::cout << index << " " << atomtype << " " << x << " " << y << " " << z; 
+	  a.push_back(index); // Push back indices 
+	  b.push_back(atomtype); // Push back atomtypes
+	  xco.push_back(x*boxlength[0]); // Push back boxlengths - x coordinates
+	  yco.push_back(y*boxlength[1]); // Push back boxlengths - y coordinates
+	  zco.push_back(z*boxlength[2]); // Push back boxlengths - z coordinates
+	  n++;
+	  l++;
+	  //printf("%d %d %lf %lf %lf\n",index,atomtype,x,y,z);
+	}
+      }
+      aTotal.push_back(a);
+      bTotal.push_back(b);
+      xcoTotal.push_back(xco);
+      ycoTotal.push_back(yco);
+      zcoTotal.push_back(zco);
+      ++show_progress;
+    }
+}
+
+void compute::printVectorElements() {
+    for (unsigned int i = 0; i < xcoTotal.size(); ++i) {
+	for (unsigned int j = 0; j < xcoTotal[i].size(); ++j) {
+	    std::cout << i << " " << j << " " << " " << xcoTotal[i][j] << std::endl;
+	}
+    }
+}
+
+void compute::AllocationVec() {
+  /*
+    The way that the C12E2 and C12E2-M batches are allocated in the simulation follows
+    the fact that this was directly replicated in LAMMPS; hence, there isn't a single 
+    block of list, but rather 4 batches of C12E2 and C12E2-M portions that we need to 
+    allocate 
+    
+    Each batch has 250 molecules, which is why we loop from 0 to 249 
+  */
+  
+  for (int i = 0; i <= 249; i++) {
+    
+    // C12E2 batches
+    
+    int batch1 = 0;
+    int batch2 = 3500;
+    int batch3 = 7000;
+    int batch4 = 10500;
+    
+    // C12E2-M batches
+    
+    int batch1M = 1750;
+    int batch2M = 5250;	
+    int batch3M = 8750;
+    int batch4M = 12250;
+    
+    // Allocate index
+    
+    A7 = 7*(i);
+    A6_1= 7*(i) + 1;
+    A6_2= 7*(i) + 2;
+    A3_1 = 7*(i) + 3;
+    A3_2 = 7*(i) + 4;
+    A3_3 = 7*(i) + 5;
+    A4 = 7*(i) + 6;
+    
+    // Second batch
+    
+    A7_2 = 7*(i) + batch2 + 1;
+    A6_1_2 = 7*(i) + batch2 + 2;
+    A6_2_2 = 7*(i) + batch2 + 3;
+    A3_1_2 = 7*(i) + batch2 + 4;
+    A3_2_2 = 7*(i) + batch2 + 5;
+    A3_3_2 = 7*(i) + batch2 + 6;
+    A4_2 = 7*(i) + batch2 + 7;
+    
+    // Third batch
+    
+    A7_3 = 7*(i) + batch3 + 1;
+    A6_1_3 = 7*(i) + batch3 + 2;
+    A6_2_3 = 7*(i) + batch3 + 3;
+    A3_1_3 = 7*(i) + batch3 + 4;
+    A3_2_3 = 7*(i) + batch3 + 5;
+    A3_3_3 = 7*(i) + batch3 + 6;
+    A4_3 = 7*(i) + batch3 + 7;
+    
+    // Fourth batch
+    
+    A7_4 = 7*(i)  + batch4 + 1;
+    A6_1_4 = 7*(i) + batch4 + 2;
+    A6_2_4 = 7*(i) + batch4 + 3;
+    A3_1_4 = 7*(i) + batch4 + 4;
+    A3_2_4 = 7*(i) + batch4 + 5;
+    A3_3_4 = 7*(i) + batch4 + 6;
+    A4_4 = 7*(i) + batch4 + 7;
+    
+    //  --- C12E2-M --- //
+    
+    A13 = 7*(i) + batch1M + 1;
+    A12_1= 7*(i) + batch1M + 2;
+    A12_2= 7*(i) + batch1M + 3;
+    A9_1 = 7*(i) + batch1M + 4;
+    A9_2 = 7*(i) + batch1M + 5;
+    A9_3 = 7*(i) + batch1M + 6;
+    A10 = 7*(i) + batch1M + 7;
+    
+    /* Mimic atoms - Second batch */
+    
+    A13_2 = 7*(i) + batch2M + 1;
+    A12_1_2 = 7*(i) + batch2M + 2;
+    A12_2_2 = 7*(i) + batch2M + 3;
+    A9_1_2 = 7*(i) + batch2M + 4;
+    A9_2_2 = 7*(i) + batch2M + 5;
+    A9_3_2 = 7*(i) + batch2M + 6;
+    A10_2 = 7*(i) + batch2M + 7;
+    
+    /* Mimic atoms - Third batch */
+    
+    A13_3 = 7*(i) + batch3M + 1;
+    A12_1_3 = 7*(i) + batch3M + 2;
+    A12_2_3 = 7*(i) + batch3M + 3;
+    A9_1_3 = 7*(i) + batch3M + 4;
+    A9_2_3 = 7*(i) + batch3M + 5;
+    A9_3_3 = 7*(i) + batch3M + 6;
+    A10_3 = 7*(i) + batch3M + 7;
+    
+    /* Mimic atoms - Fourth batch */
+    
+    A13_4 = 7*(i) + batch4M + 1;
+    A12_1_4 = 7*(i) + batch4M + 2;
+    A12_2_4 = 7*(i) + batch4M + 3;
+    A9_1_4 = 7*(i) + batch4M + 4;
+    A9_2_4 = 7*(i) + batch4M + 5;
+    A9_3_4 = 7*(i) + batch4M + 6;
+    A10_4 = 7*(i) + batch4M + 7;   
+    
+    
+    // ----------- C12E2 indicies ----------- //
+    
+    /*
+      Now that we know the indiices, allocate each index of the chain into the
+      struct, so that we can pick out what is needed. 
+    */
+    
+    // First batch
+    C12E2_struct[i].index[0] = A7;
+    C12E2_struct[i].index[1] = A6_1;
+    C12E2_struct[i].index[2] = A6_2;
+    C12E2_struct[i].index[3] = A3_1;
+    C12E2_struct[i].index[4] = A3_2;
+    C12E2_struct[i].index[5] = A3_3;
+    C12E2_struct[i].index[6] = A4;
+    
+    // Second batch
+    C12E2_struct[i+250].index[0] = A7_2;
+    C12E2_struct[i+250].index[1] = A6_1_2;
+    C12E2_struct[i+250].index[2] = A6_2_2;
+    C12E2_struct[i+250].index[3] = A3_1_2;
+    C12E2_struct[i+250].index[4] = A3_2_2;
+    C12E2_struct[i+250].index[5] = A3_3_2;
+    C12E2_struct[i+250].index[6] = A4_2;
+    
+    // Third batch 
+    C12E2_struct[i+500].index[0] = A7_3;
+    C12E2_struct[i+500].index[1] = A6_1_3;
+    C12E2_struct[i+500].index[2] = A6_2_3;
+    C12E2_struct[i+500].index[3] = A3_1_3;
+    C12E2_struct[i+500].index[4] = A3_2_3;
+    C12E2_struct[i+500].index[5] = A3_3_3;
+    C12E2_struct[i+500].index[6] = A4_3;
+    
+    // Fourth batch
+    C12E2_struct[i+750].index[0] = A7_4;
+    C12E2_struct[i+750].index[1] = A6_1_4;
+    C12E2_struct[i+750].index[2] = A6_2_4;
+    C12E2_struct[i+750].index[3] = A3_1_4;
+    C12E2_struct[i+750].index[4] = A3_2_4;
+    C12E2_struct[i+750].index[5] = A3_3_4;
+    C12E2_struct[i+750].index[6] = A4_4;
+    
+    // Mimic assignment
+    
+    
+    // First batch
+    C12E2M_struct[i].index[0] = A13;
+    C12E2M_struct[i].index[1] = A12_1;
+    C12E2M_struct[i].index[2] = A12_2;
+    C12E2M_struct[i].index[3] = A9_1;
+    C12E2M_struct[i].index[4] = A9_2;
+    C12E2M_struct[i].index[5] = A9_3;
+    C12E2M_struct[i].index[6] = A10;
+    
+    // Second batch
+    C12E2M_struct[i+250].index[0] = A13_2;
+    C12E2M_struct[i+250].index[1] = A12_1_2;
+    C12E2M_struct[i+250].index[2] = A12_2_2;
+    C12E2M_struct[i+250].index[3] = A9_1_2;
+    C12E2M_struct[i+250].index[4] = A9_2_2;
+    C12E2M_struct[i+250].index[5] = A9_3_2;
+    C12E2M_struct[i+250].index[6] = A10_2;
+    
+    // Third batch 
+    C12E2M_struct[i+500].index[0] = A13_3;
+    C12E2M_struct[i+500].index[1] = A12_1_3;
+    C12E2M_struct[i+500].index[2] = A12_2_3;
+    C12E2M_struct[i+500].index[3] = A9_1_3;
+    C12E2M_struct[i+500].index[4] = A9_2_3;
+    C12E2M_struct[i+500].index[5] = A9_3_3;
+    C12E2M_struct[i+500].index[6] = A10_3;
+    
+    // Fourth batch
+    C12E2M_struct[i+750].index[0] = A13_4;
+    C12E2M_struct[i+750].index[1] = A12_1_4;
+    C12E2M_struct[i+750].index[2] = A12_2_4;
+    C12E2M_struct[i+750].index[3] = A9_1_4;
+    C12E2M_struct[i+750].index[4] = A9_2_4;
+    C12E2M_struct[i+750].index[5] = A9_3_4;
+    C12E2M_struct[i+750].index[6] = A10_4; 	
+  }
+}
+
+
 
 //pointCluster* regionQuery (int , double*, double*, double*, double*, double*, double*);
 //#define minClust 5 // the minimum sizes cluster we want to count as a cluster
@@ -103,6 +372,7 @@ public:
       xco.clear();
       yco.clear();
       zco.clear();
+
       for (int k = 0; k < nlines; k++) { 
 	// get a line from the file 
 	// fgets() returns NULL when it reaches an error or end of file  
@@ -150,7 +420,7 @@ public:
       ++show_progress;
     }
   }
-
+  
   void printVectorElements() {
     for (unsigned int i = 0; i < xcoTotal.size(); ++i)
       {
@@ -388,7 +658,6 @@ public:
       C12E2M_struct[i+750].index[6] = A10_4; 	
     }
   }
-
   /*
   double ChainOrderAnalysis(double* H7_x, double* H7_y, double* H7_z, double* H6_1_x, double* H6_1_y, double* H6_1_z,  double* H6_2_x, double* H6_2_y, double* H6_2_z, double* T3_1_x, double* T3_1_y, double* T3_1_z,  double* T3_2_x, double* T3_2_y, double* T3_2_z, double* T3_3_x, double* T3_3_y, double* T3_3_z, double* T4_x, double* T4_y, double* T4_z) {
 
@@ -467,7 +736,6 @@ private:
   int A13_4, A12_1_4, A12_2_4, A9_1_4, A9_2_4, A9_3_4, A10_4; // Fourth Batch
   struct C12E2_skeleton C12E2_struct[numberOfPolymers];                                                                                              
   struct C12E2_skeleton C12E2M_struct[numberOfPolymers];    
- 
 
   double tophead = 0;
   double downhead = 0;
