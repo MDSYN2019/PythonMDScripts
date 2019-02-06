@@ -28,7 +28,11 @@
 #include <cerrno>
 #include <cstdlib> 
 #include <cmath>
+#include <string>
 #include <boost/progress.hpp>
+
+#include "compositon.h"
+
 
 //#include <Eigen>
 //#include <Eigen/Dense>
@@ -39,10 +43,10 @@
 
 /* Function to calculate the centre of mass of each molecule */
 
+int numberofSS = 100; /*The number of screenshots in the dump file*/
 const int numberOfPolymers = 1000; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
 const int indexCG = 7;
-int numberofSS = 100; /*The number of screenshots in the dump file*/
 const int boxdim = 3;
 
 struct C12E2_skeleton {                                                                                                                              
