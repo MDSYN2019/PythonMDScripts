@@ -129,6 +129,7 @@ bool sortbysec_double(const std::pair<int,double> &a,
 //#define minClust 5 // the minimum sizes cluster we want to count as a cluster
 class compute {
 public:
+  
   compute() {}; // Default constructor
   compute(std::string file) {}; // constructor reading file
 
@@ -200,7 +201,6 @@ public:
     }
   }
 
-
   void sortVectors () {
     for (unsigned int i = 0; i < xcoTotal.size(); ++i) {
       sort(aTotal[i].begin(), aTotal[i].end());
@@ -211,14 +211,12 @@ public:
     }
   }
   
-
-
   void printVectorElements() {
      for (unsigned int i = 0; i < xcoTotal.size(); ++i) {
 	for (unsigned int j = 0; j < xcoTotal[i].size(); ++j) {
 	  std::cout << i << " " << j << " " << " " << bTotal[i][j].second << std::endl;
 	}
-    }
+     }
   }
   
   /*
@@ -367,11 +365,14 @@ public:
 
       
       /*
+	
 	Now that we know the indiices, allocate each index of the chain into the
 	struct, so that we can pick out what is needed. 
+
       */
       
       // First batch
+
       C12E2_struct[i].index[0] = A7;
       C12E2_struct[i].index[1] = A6_1;
       C12E2_struct[i].index[2] = A6_2;
@@ -381,6 +382,7 @@ public:
       C12E2_struct[i].index[6] = A4;
 
       // Second batch
+
       C12E2_struct[i+250].index[0] = A7_2;
       C12E2_struct[i+250].index[1] = A6_1_2;
       C12E2_struct[i+250].index[2] = A6_2_2;
@@ -390,6 +392,7 @@ public:
       C12E2_struct[i+250].index[6] = A4_2;
       
       // Third batch 
+
       C12E2_struct[i+500].index[0] = A7_3;
       C12E2_struct[i+500].index[1] = A6_1_3;
       C12E2_struct[i+500].index[2] = A6_2_3;
@@ -399,6 +402,7 @@ public:
       C12E2_struct[i+500].index[6] = A4_3;
       
       // Fourth batch
+
       C12E2_struct[i+750].index[0] = A7_4;
       C12E2_struct[i+750].index[1] = A6_1_4;
       C12E2_struct[i+750].index[2] = A6_2_4;
@@ -408,9 +412,9 @@ public:
       C12E2_struct[i+750].index[6] = A4_4;
       
       // Mimic assignment
-      
-      
+
       // First batch
+      
       C12E2M_struct[i].index[0] = A13;
       C12E2M_struct[i].index[1] = A12_1;
       C12E2M_struct[i].index[2] = A12_2;
@@ -420,6 +424,7 @@ public:
       C12E2M_struct[i].index[6] = A10;
       
       // Second batch
+      
       C12E2M_struct[i+250].index[0] = A13_2;
       C12E2M_struct[i+250].index[1] = A12_1_2;
       C12E2M_struct[i+250].index[2] = A12_2_2;
@@ -428,7 +433,8 @@ public:
       C12E2M_struct[i+250].index[5] = A9_3_2;
       C12E2M_struct[i+250].index[6] = A10_2;
       
-      // Third batch 
+      // Third batch
+      
       C12E2M_struct[i+500].index[0] = A13_3;
       C12E2M_struct[i+500].index[1] = A12_1_3;
       C12E2M_struct[i+500].index[2] = A12_2_3;
@@ -438,6 +444,7 @@ public:
       C12E2M_struct[i+500].index[6] = A10_3;
       
       // Fourth batch
+      
       C12E2M_struct[i+750].index[0] = A13_4;
       C12E2M_struct[i+750].index[1] = A12_1_4;
       C12E2M_struct[i+750].index[2] = A12_2_4;
@@ -445,21 +452,15 @@ public:
       C12E2M_struct[i+750].index[4] = A9_2_4;
       C12E2M_struct[i+750].index[5] = A9_3_4;
       C12E2M_struct[i+750].index[6] = A10_4; 	    
-
-
-
     }
   }
 
   void check() {  
     for (unsigned int i = 0; i < xcoTotal.size(); ++i) {	
-
       for (unsigned int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1]); j++) {
-
 	std::cout << bTotal[i][j].second << " " << xcoTotal[i][j].second << " " << ycoTotal[i][j].second << " " << zcoTotal[i][j].second << "\n";
-
       }
-      std::cout << bTotal[i][71312].second << " " << xcoTotal[i][71312].second << " " << ycoTotal[i][71312].second << " " << zcoTotal[i][71312].second << "\n"; 
+      std::cout << bTotal[i][71312].second << " " << xcoTotal[i][71312].second << " " << ycoTotal[i][71312].second << " " << zcoTotal[i][71312].second << "\n";
     }
   }
 
@@ -562,12 +563,11 @@ private:
 compute A;
   
 int main (int argc, char *argv[])  {
-  
+
   A.storeFile();
   A.sortVectors();
-  //A.printVectorElements();
-  A.check();
-  
+  A.check();  
+
   return 0;    
 }
 
