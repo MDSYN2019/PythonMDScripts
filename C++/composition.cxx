@@ -73,11 +73,12 @@ void regionQuery(double Distcriteria, double (*COMref) (double)) {
 #include <map>
 #include <algorithm>
 #include <cmath>
-#include<bits/stdc++.h> 
+#include <bits/stdc++.h> 
 #include <utility>
 #include <cerrno>
 #include <cstdlib> 
 #include <cmath>
+#include <tuple>
 #include <boost/progress.hpp>
 
 //#include <Eigen>
@@ -129,7 +130,6 @@ bool sortbysec_double(const std::pair<int,double> &a,
 //#define minClust 5 // the minimum sizes cluster we want to count as a cluster
 class compute {
 public:
-  
   compute() {}; // Default constructor
   compute(std::string file) {}; // constructor reading file
 
@@ -138,21 +138,24 @@ public:
     // open file for reading 
     ipf = fopen("dump.final", "r");  // Needs correction 
     // check for error opening file */
+
     if (ipf == NULL) {  
       std::cout << "Error opening file\n";
       exit(1);
     }
     // loop over the values  
     for (int SSno = 0; SSno < numberofSS; SSno++) {  
-      //  printf("This is the data for trajectory no %d \n", SSno); 
+
       l = 0;
       n = 0;
       index = 0;
-      a.clear();
-      b.clear();
-      xco.clear();
-      yco.clear();
-      zco.clear();
+      // Make sure to clear all vectors before going on to the next snapshot
+      a.clear(); // Clear indices  
+      b.clear(); // Clear types
+      xco.clear(); // Clear x coordinates 
+      yco.clear();  // Clear y coordinates
+      zco.clear(); // Clear z coordindates 
+
       for (int k = 0; k < nlines; k++) { 
 	// get a line from the file 
 	// fgets() returns NULL when it reaches an error or end of file  
@@ -200,8 +203,8 @@ public:
       ++show_progress;
     }
   }
-
-  void sortVectors () {
+  
+  void sortVectors () { // Sort vector values based on indices of the dump files 
     for (unsigned int i = 0; i < xcoTotal.size(); ++i) {
       sort(aTotal[i].begin(), aTotal[i].end());
       sort(bTotal[i].begin(), bTotal[i].end());
@@ -210,7 +213,7 @@ public:
       sort(zcoTotal[i].begin(), zcoTotal[i].end());
     }
   }
-  
+  // Simple print function for a sanity check 
   void printVectorElements() {
      for (unsigned int i = 0; i < xcoTotal.size(); ++i) {
 	for (unsigned int j = 0; j < xcoTotal[i].size(); ++j) {
@@ -218,7 +221,7 @@ public:
 	}
      }
   }
-  
+
   /*
   void CompositionProfile() {        
     //Calculating the composition profile 
@@ -365,14 +368,11 @@ public:
 
       
       /*
-	
 	Now that we know the indiices, allocate each index of the chain into the
 	struct, so that we can pick out what is needed. 
-
       */
       
       // First batch
-
       C12E2_struct[i].index[0] = A7;
       C12E2_struct[i].index[1] = A6_1;
       C12E2_struct[i].index[2] = A6_2;
@@ -382,7 +382,6 @@ public:
       C12E2_struct[i].index[6] = A4;
 
       // Second batch
-
       C12E2_struct[i+250].index[0] = A7_2;
       C12E2_struct[i+250].index[1] = A6_1_2;
       C12E2_struct[i+250].index[2] = A6_2_2;
@@ -392,7 +391,6 @@ public:
       C12E2_struct[i+250].index[6] = A4_2;
       
       // Third batch 
-
       C12E2_struct[i+500].index[0] = A7_3;
       C12E2_struct[i+500].index[1] = A6_1_3;
       C12E2_struct[i+500].index[2] = A6_2_3;
@@ -402,7 +400,6 @@ public:
       C12E2_struct[i+500].index[6] = A4_3;
       
       // Fourth batch
-
       C12E2_struct[i+750].index[0] = A7_4;
       C12E2_struct[i+750].index[1] = A6_1_4;
       C12E2_struct[i+750].index[2] = A6_2_4;
@@ -412,9 +409,9 @@ public:
       C12E2_struct[i+750].index[6] = A4_4;
       
       // Mimic assignment
-
-      // First batch
       
+      
+      // First batch
       C12E2M_struct[i].index[0] = A13;
       C12E2M_struct[i].index[1] = A12_1;
       C12E2M_struct[i].index[2] = A12_2;
@@ -424,7 +421,6 @@ public:
       C12E2M_struct[i].index[6] = A10;
       
       // Second batch
-      
       C12E2M_struct[i+250].index[0] = A13_2;
       C12E2M_struct[i+250].index[1] = A12_1_2;
       C12E2M_struct[i+250].index[2] = A12_2_2;
@@ -433,8 +429,7 @@ public:
       C12E2M_struct[i+250].index[5] = A9_3_2;
       C12E2M_struct[i+250].index[6] = A10_2;
       
-      // Third batch
-      
+      // Third batch 
       C12E2M_struct[i+500].index[0] = A13_3;
       C12E2M_struct[i+500].index[1] = A12_1_3;
       C12E2M_struct[i+500].index[2] = A12_2_3;
@@ -444,7 +439,6 @@ public:
       C12E2M_struct[i+500].index[6] = A10_3;
       
       // Fourth batch
-      
       C12E2M_struct[i+750].index[0] = A13_4;
       C12E2M_struct[i+750].index[1] = A12_1_4;
       C12E2M_struct[i+750].index[2] = A12_2_4;
@@ -452,15 +446,47 @@ public:
       C12E2M_struct[i+750].index[4] = A9_2_4;
       C12E2M_struct[i+750].index[5] = A9_3_4;
       C12E2M_struct[i+750].index[6] = A10_4; 	    
+
+
+
     }
   }
 
   void check() {  
     for (unsigned int i = 0; i < xcoTotal.size(); ++i) {	
+
       for (unsigned int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1]); j++) {
+w
 	std::cout << bTotal[i][j].second << " " << xcoTotal[i][j].second << " " << ycoTotal[i][j].second << " " << zcoTotal[i][j].second << "\n";
+
       }
-      std::cout << bTotal[i][71312].second << " " << xcoTotal[i][71312].second << " " << ycoTotal[i][71312].second << " " << zcoTotal[i][71312].second << "\n";
+      std::cout << bTotal[i][71312].second << " " << xcoTotal[i][71312].second << " " << ycoTotal[i][71312].second << " " << zcoTotal[i][71312].second << "\n"; 
+    }
+  }
+
+  double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
+    double dist = pow((pow(COM1x-COM2x,2.0) + pow(COM1y-COM2y,2.0) + pow(COM1z-COM2z,2.0)),0.5);
+    return dist;
+  }
+  
+  void computeOrderphobic() {
+    double dist; 
+    std::vector<std::vector<std::vector< std::tuple<int,int, double> > > > vecOftup; // Damn ugly code!!! 
+    std::vector<std::vector< std::tuple<int,int, double> > > closestDistanceVector;     
+    std::tuple<int, int , double> foo; 
+    std::vector< std::pair<double,int> > closestDistanceVector;    
+
+    for (unsigned int i = 0; i < xcoTotal.size(); ++i) {      
+      for (unsigned int j = 0; j <= sizeof(C12E2M_struct)/sizeof(C12E2M_struct[1]); j++) { 	
+	for (unsigned int k = 0; k <= sizeof(C12E2M_struct)/sizeof(C12E2M_struct[1]); k++) { 
+	  dist = trueDist(&xcoTotal[i][C12E2_struct[j].index[3]], &ycoTotal[i][C12E2_struct[j].index[3]], &zcoTotal[i][C12E2_struct[j].index[3]],
+			  &xcoTotal[i][C12E2_struct[k].index[3]], &ycoTotal[i][C12E2_struct[k].index[3]], &zcoTotal[i][C12E2_struct[k].index[3]]);
+	  foo = std::make_tuple(j, k, dist);
+	  closestDistanceVector.append(foo);	  
+	}
+      }
+      vecOftup.append(closestDistanceVector);
+      closestDistanceVector.clear(); // Clear after accumulating
     }
   }
 
@@ -563,11 +589,12 @@ private:
 compute A;
   
 int main (int argc, char *argv[])  {
-
+  
   A.storeFile();
   A.sortVectors();
-  A.check();  
-
+  //A.printVectorElements();
+  A.check();
+  
   return 0;    
 }
 
