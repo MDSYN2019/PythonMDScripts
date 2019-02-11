@@ -1,3 +1,52 @@
+/* --------------------------------------------------------------------------------
+  ---------------------------------------------------------------------------------
+  |Calculate the Clustering of the Mixed Lipid Bilayer through a DBSCAN Algorithm | 
+  ---------------------------------------------------------------------------------
+
+   How does the DBSCAN algorithm work?
+   
+   -> Point P in a cluster is a 'core' point if there are a critical number of the same type of points within a distance E.
+   -> Point Q is a point in the cluster if there is a clear vector towards that from any of the elements of the P vector 
+   -> All points not reachable from any other points are outliers
+   
+   Two main algorithms are required, where there are 
+   
+  --------------------------------------------------------------------------------*/
+
+/*
+ ----------------------------------
+ | DBSCAN algorithm -  Pseudocode:|
+ ----------------------------------
+*/
+
+/*
+  DBSCAN(D, eps, MinPts) {
+  C = 0
+  for each point P in dataset D {
+  if P is visited 
+  continue next point 
+  mark P as visited
+  NeighbourPts = regionQuery(P, eps)
+  if Sizeof(NeighbourPts) < MinPts
+  mark P as NOISE
+  else {
+  C = next cluster
+  expandCluster(P, NeighbourPts, C, eps, MinPits)
+  }
+  }
+  }
+ */
+
+/*
+void DBSCAN(double *, eps, Minpts);
+void regionQuery(double Distcriteria, double (*COMref) (double)) {
+  COMref = CenterOfMass;  
+}  
+*/
+
+/* Function to find the center of mass of the C12E2 */
+
+
 // ------------------------------------------------------------------------- //
 //                       Array of the center of masses                       //
 // ------------------------------------------------------------------------- //
@@ -24,15 +73,12 @@
 #include <map>
 #include <algorithm>
 #include <cmath>
+#include<bits/stdc++.h> 
 #include <utility>
 #include <cerrno>
 #include <cstdlib> 
 #include <cmath>
-#include <string>
 #include <boost/progress.hpp>
-
-#include "compositon.h"
-
 
 //#include <Eigen>
 //#include <Eigen/Dense>
@@ -43,15 +89,16 @@
 
 /* Function to calculate the centre of mass of each molecule */
 
-const int numberofSS = 100; /*The number of screenshots in the dump file*/
 const int numberOfPolymers = 1000; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
 const int indexCG = 7;
+int numberofSS = 100; /*The number of screenshots in the dump file*/
 const int boxdim = 3;
 
 struct C12E2_skeleton {                                                                                                                              
   int index[7];
 };
+
 
 double CenterOfMass(double* H7, double* H6_1, double* H6_2, double* T3_1, double* T3_2, double* T3_3, double* T4) {  
   // Need to update
@@ -66,284 +113,17 @@ double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, doub
   return dist;
 }
 
-void die (const char *message) {
-  if (errno) {
-    perror(message);
-  } else {
-    std::cout << message << std::endl;
-  }
-  exit(1);
+bool sortbysec_int(const std::pair<int,int> &a, 
+		   const std::pair<int,int> &b) 
+{ 
+    return (a.second < b.second); 
 }
 
-void compute::storeFile() {    
-    boost::progress_display show_progress(numberofSS);
-    // open file for reading 
-    ipf = fopen("dump.final", "r");  // Needs correction 
-    // check for error opening file */
-    if (ipf == NULL) {  
-      std::cout << "Error opening file\n";
-      exit(1);
-    }
-    // loop over the values  
-    for (int SSno = 0; SSno < numberofSS; SSno++) {  
-      //  printf("This is the data for trajectory no %d \n", SSno); 
-      l = 0;
-      n = 0;
-      index = 0;
-      a.clear();
-      b.clear();
-      xco.clear();
-      yco.clear();
-      zco.clear();
-
-      for (int k = 0; k < nlines; k++) { 
-	// get a line from the file 
-	// fgets() returns NULL when it reaches an error or end of file  
-
-	fgets(line,sizeof(line),ipf);
-	//while (fgets(line,sizeof(line),ipf) != NULL) {
-
-	if (l < 5) {	
-	  /* We are doing nothing */
-	  //	printf("%s l= %d", line,l);
-	  l++;
-	}
-	else if ((l > 4 && l < 8)) {
-	  /*We are scanning the bit with just the box parameters*/
-	  sscanf(line, "%lf %lf", &box1, &box2);
-	  //	printf("%lf %lf \n",box1,box2 );
-	  boxlength[l-5] = box2-box1; 
-	  l++;
-	}
-	else if (l == 8) {
-	  // printf(" **** l= %d \n",l);
-	  /* We are doing nothing */
-	  l++;
-	}
-	else {
-	  //	printf(" ***** l = %d \n",l );
-	  /* convert the text to numbers */
-	  sscanf(line,"%d %d %lf %lf %lf",&index,&atomtype,&x,&y,&z);
-	  //std::cout << index << " " << atomtype << " " << x << " " << y << " " << z; 
-	  a.push_back(index); // Push back indices 
-	  b.push_back(atomtype); // Push back atomtypes
-	  xco.push_back(x*boxlength[0]); // Push back boxlengths - x coordinates
-	  yco.push_back(y*boxlength[1]); // Push back boxlengths - y coordinates
-	  zco.push_back(z*boxlength[2]); // Push back boxlengths - z coordinates
-	  n++;
-	  l++;
-	  //printf("%d %d %lf %lf %lf\n",index,atomtype,x,y,z);
-	}
-      }
-      aTotal.push_back(a);
-      bTotal.push_back(b);
-      xcoTotal.push_back(xco);
-      ycoTotal.push_back(yco);
-      zcoTotal.push_back(zco);
-      ++show_progress;
-    }
-}
-
-void compute::printVectorElements() {
-    for (unsigned int i = 0; i < xcoTotal.size(); ++i) {
-	for (unsigned int j = 0; j < xcoTotal[i].size(); ++j) {
-	    std::cout << i << " " << j << " " << " " << xcoTotal[i][j] << std::endl;
-	}
-    }
-}
-
-void compute::AllocationVec() {
-  /*
-    The way that the C12E2 and C12E2-M batches are allocated in the simulation follows
-    the fact that this was directly replicated in LAMMPS; hence, there isn't a single 
-    block of list, but rather 4 batches of C12E2 and C12E2-M portions that we need to 
-    allocate 
-    
-    Each batch has 250 molecules, which is why we loop from 0 to 249 
-  */
-  
-  for (int i = 0; i <= 249; i++) {
-    
-    // C12E2 batches
-    
-    int batch1 = 0;
-    int batch2 = 3500;
-    int batch3 = 7000;
-    int batch4 = 10500;
-    
-    // C12E2-M batches
-    
-    int batch1M = 1750;
-    int batch2M = 5250;	
-    int batch3M = 8750;
-    int batch4M = 12250;
-    
-    // Allocate index
-    
-    A7 = 7*(i);
-    A6_1= 7*(i) + 1;
-    A6_2= 7*(i) + 2;
-    A3_1 = 7*(i) + 3;
-    A3_2 = 7*(i) + 4;
-    A3_3 = 7*(i) + 5;
-    A4 = 7*(i) + 6;
-    
-    // Second batch
-    
-    A7_2 = 7*(i) + batch2 + 1;
-    A6_1_2 = 7*(i) + batch2 + 2;
-    A6_2_2 = 7*(i) + batch2 + 3;
-    A3_1_2 = 7*(i) + batch2 + 4;
-    A3_2_2 = 7*(i) + batch2 + 5;
-    A3_3_2 = 7*(i) + batch2 + 6;
-    A4_2 = 7*(i) + batch2 + 7;
-    
-    // Third batch
-    
-    A7_3 = 7*(i) + batch3 + 1;
-    A6_1_3 = 7*(i) + batch3 + 2;
-    A6_2_3 = 7*(i) + batch3 + 3;
-    A3_1_3 = 7*(i) + batch3 + 4;
-    A3_2_3 = 7*(i) + batch3 + 5;
-    A3_3_3 = 7*(i) + batch3 + 6;
-    A4_3 = 7*(i) + batch3 + 7;
-    
-    // Fourth batch
-    
-    A7_4 = 7*(i)  + batch4 + 1;
-    A6_1_4 = 7*(i) + batch4 + 2;
-    A6_2_4 = 7*(i) + batch4 + 3;
-    A3_1_4 = 7*(i) + batch4 + 4;
-    A3_2_4 = 7*(i) + batch4 + 5;
-    A3_3_4 = 7*(i) + batch4 + 6;
-    A4_4 = 7*(i) + batch4 + 7;
-    
-    //  --- C12E2-M --- //
-    
-    A13 = 7*(i) + batch1M + 1;
-    A12_1= 7*(i) + batch1M + 2;
-    A12_2= 7*(i) + batch1M + 3;
-    A9_1 = 7*(i) + batch1M + 4;
-    A9_2 = 7*(i) + batch1M + 5;
-    A9_3 = 7*(i) + batch1M + 6;
-    A10 = 7*(i) + batch1M + 7;
-    
-    /* Mimic atoms - Second batch */
-    
-    A13_2 = 7*(i) + batch2M + 1;
-    A12_1_2 = 7*(i) + batch2M + 2;
-    A12_2_2 = 7*(i) + batch2M + 3;
-    A9_1_2 = 7*(i) + batch2M + 4;
-    A9_2_2 = 7*(i) + batch2M + 5;
-    A9_3_2 = 7*(i) + batch2M + 6;
-    A10_2 = 7*(i) + batch2M + 7;
-    
-    /* Mimic atoms - Third batch */
-    
-    A13_3 = 7*(i) + batch3M + 1;
-    A12_1_3 = 7*(i) + batch3M + 2;
-    A12_2_3 = 7*(i) + batch3M + 3;
-    A9_1_3 = 7*(i) + batch3M + 4;
-    A9_2_3 = 7*(i) + batch3M + 5;
-    A9_3_3 = 7*(i) + batch3M + 6;
-    A10_3 = 7*(i) + batch3M + 7;
-    
-    /* Mimic atoms - Fourth batch */
-    
-    A13_4 = 7*(i) + batch4M + 1;
-    A12_1_4 = 7*(i) + batch4M + 2;
-    A12_2_4 = 7*(i) + batch4M + 3;
-    A9_1_4 = 7*(i) + batch4M + 4;
-    A9_2_4 = 7*(i) + batch4M + 5;
-    A9_3_4 = 7*(i) + batch4M + 6;
-    A10_4 = 7*(i) + batch4M + 7;   
-    
-    
-    // ----------- C12E2 indicies ----------- //
-    
-    /*
-      Now that we know the indiices, allocate each index of the chain into the
-      struct, so that we can pick out what is needed. 
-    */
-    
-    // First batch
-    C12E2_struct[i].index[0] = A7;
-    C12E2_struct[i].index[1] = A6_1;
-    C12E2_struct[i].index[2] = A6_2;
-    C12E2_struct[i].index[3] = A3_1;
-    C12E2_struct[i].index[4] = A3_2;
-    C12E2_struct[i].index[5] = A3_3;
-    C12E2_struct[i].index[6] = A4;
-    
-    // Second batch
-    C12E2_struct[i+250].index[0] = A7_2;
-    C12E2_struct[i+250].index[1] = A6_1_2;
-    C12E2_struct[i+250].index[2] = A6_2_2;
-    C12E2_struct[i+250].index[3] = A3_1_2;
-    C12E2_struct[i+250].index[4] = A3_2_2;
-    C12E2_struct[i+250].index[5] = A3_3_2;
-    C12E2_struct[i+250].index[6] = A4_2;
-    
-    // Third batch 
-    C12E2_struct[i+500].index[0] = A7_3;
-    C12E2_struct[i+500].index[1] = A6_1_3;
-    C12E2_struct[i+500].index[2] = A6_2_3;
-    C12E2_struct[i+500].index[3] = A3_1_3;
-    C12E2_struct[i+500].index[4] = A3_2_3;
-    C12E2_struct[i+500].index[5] = A3_3_3;
-    C12E2_struct[i+500].index[6] = A4_3;
-    
-    // Fourth batch
-    C12E2_struct[i+750].index[0] = A7_4;
-    C12E2_struct[i+750].index[1] = A6_1_4;
-    C12E2_struct[i+750].index[2] = A6_2_4;
-    C12E2_struct[i+750].index[3] = A3_1_4;
-    C12E2_struct[i+750].index[4] = A3_2_4;
-    C12E2_struct[i+750].index[5] = A3_3_4;
-    C12E2_struct[i+750].index[6] = A4_4;
-    
-    // Mimic assignment
-    
-    
-    // First batch
-    C12E2M_struct[i].index[0] = A13;
-    C12E2M_struct[i].index[1] = A12_1;
-    C12E2M_struct[i].index[2] = A12_2;
-    C12E2M_struct[i].index[3] = A9_1;
-    C12E2M_struct[i].index[4] = A9_2;
-    C12E2M_struct[i].index[5] = A9_3;
-    C12E2M_struct[i].index[6] = A10;
-    
-    // Second batch
-    C12E2M_struct[i+250].index[0] = A13_2;
-    C12E2M_struct[i+250].index[1] = A12_1_2;
-    C12E2M_struct[i+250].index[2] = A12_2_2;
-    C12E2M_struct[i+250].index[3] = A9_1_2;
-    C12E2M_struct[i+250].index[4] = A9_2_2;
-    C12E2M_struct[i+250].index[5] = A9_3_2;
-    C12E2M_struct[i+250].index[6] = A10_2;
-    
-    // Third batch 
-    C12E2M_struct[i+500].index[0] = A13_3;
-    C12E2M_struct[i+500].index[1] = A12_1_3;
-    C12E2M_struct[i+500].index[2] = A12_2_3;
-    C12E2M_struct[i+500].index[3] = A9_1_3;
-    C12E2M_struct[i+500].index[4] = A9_2_3;
-    C12E2M_struct[i+500].index[5] = A9_3_3;
-    C12E2M_struct[i+500].index[6] = A10_3;
-    
-    // Fourth batch
-    C12E2M_struct[i+750].index[0] = A13_4;
-    C12E2M_struct[i+750].index[1] = A12_1_4;
-    C12E2M_struct[i+750].index[2] = A12_2_4;
-    C12E2M_struct[i+750].index[3] = A9_1_4;
-    C12E2M_struct[i+750].index[4] = A9_2_4;
-    C12E2M_struct[i+750].index[5] = A9_3_4;
-    C12E2M_struct[i+750].index[6] = A10_4; 	
-  }
-}
-
-
+bool sortbysec_double(const std::pair<int,double> &a, 
+		      const  std::pair<int,double> &b) 
+{ 
+    return (a.second < b.second); 
+} 
 
 //pointCluster* regionQuery (int , double*, double*, double*, double*, double*, double*);
 //#define minClust 5 // the minimum sizes cluster we want to count as a cluster
@@ -372,7 +152,6 @@ public:
       xco.clear();
       yco.clear();
       zco.clear();
-
       for (int k = 0; k < nlines; k++) { 
 	// get a line from the file 
 	// fgets() returns NULL when it reaches an error or end of file  
@@ -402,11 +181,11 @@ public:
 	  /* convert the text to numbers */
 	  sscanf(line,"%d %d %lf %lf %lf",&index,&atomtype,&x,&y,&z);
 	  //std::cout << index << " " << atomtype << " " << x << " " << y << " " << z; 
-	  a.push_back(index); // Push back indices 
-	  b.push_back(atomtype); // Push back atomtypes
-	  xco.push_back(x*boxlength[0]); // Push back boxlengths - x coordinates
-	  yco.push_back(y*boxlength[1]); // Push back boxlengths - y coordinates
-	  zco.push_back(z*boxlength[2]); // Push back boxlengths - z coordinates
+	  a.push_back(std::make_pair(index, index)); // Push back indices 
+	  b.push_back(std::make_pair(index, atomtype)); // Push back atomtypes
+	  xco.push_back(std::make_pair(index, x*boxlength[0])); // Push back boxlengths - x coordinates
+	  yco.push_back(std::make_pair(index, y*boxlength[1])); // Push back boxlengths - y coordinates
+	  zco.push_back(std::make_pair(index, z*boxlength[2])); // Push back boxlengths - z coordinates
 	  n++;
 	  l++;
 	  //printf("%d %d %lf %lf %lf\n",index,atomtype,x,y,z);
@@ -420,17 +199,26 @@ public:
       ++show_progress;
     }
   }
+
+
+  void sortVectors () {
+    for (unsigned int i = 0; i < xcoTotal.size(); ++i) {
+      sort(aTotal[i].begin(), aTotal[i].end());
+      sort(bTotal[i].begin(), bTotal[i].end());
+      sort(xcoTotal[i].begin(), xcoTotal[i].end());
+      sort(ycoTotal[i].begin(), ycoTotal[i].end());
+      sort(zcoTotal[i].begin(), zcoTotal[i].end());
+    }
+  }
   
+
+
   void printVectorElements() {
-    for (unsigned int i = 0; i < xcoTotal.size(); ++i)
-      {
-	for (unsigned int j = 0; j < xcoTotal[i].size(); ++j)
-	  {
-	    std::cout << i << " " << j << " " << " " << xcoTotal[i][j] << std::endl;
-	  }
-	
-	//std::cout << std::endl;
-      }
+     for (unsigned int i = 0; i < xcoTotal.size(); ++i) {
+	for (unsigned int j = 0; j < xcoTotal[i].size(); ++j) {
+	  std::cout << i << " " << j << " " << " " << bTotal[i][j].second << std::endl;
+	}
+    }
   }
   
   /*
@@ -495,7 +283,9 @@ public:
       int batch4M = 12250;
       
       // Allocate index
+      
 
+          
       A7 = 7*(i);
       A6_1= 7*(i) + 1;
       A6_2= 7*(i) + 2;
@@ -503,85 +293,84 @@ public:
       A3_2 = 7*(i) + 4;
       A3_3 = 7*(i) + 5;
       A4 = 7*(i) + 6;
-      
+    
       // Second batch
-      
-      A7_2 = 7*(i) + batch2 + 1;
-      A6_1_2 = 7*(i) + batch2 + 2;
-      A6_2_2 = 7*(i) + batch2 + 3;
-      A3_1_2 = 7*(i) + batch2 + 4;
-      A3_2_2 = 7*(i) + batch2 + 5;
-      A3_3_2 = 7*(i) + batch2 + 6;
-      A4_2 = 7*(i) + batch2 + 7;
-      
+    
+      A7_2 = 7*(i) + 3501;
+      A6_1_2 = 7*(i) + 3502;
+      A6_2_2 = 7*(i) + 3503;
+      A3_1_2 = 7*(i) + 3504;
+      A3_2_2 = 7*(i) + 3505;
+      A3_3_2 = 7*(i) + 3506;
+      A4_2 = 7*(i) + 3507;
+    
       // Third batch
       
-      A7_3 = 7*(i) + batch3 + 1;
-      A6_1_3 = 7*(i) + batch3 + 2;
-      A6_2_3 = 7*(i) + batch3 + 3;
-      A3_1_3 = 7*(i) + batch3 + 4;
-      A3_2_3 = 7*(i) + batch3 + 5;
-      A3_3_3 = 7*(i) + batch3 + 6;
-      A4_3 = 7*(i) + batch3 + 7;
-      
+      A7_3 = 7*(i) + 7001;
+      A6_1_3 = 7*(i) + 7002;
+      A6_2_3 = 7*(i) + 7003;
+      A3_1_3 = 7*(i) + 7004;
+      A3_2_3 = 7*(i) + 7005;
+      A3_3_3 = 7*(i) + 7006;
+      A4_3 = 7*(i) + 7007;
+    
       // Fourth batch
-      
-      A7_4 = 7*(i)  + batch4 + 1;
-      A6_1_4 = 7*(i) + batch4 + 2;
-      A6_2_4 = 7*(i) + batch4 + 3;
-      A3_1_4 = 7*(i) + batch4 + 4;
-      A3_2_4 = 7*(i) + batch4 + 5;
-      A3_3_4 = 7*(i) + batch4 + 6;
-      A4_4 = 7*(i) + batch4 + 7;
-      
+    
+      A7_4 = 7*(i)  + 10501;
+      A6_1_4 = 7*(i) + 10502;
+      A6_2_4 = 7*(i) + 10503;
+      A3_1_4 = 7*(i) + 10504;
+      A3_2_4 = 7*(i) + 10505;
+      A3_3_4 = 7*(i) + 10506;
+      A4_4 = 7*(i) + 10507;
+    
       //  --- C12E2-M --- //
     
-      A13 = 7*(i) + batch1M + 1;
-      A12_1= 7*(i) + batch1M + 2;
-      A12_2= 7*(i) + batch1M + 3;
-      A9_1 = 7*(i) + batch1M + 4;
-      A9_2 = 7*(i) + batch1M + 5;
-      A9_3 = 7*(i) + batch1M + 6;
-      A10 = 7*(i) + batch1M + 7;
+    
+      A13 = 7*(i) + 1751;
+      A12_1= 7*(i)+ 1752;
+      A12_2= 7*(i)+ 1753;
+      A9_1 = 7*(i)+ 1754;
+      A9_2 = 7*(i)+ 1755;
+      A9_3 = 7*(i)+ 1756;
+      A10 = 7*(i)+ 1757;
     
       /* Mimic atoms - Second batch */
       
-      A13_2 = 7*(i) + batch2M + 1;
-      A12_1_2 = 7*(i) + batch2M + 2;
-      A12_2_2 = 7*(i) + batch2M + 3;
-      A9_1_2 = 7*(i) + batch2M + 4;
-      A9_2_2 = 7*(i) + batch2M + 5;
-      A9_3_2 = 7*(i) + batch2M + 6;
-      A10_2 = 7*(i) + batch2M + 7;
-      
+      A13_2 = 7*(i) + 5251;
+      A12_1_2 = 7*(i)+ 5252;
+      A12_2_2 = 7*(i)+ 5253;
+      A9_1_2 = 7*(i)+ 5254;
+      A9_2_2 = 7*(i)+ 5255;
+      A9_3_2 = 7*(i)+ 5256;
+      A10_2 = 7*(i)+ 5257;
+    
       /* Mimic atoms - Third batch */
     
-      A13_3 = 7*(i) + batch3M + 1;
-      A12_1_3 = 7*(i) + batch3M + 2;
-      A12_2_3 = 7*(i) + batch3M + 3;
-      A9_1_3 = 7*(i) + batch3M + 4;
-      A9_2_3 = 7*(i) + batch3M + 5;
-      A9_3_3 = 7*(i) + batch3M + 6;
-      A10_3 = 7*(i) + batch3M + 7;
-      
+      A13_3 = 7*(i) + 8751;
+      A12_1_3 = 7*(i)+ 8752;
+      A12_2_3 = 7*(i)+ 8753;
+      A9_1_3 = 7*(i)+ 8754;
+      A9_2_3 = 7*(i)+ 8755;
+      A9_3_3 = 7*(i)+ 8756;
+      A10_3 = 7*(i)+ 8757;
+    
       /* Mimic atoms - Fourth batch */
-      
-      A13_4 = 7*(i) + batch4M + 1;
-      A12_1_4 = 7*(i) + batch4M + 2;
-      A12_2_4 = 7*(i) + batch4M + 3;
-      A9_1_4 = 7*(i) + batch4M + 4;
-      A9_2_4 = 7*(i) + batch4M + 5;
-      A9_3_4 = 7*(i) + batch4M + 6;
-      A10_4 = 7*(i) + batch4M + 7;   
-      
-      
-      // ----------- C12E2 indicies ----------- //
+  
+      A13_4 = 7*(i) + 12251;
+      A12_1_4 = 7*(i)+ 12252;
+      A12_2_4 = 7*(i)+ 12253;
+      A9_1_4 = 7*(i)+ 12254;
+      A9_2_4 = 7*(i)+ 12255;
+      A9_3_4 = 7*(i)+ 12256;
+      A10_4 = 7*(i)+ 12257;
+
       
       /*
 	Now that we know the indiices, allocate each index of the chain into the
 	struct, so that we can pick out what is needed. 
       */
-	
+      
       // First batch
       C12E2_struct[i].index[0] = A7;
       C12E2_struct[i].index[1] = A6_1;
@@ -655,9 +444,25 @@ public:
       C12E2M_struct[i+750].index[3] = A9_1_4;
       C12E2M_struct[i+750].index[4] = A9_2_4;
       C12E2M_struct[i+750].index[5] = A9_3_4;
-      C12E2M_struct[i+750].index[6] = A10_4; 	
+      C12E2M_struct[i+750].index[6] = A10_4; 	    
+
+
+
     }
   }
+
+  void check() {  
+    for (unsigned int i = 0; i < xcoTotal.size(); ++i) {	
+
+      for (unsigned int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1]); j++) {
+
+	std::cout << bTotal[i][j].second << " " << xcoTotal[i][j].second << " " << ycoTotal[i][j].second << " " << zcoTotal[i][j].second << "\n";
+
+      }
+      std::cout << bTotal[i][71312].second << " " << xcoTotal[i][71312].second << " " << ycoTotal[i][71312].second << " " << zcoTotal[i][71312].second << "\n"; 
+    }
+  }
+
   /*
   double ChainOrderAnalysis(double* H7_x, double* H7_y, double* H7_z, double* H6_1_x, double* H6_1_y, double* H6_1_z,  double* H6_2_x, double* H6_2_y, double* H6_2_z, double* T3_1_x, double* T3_1_y, double* T3_1_z,  double* T3_2_x, double* T3_2_y, double* T3_2_z, double* T3_3_x, double* T3_3_y, double* T3_3_z, double* T4_x, double* T4_y, double* T4_z) {
 
@@ -693,18 +498,17 @@ public:
   */
 private:    
   // Vectors to store trajectory values 
+  std::vector<std::pair<int, double> > xco; 
+  std::vector<std::pair<int, double> > yco; 
+  std::vector<std::pair<int, double> > zco; 
+  std::vector<std::pair<int, int> > a;
+  std::vector<std::pair<int, int> > b;
 
-  std::vector<double> xco; 
-  std::vector<double> yco; 
-  std::vector<double> zco; 
-  std::vector<int> a;
-  std::vector<int> b;
-
-  std::vector< std::vector<double>> xcoTotal; 
-  std::vector< std::vector<double>> ycoTotal; 
-  std::vector< std::vector<double>> zcoTotal; 
-  std::vector< std::vector<int>> aTotal;
-  std::vector< std::vector<int>> bTotal;
+  std::vector<std::vector<std::pair<int, double> > > xcoTotal; 
+  std::vector<std::vector<std::pair<int, double> > > ycoTotal; 
+  std::vector<std::vector<std::pair<int, double> > > zcoTotal; 
+  std::vector<std::vector<std::pair<int, int> > > aTotal;
+  std::vector<std::vector<std::pair<int, int> > > bTotal;
   //double xco[numberofatoms],yco[numberofatoms],zco[numberofatoms]; 
   /* ditto for a and b, which represent index and atomtype respectively */
   //int a[numberofatoms],b[numberofatoms];
@@ -736,6 +540,7 @@ private:
   int A13_4, A12_1_4, A12_2_4, A9_1_4, A9_2_4, A9_3_4, A10_4; // Fourth Batch
   struct C12E2_skeleton C12E2_struct[numberOfPolymers];                                                                                              
   struct C12E2_skeleton C12E2M_struct[numberOfPolymers];    
+ 
 
   double tophead = 0;
   double downhead = 0;
@@ -759,7 +564,9 @@ compute A;
 int main (int argc, char *argv[])  {
   
   A.storeFile();
-  A.printVectorElements();
+  A.sortVectors();
+  //A.printVectorElements();
+  A.check();
   
   return 0;    
 }
