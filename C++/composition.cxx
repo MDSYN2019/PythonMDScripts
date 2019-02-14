@@ -446,24 +446,18 @@ public:
       C12E2M_struct[i+750].index[4] = A9_2_4;
       C12E2M_struct[i+750].index[5] = A9_3_4;
       C12E2M_struct[i+750].index[6] = A10_4; 	    
-
-
-
     }
   }
-
+  
   void check() {  
     for (unsigned int i = 0; i < xcoTotal.size(); ++i) {	
-
       for (unsigned int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1]); j++) {
-w
 	std::cout << bTotal[i][j].second << " " << xcoTotal[i][j].second << " " << ycoTotal[i][j].second << " " << zcoTotal[i][j].second << "\n";
-
       }
       std::cout << bTotal[i][71312].second << " " << xcoTotal[i][71312].second << " " << ycoTotal[i][71312].second << " " << zcoTotal[i][71312].second << "\n"; 
     }
   }
-
+  
   double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
     double dist = pow((pow(COM1x-COM2x,2.0) + pow(COM1y-COM2y,2.0) + pow(COM1z-COM2z,2.0)),0.5);
     return dist;
@@ -474,8 +468,8 @@ w
     std::vector<std::vector<std::vector< std::tuple<int,int, double> > > > vecOftup; // Damn ugly code!!! 
     std::vector<std::vector< std::tuple<int,int, double> > > closestDistanceVector;     
     std::tuple<int, int , double> foo; 
-    std::vector< std::pair<double,int> > closestDistanceVector;    
-
+    std::vector< std::pair<double,int> > closestDistanceVector;
+    
     for (unsigned int i = 0; i < xcoTotal.size(); ++i) {      
       for (unsigned int j = 0; j <= sizeof(C12E2M_struct)/sizeof(C12E2M_struct[1]); j++) { 	
 	for (unsigned int k = 0; k <= sizeof(C12E2M_struct)/sizeof(C12E2M_struct[1]); k++) { 
