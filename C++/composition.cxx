@@ -5,65 +5,53 @@
 
    How does the DBSCAN algorithm work?
    
-   -> Point P in a cluster is a 'core' point if there are a critical number of the same type of points within a distance E.
-   -> Point Q is a point in the cluster if there is a clear vector towards that from any of the elements of the P vector 
-   -> All points not reachable from any other points are outliers
+   => Point P in a cluster is a 'core' point if there are a critical number of the same type of points within a distance E.
+   => Point Q is a point in the cluster if there is a clear vector towards that from any of the elements of the P vector 
+   => All points not reachable from any other points are outliers
    
    Two main algorithms are required, where there are 
    
-  --------------------------------------------------------------------------------*/
+   ----------------------------------
+   | DBSCAN algorithm -  Pseudocode:|
+   ----------------------------------
 
-/*
- ----------------------------------
- | DBSCAN algorithm -  Pseudocode:|
- ----------------------------------
+   DBSCAN(D, eps, MinPts) {
+   C = 0
+   for each point P in dataset D {
+   if P is visited 
+   continue next point 
+   mark P as visited
+   NeighbourPts = regionQuery(P, eps)
+   if Sizeof(NeighbourPts) < MinPts
+   mark P as NOISE
+   else {
+   C = next cluster
+   expandCluster(P, NeighbourPts, C, eps, MinPits)
+   }
+   }
+}
+
 */
 
 /*
-  DBSCAN(D, eps, MinPts) {
-  C = 0
-  for each point P in dataset D {
-  if P is visited 
-  continue next point 
-  mark P as visited
-  NeighbourPts = regionQuery(P, eps)
-  if Sizeof(NeighbourPts) < MinPts
-  mark P as NOISE
-  else {
-  C = next cluster
-  expandCluster(P, NeighbourPts, C, eps, MinPits)
-  }
-  }
-  }
- */
 
-/*
-void DBSCAN(double *, eps, Minpts);
-void regionQuery(double Distcriteria, double (*COMref) (double)) {
-  COMref = CenterOfMass;  
-}  
-*/
+ -------------------------------------------------------------------------- 
+ |                      Array of the Center of Masses                     | 
+ --------------------------------------------------------------------------
 
-/* Function to find the center of mass of the C12E2 */
-
-
-// ------------------------------------------------------------------------- //
-//                       Array of the center of masses                       //
-// ------------------------------------------------------------------------- //
-
-/*
  We are implementing a pseudo DBSCAN algorithm
     
- To measure the distance between the points, we measure the distances between //
- the centers of masses (COM). The DBSCAN algorithm originally requires to     //
- calculate the `anchor' COMs, which are decided through a nearest neighbour   //
+ To measure the distance between the points, we measure the distances between 
+ the centers of masses (COM). The DBSCAN algorithm originally requires to     
+ calculate the `anchor' COMs, which are decided through a nearest neighbour   
  calculation. In the schematic below, 
 
  O  O  O ---> X  -|
   \/ \/           | -- the O's show the 'anchor', and the X's show the increasing cluster
-   O  O ---- X   -|
+  O  O ---- X   -|
     
  Calculating the COM of the C12E2
+ 
  The COM components are divided into the x, y, and z coordinates
 
 */
@@ -96,17 +84,20 @@ const int indexCG = 7;
 int numberofSS = 100; /*The number of screenshots in the dump file*/
 const int boxdim = 3;
 
-struct C12E2_skeleton {                                                                                                                              
+typedef struct {                                                                                                                              
   int index[7];
-};
+} C12E2_skeleton;
 
 
-double CenterOfMass(double* H7, double* H6_1, double* H6_2, double* T3_1, double* T3_2, double* T3_3, double* T4) {  
+double CenterOfMass(C12E2_skeleton* input, int ind, std::vector<std::pair<int, double> >* vec) {  
   // Need to update
   double COM; 
-  COM = (*H7 + *H6_1 + *H6_2 + *T3_1 + *T3_2 + *T3_3 + *T4)/7; 
+  // COM = (vec[index][input->index[0]]->second + vec[index][input->index[1]]->second + vec[index][input->index[2]]->second + vec[index][input->index[3]]->second + vec[index][input->index[4]]->second + vec[index][input->index[5]]->second + vec[index][input->index[6]]->second) / 7; 
   /* With this COM definition we now know the COM in each cartesian coordinate */ 
-  return COM; 
+  for (std::vector<std::pair<int, double> >::const_iterator it = vec->begin() ; it != vec->end(); it++) {
+    std::cout << it->first << " " << it->second << std::endl;    
+  }
+  //return COM; 
 }  
 
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
@@ -464,7 +455,15 @@ public:
   }
   
   void computeOrderphobic() {
-    double dist; 
+    double dist;
+    for (unsigned int i = 0; i < xcoTotal.size(); ++i) {	
+      for (unsigned int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1]); j++) {
+	CenterOfMass(&C12E2_struct[j], i, &xcoTotal[i]);	
+	// std::cout << dist <<  i << " "  << j << std::endl;
+      }
+    }
+  }
+		   /*
     std::vector<std::vector<std::vector< std::tuple<int,int, double> > > > vecOftup; // Damn ugly code!!! 
     std::vector<std::vector< std::tuple<int,int, double> > > closestDistanceVector;     
     std::tuple<int, int , double> foo; 
@@ -482,8 +481,7 @@ public:
       vecOftup.append(closestDistanceVector);
       closestDistanceVector.clear(); // Clear after accumulating
     }
-  }
-
+    */
   /*
   double ChainOrderAnalysis(double* H7_x, double* H7_y, double* H7_z, double* H6_1_x, double* H6_1_y, double* H6_1_z,  double* H6_2_x, double* H6_2_y, double* H6_2_z, double* T3_1_x, double* T3_1_y, double* T3_1_z,  double* T3_2_x, double* T3_2_y, double* T3_2_z, double* T3_3_x, double* T3_3_y, double* T3_3_z, double* T4_x, double* T4_y, double* T4_z) {
 
@@ -559,10 +557,10 @@ private:
   int A13_2, A12_1_2, A12_2_2, A9_1_2, A9_2_2, A9_3_2, A10_2; // Second Batch
   int A13_3, A12_1_3, A12_2_3, A9_1_3, A9_2_3, A9_3_3, A10_3; // Third Batch
   int A13_4, A12_1_4, A12_2_4, A9_1_4, A9_2_4, A9_3_4, A10_4; // Fourth Batch
-  struct C12E2_skeleton C12E2_struct[numberOfPolymers];                                                                                              
-  struct C12E2_skeleton C12E2M_struct[numberOfPolymers];    
- 
 
+  C12E2_skeleton C12E2_struct[numberOfPolymers];                                                                                              
+  C12E2_skeleton C12E2M_struct[numberOfPolymers];    
+ 
   double tophead = 0;
   double downhead = 0;
   double mimictophead = 0;
@@ -588,7 +586,8 @@ int main (int argc, char *argv[])  {
   A.sortVectors();
   //A.printVectorElements();
   A.check();
-  
+  A.AllocationVec();
+  A.computeOrderphobic();
   return 0;    
 }
 
