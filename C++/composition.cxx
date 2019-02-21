@@ -89,12 +89,12 @@ typedef struct {
 } C12E2_skeleton;
 
 
-double CenterOfMass(C12E2_skeleton* input, int ind, std::vector<std::pair<int, double> >* vec) {  
+double CenterOfMass(C12E2_skeleton* input, int ind, std::vector<std::pair<int, double> >* vec1, std::vector<std::pair<int, double> >* vec2, std::vector<std::pair<int, double> >* vec3) {  
   // Need to update
   double COM; 
   // COM = (vec[index][input->index[0]]->second + vec[index][input->index[1]]->second + vec[index][input->index[2]]->second + vec[index][input->index[3]]->second + vec[index][input->index[4]]->second + vec[index][input->index[5]]->second + vec[index][input->index[6]]->second) / 7; 
   /* With this COM definition we now know the COM in each cartesian coordinate */ 
-  for (std::vector<std::pair<int, double> >::const_iterator it = vec->begin() ; it != vec->end(); it++) {
+  for (std::vector<std::pair<int, double> >::const_iterator it = vec1->begin() ; it != vec1->end(); it++) {
     std::cout << it->first << " " << it->second << std::endl;    
   }
   //return COM; 
