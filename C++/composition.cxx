@@ -66,15 +66,9 @@
 #include <cmath>
 #include <tuple>
 #include <boost/progress.hpp>
-
-//#include <Eigen>
-//#include <Eigen/Dense>
-//using namespace Eigen;
-
-//double CenterOfMass(double* H7, double* H6_1, double* H6_2, double* T3_1, double* T3_2, double* T3_3, double* T4);
-//double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z);
-
-/* Function to calculate the centre of mass of each molecule */
+#include <Eigen>
+#include <Eigen/Dense>
+using namespace Eigen;
 
 const int numberOfPolymers = 998; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
@@ -94,37 +88,63 @@ typedef struct {
   double z;
 } inputCoord;
 
+typedef struct { // Used to input the center of masses for each lipid
+  double x;
+  double y;
+  double z;
+} COMstruct;
+
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
   double dist = pow((pow(COM1x-COM2x,2.0) + pow(COM1y-COM2y,2.0) + pow(COM1z-COM2z,2.0)),0.5);
   return dist;
 }
- 
+
+// Function used for sorting vector of structs 
 bool compareByIndex(const inputCoord &a, const inputCoord &b) {
     return a.a < b.a;
 }
 
-/*
-double CenterOfMass(C12E2_skeleton* input, int ind, std::vector<std::pair<int, double> >* vec1) {  
-  // Need to update
-  double COM; 
-  // COM = (vec[index][input->index[0]]->second + vec[index][input->index[1]]->second + vec[index][input->index[2]]->second + vec[index][input->index[3]]->second + vec[index][input->index[4]]->second + vec[index][input->index[5]]->second + vec[index][input->index[6]]->second) / 7; 
-  // With this COM definition we now know the COM in each cartesian coordinate  
-  for (std::vector<std::pair<int, double> >::const_iterator it = vec1->begin() ; it != vec1->end(); it++) {
-    std::cout << it->first << " " << it->second << std::endl;    
-  }
-  //return COM; 
-}  
-*/
+double CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<std::vector<inputCoord> >* inputVec,   std::vector<COMstruct>* COM1, std::vector<COMstruct>* COM2) {
 
-bool sortbysec_int(const std::pair<int,int> &a, 
-		   const std::pair<int,int> &b) 
-{ 
+  double C12E2comX, C12E2McomX; // X coordinate COM 
+  double C12E2comY, C12E2McomY; // Y coordinate COM 
+  double C12E2comZ, C12E2McomZ; // Z coordinate cCOM 
+
+  COMstruct C12E2input;
+  COMstruct C12E2Minput;
+  
+  for (unsigned int i = 0; i <= inputVec->size(); ++i) {
+
+    COM1->clear();
+    COM2->clear();
+    
+    for (unsigned int index = 0; index <= vec1->size(); ++index) {
+      C12E2comX = (inputVec->at(i).at(vec1->at(index)).x + inputVec->at(i).at(vec1->at(index+1)).x + inputVec->at(i).at(vec1->at(index + 2)).x + inputVec->at(i).at(vec1->at(index+3)).x + inputVec->at(i).at(vec1->at(index+4)).x + inputVec->at(i).at(vec1->at(index+5)).x + inputVec->at(i).at(vec1->at(index+6)).x)/7.0;
+      C12E2comY = (inputVec->at(i).at(vec1->at(index)).y + inputVec->at(i).at(vec1->at(index+1)).y + inputVec->at(i).at(vec1->at(index + 2)).y + inputVec->at(i).at(vec1->at(index+3)).y + inputVec->at(i).at(vec1->at(index+4)).y + inputVec->at(i).at(vec1->at(index+5)).y + inputVec->at(i).at(vec1->at(index+6)).y)/7.0;
+      C12E2comZ = (inputVec->at(i).at(vec1->at(index)).z + inputVec->at(i).at(vec1->at(index+1)).z + inputVec->at(i).at(vec1->at(index + 2)).z + inputVec->at(i).at(vec1->at(index+3)).z + inputVec->at(i).at(vec1->at(index+4)).z + inputVec->at(i).at(vec1->at(index+5)).z + inputVec->at(i).at(vec1->at(index+6)).z)/7.0;
+      C12E2input.x = C12E2comX;
+      C12E2input.y = C12E2comY;
+      C12E2input.z = C12E2comZ;
+      COM1->push_back(C12E2input);
+    }   
+    for (unsigned int index = 0; index <= vec2->size(); ++index) {
+      C12E2McomX = (inputVec->at(i).at(vec2->at(index)).x + inputVec->at(i).at(vec2->at(index+1)).x + inputVec->at(i).at(vec2->at(index + 2)).x + inputVec->at(i).at(vec2->at(index+3)).x + inputVec->at(i).at(vec2->at(index+4)).x + inputVec->at(i).at(vec2->at(index+5)).x + inputVec->at(i).at(vec2->at(index+6)).x)/7.0;
+      C12E2McomY = (inputVec->at(i).at(vec2->at(index)).y + inputVec->at(i).at(vec2->at(index+1)).y + inputVec->at(i).at(vec2->at(index + 2)).y + inputVec->at(i).at(vec2->at(index+3)).y + inputVec->at(i).at(vec2->at(index+4)).y + inputVec->at(i).at(vec2->at(index+5)).y + inputVec->at(i).at(vec2->at(index+6)).y)/7.0;
+      C12E2McomZ = (inputVec->at(i).at(vec2->at(index)).z + inputVec->at(i).at(vec2->at(index+1)).z + inputVec->at(i).at(vec2->at(index + 2)).z + inputVec->at(i).at(vec2->at(index+3)).z + inputVec->at(i).at(vec2->at(index+4)).z + inputVec->at(i).at(vec2->at(index+5)).z + inputVec->at(i).at(vec2->at(index+6)).z)/7.0;
+      C12E2Minput.x = C12E2comX;
+      C12E2Minput.y = C12E2comY;
+      C12E2Minput.z = C12E2comZ;
+      COM2->push_back(C12E2Minput);
+    }
+  }
+}
+
+
+bool sortbysec_int(const std::pair<int,int> &a, const std::pair<int,int> &b) { 
     return (a.second < b.second); 
 }
 
-bool sortbysec_double(const std::pair<int,double> &a, 
-		      const  std::pair<int,double> &b) 
-{ 
+bool sortbysec_double(const std::pair<int,double> &a, const  std::pair<int,double> &b) { 
     return (a.second < b.second); 
 } 
 
@@ -280,6 +300,7 @@ public:
   }
 
   void headGroupVectorFormation() {  
+
     for (unsigned int j = 0; j <= inputTotal[1].size(); j++) {   
       if (inputTotal[1][j].b == 7) {
         C12E2IndexVector.push_back(inputTotal[1][j].a); // push back C12E2 bead 7 indices (headgroups) 	
@@ -287,22 +308,24 @@ public:
 	C12E2MIndexVector.push_back(inputTotal[1][j].a); // push back C12E2 bead 7 indices (headgroups) 	
       }
     }
-
+    
     for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
-      std::cout << C12E2IndexVector[index] << " " << "7" << " " <<  std::endl; 
-    }
-    
-    for (unsigned int index = 0; index <  C12E2MIndexVector.size(); ++index) {
-      std::cout << C12E2MIndexVector[index] << " " << "13" << " " <<  std::endl; 
-    }
-    
-    std::cout << C12E2IndexVector.size() << " " <<  C12E2MIndexVector.size() << " " << std::endl;
+      std::cout << C12E2IndexVector[index] << " " << C12E2MIndexVector[index]  << " " << std::endl; 
+    }    
   }
 
-  void ComputePhi() {
-    for (unsigned int i = 0; j <= inputTotal.size(); i++) {   
-     
+  void ComputePhi() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
+    for (unsigned int i = 0; i <= inputTotal.size(); i++) {   
+      NPX = inputTotal[i][71313].x; // x coordinate of the NP  
+      NPY = inputTotal[i][71313].y; // y coordinate of the NP
+      NPZ = inputTotal[i][71313].z; // z coordinate of the NP 
     }
+
+    for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
+      // Compute the center of mass of each lipid
+      
+    }	  
+
   }
   
   /*  
@@ -409,6 +432,13 @@ private:
   std::vector<std::vector<inputCoord> > inputTotal; // push back vector of structs 
   std::vector<int> C12E2IndexVector; // push back C12E2 bead 7 indices (headgroups) 
   std::vector<int> C12E2MIndexVector; // push back all C12E2M bead 13 indices (headgroups)
+
+  // Vectors to store the Centers of Mass 
+  std::vector<COMstruct> C12E2COM;
+  std::vector<COMstruct> C12E2MCOM;
+
+  std::vector<std::vector<COMstruct> > C12E2TotalCOMArray;
+  std::vector<std::vector<COMstruct> > C12E2MTotalCOMArray;
   
   FILE *ipf; /* input file */  
   // COM vectors - C12E2
@@ -453,12 +483,15 @@ private:
   double box1;
   double box2; 
   double NPX, NPY, NPZ;
+  
   double boxlength[boxdim];
   char line[100];  
   inputCoord inputline;
 
 };
- 
+
+class testClass {
+};
 compute A;
   
 int main (int argc, char *argv[])  {
