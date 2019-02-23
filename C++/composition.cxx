@@ -66,9 +66,9 @@
 #include <cmath>
 #include <tuple>
 #include <boost/progress.hpp>
-#include <Eigen>
-#include <Eigen/Dense>
-using namespace Eigen;
+//#include <Eigen>
+//#include <Eigen/Dense>
+//using namespace Eigen;
 
 const int numberOfPolymers = 998; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
@@ -104,41 +104,50 @@ bool compareByIndex(const inputCoord &a, const inputCoord &b) {
     return a.a < b.a;
 }
 
-double CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<std::vector<inputCoord> >* inputVec,   std::vector<COMstruct>* COM1, std::vector<COMstruct>* COM2) {
+void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<std::vector<inputCoord> >* inputVec,   std::vector<COMstruct>* COM1, std::vector<COMstruct>* COM2, std::vector<std::vector<COMstruct> >* C12E2final, std::vector<std::vector<COMstruct> >* C12E2Mfinal) {
 
   double C12E2comX, C12E2McomX; // X coordinate COM 
   double C12E2comY, C12E2McomY; // Y coordinate COM 
-  double C12E2comZ, C12E2McomZ; // Z coordinate cCOM 
-
-  COMstruct C12E2input;
-  COMstruct C12E2Minput;
+  double C12E2comZ, C12E2McomZ; // Z coordinate cCOM
   
-  for (unsigned int i = 0; i <= inputVec->size(); ++i) {
+  COMstruct C12E2input; // struct to store COM coordinates for C12E2
+  COMstruct C12E2Minput; // struct to store cOM coordinates for C12E2M
+  
+  for (unsigned int i = 0; i < inputVec->size(); ++i) {
+    for (unsigned int index = 0; index <= vec1->size()-1; ++index) {
 
-    COM1->clear();
-    COM2->clear();
-    
-    for (unsigned int index = 0; index <= vec1->size(); ++index) {
-      C12E2comX = (inputVec->at(i).at(vec1->at(index)).x + inputVec->at(i).at(vec1->at(index+1)).x + inputVec->at(i).at(vec1->at(index + 2)).x + inputVec->at(i).at(vec1->at(index+3)).x + inputVec->at(i).at(vec1->at(index+4)).x + inputVec->at(i).at(vec1->at(index+5)).x + inputVec->at(i).at(vec1->at(index+6)).x)/7.0;
-      C12E2comY = (inputVec->at(i).at(vec1->at(index)).y + inputVec->at(i).at(vec1->at(index+1)).y + inputVec->at(i).at(vec1->at(index + 2)).y + inputVec->at(i).at(vec1->at(index+3)).y + inputVec->at(i).at(vec1->at(index+4)).y + inputVec->at(i).at(vec1->at(index+5)).y + inputVec->at(i).at(vec1->at(index+6)).y)/7.0;
-      C12E2comZ = (inputVec->at(i).at(vec1->at(index)).z + inputVec->at(i).at(vec1->at(index+1)).z + inputVec->at(i).at(vec1->at(index + 2)).z + inputVec->at(i).at(vec1->at(index+3)).z + inputVec->at(i).at(vec1->at(index+4)).z + inputVec->at(i).at(vec1->at(index+5)).z + inputVec->at(i).at(vec1->at(index+6)).z)/7.0;
+      C12E2comX = (inputVec->at(i).at(vec1->at(index)).x + inputVec->at(i).at((vec1->at(index))+1).x + inputVec->at(i).at((vec1->at(index))+2).x + inputVec->at(i).at((vec1->at(index))+3).x + inputVec->at(i).at((vec1->at(index))+4).x + inputVec->at(i).at((vec1->at(index))+5).x + inputVec->at(i).at((vec1->at(index))+6).x)/7.0;
+
+      C12E2comY = (inputVec->at(i).at(vec1->at(index)).y + inputVec->at(i).at((vec1->at(index))+1).x + inputVec->at(i).at((vec1->at(index))+2).y + inputVec->at(i).at((vec1->at(index))+3).y + inputVec->at(i).at((vec1->at(index))+4).y + inputVec->at(i).at((vec1->at(index))+5).y + inputVec->at(i).at((vec1->at(index))+6).y)/7.0;
+
+      C12E2comZ = (inputVec->at(i).at(vec1->at(index)).z + inputVec->at(i).at((vec1->at(index))+1).z + inputVec->at(i).at((vec1->at(index))+2).z + inputVec->at(i).at((vec1->at(index))+3).z + inputVec->at(i).at((vec1->at(index))+4).z + inputVec->at(i).at((vec1->at(index))+5).z + inputVec->at(i).at((vec1->at(index))+6).z)/7.0;
+
       C12E2input.x = C12E2comX;
       C12E2input.y = C12E2comY;
       C12E2input.z = C12E2comZ;
-      COM1->push_back(C12E2input);
-    }   
-    for (unsigned int index = 0; index <= vec2->size(); ++index) {
-      C12E2McomX = (inputVec->at(i).at(vec2->at(index)).x + inputVec->at(i).at(vec2->at(index+1)).x + inputVec->at(i).at(vec2->at(index + 2)).x + inputVec->at(i).at(vec2->at(index+3)).x + inputVec->at(i).at(vec2->at(index+4)).x + inputVec->at(i).at(vec2->at(index+5)).x + inputVec->at(i).at(vec2->at(index+6)).x)/7.0;
-      C12E2McomY = (inputVec->at(i).at(vec2->at(index)).y + inputVec->at(i).at(vec2->at(index+1)).y + inputVec->at(i).at(vec2->at(index + 2)).y + inputVec->at(i).at(vec2->at(index+3)).y + inputVec->at(i).at(vec2->at(index+4)).y + inputVec->at(i).at(vec2->at(index+5)).y + inputVec->at(i).at(vec2->at(index+6)).y)/7.0;
-      C12E2McomZ = (inputVec->at(i).at(vec2->at(index)).z + inputVec->at(i).at(vec2->at(index+1)).z + inputVec->at(i).at(vec2->at(index + 2)).z + inputVec->at(i).at(vec2->at(index+3)).z + inputVec->at(i).at(vec2->at(index+4)).z + inputVec->at(i).at(vec2->at(index+5)).z + inputVec->at(i).at(vec2->at(index+6)).z)/7.0;
+      COM1->push_back(C12E2input);     
+    }
+    
+    for (unsigned int index = 0; index < vec2->size()-1; ++index) {
+
+      C12E2McomX = (inputVec->at(i).at(vec2->at(index)).x + inputVec->at(i).at((vec2->at(index))+1).x + inputVec->at(i).at((vec2->at(index))+2).x + inputVec->at(i).at((vec2->at(index))+3).x + inputVec->at(i).at((vec2->at(index))+4).x + inputVec->at(i).at((vec2->at(index))+5).x + inputVec->at(i).at((vec2->at(index))+6).x)/7.0;
+
+      C12E2McomY = (inputVec->at(i).at(vec2->at(index)).y + inputVec->at(i).at((vec2->at(index))+1).x + inputVec->at(i).at((vec2->at(index))+2).y + inputVec->at(i).at((vec2->at(index))+3).y + inputVec->at(i).at((vec2->at(index))+4).y + inputVec->at(i).at((vec2->at(index))+5).y + inputVec->at(i).at((vec2->at(index))+6).y)/7.0;
+
+      C12E2McomZ = (inputVec->at(i).at(vec2->at(index)).z + inputVec->at(i).at((vec2->at(index))+1).z + inputVec->at(i).at((vec2->at(index))+2).z + inputVec->at(i).at((vec2->at(index))+3).z + inputVec->at(i).at((vec2->at(index))+4).z + inputVec->at(i).at((vec2->at(index))+5).z + inputVec->at(i).at((vec2->at(index))+6).z)/7.0;
       C12E2Minput.x = C12E2comX;
       C12E2Minput.y = C12E2comY;
       C12E2Minput.z = C12E2comZ;
-      COM2->push_back(C12E2Minput);
+      COM2->push_back(C12E2Minput);   
     }
+    
+    C12E2final->push_back(*COM1);
+    C12E2Mfinal->push_back(*COM2);
+    COM1->clear();
+    COM2->clear();
+
   }
 }
-
 
 bool sortbysec_int(const std::pair<int,int> &a, const std::pair<int,int> &b) { 
     return (a.second < b.second); 
@@ -327,7 +336,10 @@ public:
     }	  
 
   }
-  
+
+  void allocateCOM() {
+    CenterOfMass(&C12E2IndexVector, &C12E2MIndexVector, &inputTotal, &C12E2COM, &C12E2MCOM, &C12E2TotalCOMArray, &C12E2MTotalCOMArray);
+  }
   /*  
   void computeOrderphobic() {
     double dist;
@@ -497,13 +509,9 @@ compute A;
 int main (int argc, char *argv[])  {
   A.storeFile();
   A.sortVectors();
-  //  A.printVectorElements();
   A.check();
   A.headGroupVectorFormation();
-  //  A.sortVectors();
-  //A.AllocationVec();
-  //  A.computeOrderphobic();
-  // A.newProcess();
+  A.allocateCOM();
   return 0;    
 }
 
