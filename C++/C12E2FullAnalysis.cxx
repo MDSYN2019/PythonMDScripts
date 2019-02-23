@@ -330,12 +330,18 @@ public:
       NPZ = inputTotal[i][71313].z; // z coordinate of the NP 
     }    
   }
-
+  
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
-    for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
-      std::cout << C12E2IndexVector[index] << " " << C12E2MIndexVector[index]  << " " << std::endl; 
-    }    
- 
+    for (unsigned int i = 0; i < inputTotal.size(); ++i) {
+      double DIST, DIST2;
+      for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
+	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
+	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
+	  DIST2 =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
+	  std::cout << i << " " << index << " " << newindex << " " << DIST <<  " " << DIST2 << " "  << std::endl; 
+	}
+      }
+    }
   }
 
   void allocateCOM() {
@@ -473,6 +479,7 @@ int main (int argc, char *argv[])  {
   A.check();
   A.headGroupVectorFormation();
   A.allocateCOM();
+  A.ComputeOrderphobic();
   return 0;    
 }
 
