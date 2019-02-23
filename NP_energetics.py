@@ -4,13 +4,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy
 
+"""
+From thesis:
+
+gamma values - near the domain boundaries, represent 1.0-7.0 x 10^-10 N  (line tension) 
+
+
+"""
 class curvatureEnergetics:
 	def __self__(self, L, C, Csp, sigma, A, kappa):
 		self.L = L # Radii?
 		self.C = C # Curvature 
 		self.Csp = Csp # Spontaneous Curvature
 		self.A = A  # Area 
-		self.sigma = sigma # Line tension 
+		self.sigma = 1.0*(10**-10) # Need to plot a phase diagram as a function of the line tension  
 		self.kappa = kappa # Bilayer Rigidity 
 	def E_edge(self):
 		"""
