@@ -58,6 +58,8 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <functional>   // std::multiplies
+#include <numeric>      // std::adjacent_difference
 #include <cmath>
 #include <bits/stdc++.h> 
 #include <utility>
@@ -309,7 +311,6 @@ public:
   }
 
   void headGroupVectorFormation() {  
-
     for (unsigned int j = 0; j <= inputTotal[1].size(); j++) {   
       if (inputTotal[1][j].b == 7) {
         C12E2IndexVector.push_back(inputTotal[1][j].a); // push back C12E2 bead 7 indices (headgroups) 	
@@ -317,7 +318,6 @@ public:
 	C12E2MIndexVector.push_back(inputTotal[1][j].a); // push back C12E2 bead 7 indices (headgroups) 	
       }
     }
-    
     for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
       std::cout << C12E2IndexVector[index] << " " << C12E2MIndexVector[index]  << " " << std::endl; 
     }    
@@ -328,29 +328,19 @@ public:
       NPX = inputTotal[i][71313].x; // x coordinate of the NP  
       NPY = inputTotal[i][71313].y; // y coordinate of the NP
       NPZ = inputTotal[i][71313].z; // z coordinate of the NP 
-    }
+    }    
+  }
 
+  void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
     for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
-      // Compute the center of mass of each lipid
-      
-    }	  
-
+      std::cout << C12E2IndexVector[index] << " " << C12E2MIndexVector[index]  << " " << std::endl; 
+    }    
+ 
   }
 
   void allocateCOM() {
     CenterOfMass(&C12E2IndexVector, &C12E2MIndexVector, &inputTotal, &C12E2COM, &C12E2MCOM, &C12E2TotalCOMArray, &C12E2MTotalCOMArray);
   }
-  /*  
-  void computeOrderphobic() {
-    double dist;
-    for (unsigned int i = 0; i < xcoTotal.size(); ++i) {	
-      for (unsigned int j = 0; j <= sizeof(C12E2_struct)/sizeof(C12E2_struct[1]); j++) {
-	CenterOfMass(&C12E2_struct[j], i, &xcoTotal[i]);	
-	// std::cout << dist <<  i << " "  << j << std::endl;
-      }
-    }
-  }
-  */
   
   /*
 void newProcess() {
@@ -444,16 +434,13 @@ private:
   std::vector<std::vector<inputCoord> > inputTotal; // push back vector of structs 
   std::vector<int> C12E2IndexVector; // push back C12E2 bead 7 indices (headgroups) 
   std::vector<int> C12E2MIndexVector; // push back all C12E2M bead 13 indices (headgroups)
-
   // Vectors to store the Centers of Mass 
   std::vector<COMstruct> C12E2COM;
   std::vector<COMstruct> C12E2MCOM;
-
   std::vector<std::vector<COMstruct> > C12E2TotalCOMArray;
   std::vector<std::vector<COMstruct> > C12E2MTotalCOMArray;
   
   FILE *ipf; /* input file */  
-  // COM vectors - C12E2
 
   double tophead = 0;
   double downhead = 0;
