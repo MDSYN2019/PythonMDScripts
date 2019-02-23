@@ -1,7 +1,5 @@
 /* --------------------------------------------------------------------------------
-  ---------------------------------------------------------------------------------
-  |Calculate the Clustering of the Mixed Lipid Bilayer through a DBSCAN Algorithm | 
-  ---------------------------------------------------------------------------------
+   Calculate the Clustering of the Mixed Lipid Bilayer through a DBSCAN Algorithm  
 
    How does the DBSCAN algorithm work?
    
@@ -200,6 +198,7 @@ public:
 	  l++;
 	  //printf("%d %d %lf %lf %lf\n",index,atomtype,x,y,z);
 	}
+
       }
       inputTotal.push_back(inputVector);
       ++show_progress;
@@ -258,7 +257,7 @@ public:
   
   void check() {  
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {	
-      for (unsigned int j = 0; j <= inputTotal[1].size()/sizeof(inputTotal[1][1]); j++) {
+      for (unsigned int j = 0; j <= inputTotal[1].size(); j++) {
 	if (inputTotal[i][j].b == 7) {
 	  std::cout<< inputTotal[i][j].a << " " << inputTotal[i][j].b << std::endl;
 	  std::cout<< inputTotal[i][j+1].a << " " << inputTotal[i][j+1].b << std::endl;
@@ -279,7 +278,32 @@ public:
       }
     }
   }
-  
+
+  void headGroupVectorFormation() {  
+    for (unsigned int j = 0; j <= inputTotal[1].size(); j++) {   
+      if (inputTotal[1][j].b == 7) {
+        C12E2IndexVector.push_back(inputTotal[1][j].a); // push back C12E2 bead 7 indices (headgroups) 	
+      } else if (inputTotal[1][j].b == 13) {
+	C12E2MIndexVector.push_back(inputTotal[1][j].a); // push back C12E2 bead 7 indices (headgroups) 	
+      }
+    }
+
+    for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
+      std::cout << C12E2IndexVector[index] << " " << "7" << " " <<  std::endl; 
+    }
+    
+    for (unsigned int index = 0; index <  C12E2MIndexVector.size(); ++index) {
+      std::cout << C12E2MIndexVector[index] << " " << "13" << " " <<  std::endl; 
+    }
+    
+    std::cout << C12E2IndexVector.size() << " " <<  C12E2MIndexVector.size() << " " << std::endl;
+  }
+
+  void ComputePhi() {
+    for (unsigned int i = 0; j <= inputTotal.size(); i++) {   
+     
+    }
+  }
   
   /*  
   void computeOrderphobic() {
@@ -316,7 +340,7 @@ void newProcess() {
     xcoTotalFormat.push_back(xcoFormat); 
     ycoTotalFormat.push_back(ycoFormat); 
     zcoTotalFormat.push_back(zcoFormat); 
-  }
+    *  }
  
   // for (unsigned int i = 0; i < aTotalFormat.size(); ++i) {	
   // for (unsigned int j = 0; j <= aTotalFormat[1].size(); j++) {
@@ -381,8 +405,10 @@ void newProcess() {
   */
 private:    
   // Vectors to store trajectory values 
-  std::vector<inputCoord> inputVector;
-  std::vector<std::vector<inputCoord> > inputTotal;
+  std::vector<inputCoord> inputVector; // push back all structs
+  std::vector<std::vector<inputCoord> > inputTotal; // push back vector of structs 
+  std::vector<int> C12E2IndexVector; // push back C12E2 bead 7 indices (headgroups) 
+  std::vector<int> C12E2MIndexVector; // push back all C12E2M bead 13 indices (headgroups)
   
   FILE *ipf; /* input file */  
   // COM vectors - C12E2
@@ -426,6 +452,7 @@ private:
   double x,y,z; /*coordinates for the atoms in the box*/
   double box1;
   double box2; 
+  double NPX, NPY, NPZ;
   double boxlength[boxdim];
   char line[100];  
   inputCoord inputline;
@@ -439,6 +466,7 @@ int main (int argc, char *argv[])  {
   A.sortVectors();
   //  A.printVectorElements();
   A.check();
+  A.headGroupVectorFormation();
   //  A.sortVectors();
   //A.AllocationVec();
   //  A.computeOrderphobic();
