@@ -128,6 +128,7 @@ void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<st
       C12E2input.y = C12E2comY;
       C12E2input.z = C12E2comZ;
       COM1->push_back(C12E2input);     
+
     }
     
     for (unsigned int index = 0; index < vec2->size()-1; ++index) {
@@ -137,6 +138,7 @@ void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<st
       C12E2McomY = (inputVec->at(i).at(vec2->at(index)).y + inputVec->at(i).at((vec2->at(index))+1).x + inputVec->at(i).at((vec2->at(index))+2).y + inputVec->at(i).at((vec2->at(index))+3).y + inputVec->at(i).at((vec2->at(index))+4).y + inputVec->at(i).at((vec2->at(index))+5).y + inputVec->at(i).at((vec2->at(index))+6).y)/7.0;
 
       C12E2McomZ = (inputVec->at(i).at(vec2->at(index)).z + inputVec->at(i).at((vec2->at(index))+1).z + inputVec->at(i).at((vec2->at(index))+2).z + inputVec->at(i).at((vec2->at(index))+3).z + inputVec->at(i).at((vec2->at(index))+4).z + inputVec->at(i).at((vec2->at(index))+5).z + inputVec->at(i).at((vec2->at(index))+6).z)/7.0;
+
       C12E2Minput.x = C12E2comX;
       C12E2Minput.y = C12E2comY;
       C12E2Minput.z = C12E2comZ;
@@ -165,7 +167,6 @@ class compute {
 public:
   compute() {}; // Default constructor
   compute(std::string file) {}; // constructor reading file
-
   void storeFile() {    
     boost::progress_display show_progress(numberofSS);
     // open file for reading 
@@ -332,12 +333,16 @@ public:
   }
   
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
+
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {
       double DIST, DIST2;
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
+
 	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
+
 	  DIST2 =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
+
 	  std::cout << i << " " << index << " " << newindex << " " << DIST <<  " " << DIST2 << " "  << std::endl; 
 	}
       }
@@ -446,23 +451,22 @@ private:
   std::vector<std::vector<COMstruct> > C12E2TotalCOMArray;
   std::vector<std::vector<COMstruct> > C12E2MTotalCOMArray;
   
-  FILE *ipf; /* input file */  
-
-  double tophead = 0;
-  double downhead = 0;
-  double mimictophead = 0;
-  double mimicdownhead = 0;
+  FILE *ipf; /* input file */
   
   int MimicCounter = 0;    
   int PolymerCounter = 0;    
   int atomtype; 
   int index, l, n;
   int nlines = numberofatoms + 9;      
+
+  double tophead = 0;
+  double downhead = 0;
+  double mimictophead = 0;
+  double mimicdownhead = 0;
   double x,y,z; /*coordinates for the atoms in the box*/
   double box1;
   double box2; 
-  double NPX, NPY, NPZ;
-  
+  double NPX, NPY, NPZ;  
   double boxlength[boxdim];
   char line[100];  
   inputCoord inputline;
@@ -480,6 +484,7 @@ int main (int argc, char *argv[])  {
   A.headGroupVectorFormation();
   A.allocateCOM();
   A.ComputeOrderphobic();
+
   return 0;    
 }
 

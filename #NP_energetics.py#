@@ -37,6 +37,6 @@ class curvatureEnergetics:
 		E = (0.5 * self.A * self.kappa) * np.pow(((self.L * self.C) - (self.L*self.Csp)), 2)
 		return E
 	def budding_domain_tension(self):
-		
+		sigma = self.sigma 
 	
 	
