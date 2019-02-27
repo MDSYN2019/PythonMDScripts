@@ -375,6 +375,7 @@ public:
       
       	 
       phiStruct phitemplate;
+
       for (unsigned int i = 0; i <= inputTotal.size()-1; ++i) {   
 	for (unsigned phiIndex = 0; phiIndex <= 100; ++phiIndex) {
 	  phitemplate.dist = phiIndex;
@@ -389,25 +390,53 @@ public:
 	NPY = inputTotal[i][71312].y; // y coordinate of the NP
 	NPZ = inputTotal[i][71312].z; // z coordinate of the NP 	
 
+	int topC12E2Counter, botC12E2Counter, topC12E2MCounter, botC12E2MCounter;
 	
-	for (unsigned int index = 0; index < topC12E2Index.size(); index++) {
-	  DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2Index[index]].x, &inputTotal[i][topC12E2Index[index]].y, &inputTotal[i][topC12E2Index[index]].z);
-	}
-	
-	for (unsigned int index = 0; index < botC12E2Index.size(); index++) {
-	  DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2Index[index]].x, &inputTotal[i][botC12E2Index[index]].y, &inputTotal[i][botC12E2Index[index]].z);
-	}
-	
-	for (unsigned int index = 0; index < topC12E2MIndex.size(); index++) {
-	  DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2MIndex[index]].x, &inputTotal[i][topC12E2MIndex[index]].y, &inputTotal[i][topC12E2MIndex[index]].z);
-	}
-	for (unsigned int index = 0; index < tbotC12E2MIndex.size(); index++) {
-	  DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2MIndex[index]].x, &inputTotal[i][botC12E2MIndex[index]].y, &inputTotal[i][botC12E2MIndex[index]].z);
+	for (unsigned int dist = 0; dist <= 100; ++dist) {
 
+	  topC12E2Counter = 0;
+	  botC12E2Counter = 0;
+	  topC12E2MCounter = 0;
+	  botC12E2MCounter = 0;
+	  
+	  for (unsigned int index = 0; index < topC12E2Index.size(); index++) {
+	    DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2Index[index]].x, &inputTotal[i][topC12E2Index[index]].y, &inputTotal[i][topC12E2Index[index]].z);
+	    if (DistVec <= dist + 0.5  && DistVec >= dist + 0.5) {
+	      topC12E2Counter++;
+	    }
+	  }
+	
+	  for (unsigned int index = 0; index < botC12E2Index.size(); index++) {
+	    DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2Index[index]].x, &inputTotal[i][botC12E2Index[index]].y, &inputTotal[i][botC12E2Index[index]].z);
+	    if (DistVec <= dist + 0.5  && DistVec >= dist + 0.5) {
+	      botC12E2Counter++;
+	    }
+	  }
+	
+	  for (unsigned int index = 0; index < topC12E2MIndex.size(); index++) {
+	    DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2MIndex[index]].x, &inputTotal[i][topC12E2MIndex[index]].y, &inputTotal[i][topC12E2MIndex[index]].z);
+	     if (DistVec <= dist + 0.5  && DistVec >= dist + 0.5) {
+	       topC12E2MCounter++;
+	     }
+	  }
+
+	  for (unsigned int index = 0; index < botC12E2MIndex.size(); index++) {
+	    DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2MIndex[index]].x, &inputTotal[i][botC12E2MIndex[index]].y, &inputTotal[i][botC12E2MIndex[index]].z);
+	    if (DistVec <= dist + 0.5  && DistVec >= dist + 0.5) {
+	      botC12E2MCounter++;
+	    }
+	  }
+	  
+	  phiCount[dist].topPhiC12E2Count = topC12E2Counter; 
+	  phiCount[dist].botPhiC12E2Count = botC12E2Counter; 
+	  phiCount[dist].topPhiC12E2MCount = topC12E2MCounter; 
+	  phiCount[dist].botPhiC12E2MCount = botC12E2MCounter; 
+	  
 	}
+
       }
   }
-  
+ 
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {
       double DIST, DIST2;
