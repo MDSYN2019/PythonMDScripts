@@ -96,8 +96,17 @@ typedef struct { // Used to input the center of masses for each lipid
   double z;
 } COMstruct;
 
+typedef struct { // Used to input the center of masses for each lipid
+  double dist;
+  int topPhiC12E2Count;
+  int topPhiC12E2MCount;
+  int botPhiC12E2Count;
+  int botPhiC12E2MCount;
+} phiStruct;
+
+
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
-  double dist = pow((pow(COM1x-COM2x,2.0) + pow(COM1y-COM2y,2.0) + pow(COM1z-COM2z,2.0)),0.5);
+  double dist = pow((pow(*COM1x-*COM2x,2) + pow(*COM1y-*COM2y,2) + pow(*COM1z-*COM2z,2)),0.5);
   return dist;
 }
 
@@ -128,7 +137,6 @@ void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<st
       C12E2input.y = C12E2comY;
       C12E2input.z = C12E2comZ;
       COM1->push_back(C12E2input);     
-
     }
     
     for (unsigned int index = 0; index < vec2->size()-1; ++index) {
@@ -138,7 +146,6 @@ void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<st
       C12E2McomY = (inputVec->at(i).at(vec2->at(index)).y + inputVec->at(i).at((vec2->at(index))+1).x + inputVec->at(i).at((vec2->at(index))+2).y + inputVec->at(i).at((vec2->at(index))+3).y + inputVec->at(i).at((vec2->at(index))+4).y + inputVec->at(i).at((vec2->at(index))+5).y + inputVec->at(i).at((vec2->at(index))+6).y)/7.0;
 
       C12E2McomZ = (inputVec->at(i).at(vec2->at(index)).z + inputVec->at(i).at((vec2->at(index))+1).z + inputVec->at(i).at((vec2->at(index))+2).z + inputVec->at(i).at((vec2->at(index))+3).z + inputVec->at(i).at((vec2->at(index))+4).z + inputVec->at(i).at((vec2->at(index))+5).z + inputVec->at(i).at((vec2->at(index))+6).z)/7.0;
-
       C12E2Minput.x = C12E2comX;
       C12E2Minput.y = C12E2comY;
       C12E2Minput.z = C12E2comZ;
@@ -167,6 +174,7 @@ class compute {
 public:
   compute() {}; // Default constructor
   compute(std::string file) {}; // constructor reading file
+
   void storeFile() {    
     boost::progress_display show_progress(numberofSS);
     // open file for reading 
@@ -283,7 +291,7 @@ public:
        }
     
     
-    //std::cout << SSno << " " << tophead/(tophead + mimictophead) << " " << mimictophead/(tophead + mimictophead) << " " << downhead/(downhead + mimicdownhead) << " " << mimicdownhead/(downhead + mimicdownhead) << " " << (tophead-mimictophead)/(tophead + mimictophead) << " " << (downhead-mimicdownhead)/(downhead + mimicdownhead) << " " << ((tophead-mimictophead)/(tophead + mimictophead) + (downhead-mimicdownhead)/(downhead + mimicdownhead))/2 << " " <<  ((tophead-mimictophead)/(tophead + mimictophead) - (downhead-mimicdownhead)/(downhead + mimicdownhead))/2 <<   std::endl; 
+    //std::cout << SSno << " " << tophead/(tophead + mimictophead) << " " << mimictophead/(tophead + mimictophead) << " " << downhead/(downhead + mimicdownhead) << " " << mimicdownhead/(downhead + mimicdownhead) << " " << (tophead-mimictophead)/(tophead + mimictophead) << " " << (downhead-mimicdownhead)/(downhead + mimicdownhead) << " " << ((tophead-mimictophead)/(tophead + mimictophead) + (downhead-mimicdownhead)/(downhead + mimicdownhead))/2- << " " <<  ((tophead-mimictophead)/(tophead + mimictophead) - (downhead-mimicdownhead)/(downhead + mimicdownhead))/2 <<   std::endl; 
     }
   */
   
@@ -291,21 +299,21 @@ public:
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {	
       for (unsigned int j = 0; j <= inputTotal[1].size(); j++) {
 	if (inputTotal[i][j].b == 7) {
-	  std::cout<< inputTotal[i][j].a << " " << inputTotal[i][j].b << std::endl;
-	  std::cout<< inputTotal[i][j+1].a << " " << inputTotal[i][j+1].b << std::endl;
-	  std::cout<< inputTotal[i][j+2].a << " " << inputTotal[i][j+2].b << std::endl;
-	  std::cout<< inputTotal[i][j+3].a << " " << inputTotal[i][j+3].b << std::endl;
-	  std::cout<< inputTotal[i][j+4].a << " " << inputTotal[i][j+4].b << std::endl;
-	  std::cout<< inputTotal[i][j+5].a << " " << inputTotal[i][j+5].b << std::endl;
-	  std::cout<< inputTotal[i][j+6].a << " " << inputTotal[i][j+6].b << std::endl;
+	  std::cout << inputTotal[i][j].a << " " << inputTotal[i][j].b << std::endl;
+	  std::cout << inputTotal[i][j+1].a << " " << inputTotal[i][j+1].b << std::endl;
+	  std::cout << inputTotal[i][j+2].a << " " << inputTotal[i][j+2].b << std::endl;
+	  std::cout << inputTotal[i][j+3].a << " " << inputTotal[i][j+3].b << std::endl;
+	  std::cout << inputTotal[i][j+4].a << " " << inputTotal[i][j+4].b << std::endl;
+	  std::cout << inputTotal[i][j+5].a << " " << inputTotal[i][j+5].b << std::endl;
+	  std::cout << inputTotal[i][j+6].a << " " << inputTotal[i][j+6].b << std::endl;
 	} else if (inputTotal[i][j].b == 13) {
-	  std::cout<< inputTotal[i][j].a << " " << inputTotal[i][j].b << std::endl;
-	  std::cout<< inputTotal[i][j+1].a << " " << inputTotal[i][j+1].b << std::endl;
-	  std::cout<< inputTotal[i][j+2].a << " " << inputTotal[i][j+2].b << std::endl;
-	  std::cout<< inputTotal[i][j+3].a << " " << inputTotal[i][j+3].b << std::endl;
-	  std::cout<< inputTotal[i][j+4].a << " " << inputTotal[i][j+4].b << std::endl;
-	  std::cout<< inputTotal[i][j+5].a << " " << inputTotal[i][j+5].b << std::endl;
-	  std::cout<< inputTotal[i][j+6].a << " " << inputTotal[i][j+6].b << std::endl;
+	  std::cout << inputTotal[i][j].a << " " << inputTotal[i][j].b << std::endl;
+	  std::cout << inputTotal[i][j+1].a << " " << inputTotal[i][j+1].b << std::endl;
+	  std::cout << inputTotal[i][j+2].a << " " << inputTotal[i][j+2].b << std::endl;
+	  std::cout << inputTotal[i][j+3].a << " " << inputTotal[i][j+3].b << std::endl;
+	  std::cout << inputTotal[i][j+4].a << " " << inputTotal[i][j+4].b << std::endl;
+	  std::cout << inputTotal[i][j+5].a << " " << inputTotal[i][j+5].b << std::endl;
+	  std::cout << inputTotal[i][j+6].a << " " << inputTotal[i][j+6].b << std::endl;
 	}
       }
     }
@@ -325,24 +333,88 @@ public:
   }
 
   void ComputePhi() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
-    for (unsigned int i = 0; i <= inputTotal.size(); i++) {   
-      NPX = inputTotal[i][71313].x; // x coordinate of the NP  
-      NPY = inputTotal[i][71313].y; // y coordinate of the NP
-      NPZ = inputTotal[i][71313].z; // z coordinate of the NP 
-    }    
+
+    /*
+      Following Python's comment system """ """ 
+
+      We are explcitily ignoring flip-flops in the case of this study 
+      
+    */
+    for (unsigned int index = 0; index <= C12E2IndexVector.size(); index++) {	
+	if (inputTotal[0][C12E2IndexVector[index]].z > 160.0)  {
+	  topC12E2Index.push_back(C12E2IndexVector[index]);
+	} else if (inputTotal[0][C12E2IndexVector[index]].z < 160.0) {
+	  botC12E2Index.push_back(C12E2IndexVector[index]);
+	}
+      }
+
+      for (unsigned int index = 0; index <= C12E2MIndexVector.size(); index++) {
+	
+	if (inputTotal[0][C12E2MIndexVector[index]].z > 160.0)  {
+	  topC12E2MIndex.push_back(C12E2MIndexVector[index]);
+	} else if (inputTotal[0][C12E2MIndexVector[index]].z < 160.0) {
+	  botC12E2MIndex.push_back(C12E2MIndexVector[index]);
+	}
+      }
+
+      for (std::vector<int>::iterator it = topC12E2Index.begin(); it != topC12E2Index.end(); it++) {
+	//std::cout << *it << " " << std::endl;
+	//	std::cout << topC12E2Index.size() << std::endl;
+      }
+
+      for (std::vector<int>::iterator it = botC12E2Index.begin(); it != botC12E2Index.end(); it++) {
+	//std::cout << *it << " " << std::endl; 
+	//	std::cout << botC12E2Index.size() << std::endl;
+      }
+
+      std::cout << topC12E2Index.size() << std::endl;
+      std::cout << botC12E2Index.size() << std::endl;
+		
+      std::cout << topC12E2MIndex.size() << std::endl;
+      std::cout << botC12E2MIndex.size() << std::endl;
+      
+      	 
+      phiStruct phitemplate;
+      for (unsigned int i = 0; i <= inputTotal.size()-1; ++i) {   
+	for (unsigned phiIndex = 0; phiIndex <= 100; ++phiIndex) {
+	  phitemplate.dist = phiIndex;
+	  phitemplate.topPhiC12E2Count = 0;
+	  phitemplate.botPhiC12E2Count = 0;
+	  phitemplate.topPhiC12E2MCount = 0;
+	  phitemplate.botPhiC12E2MCount = 0;
+	  phiCount.push_back(phitemplate);
+	}
+	
+	NPX = inputTotal[i][71312].x; // x coordinate of the NP  
+	NPY = inputTotal[i][71312].y; // y coordinate of the NP
+	NPZ = inputTotal[i][71312].z; // z coordinate of the NP 	
+
+	
+	for (unsigned int index = 0; index < topC12E2Index.size(); index++) {
+	  DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2Index[index]].x, &inputTotal[i][topC12E2Index[index]].y, &inputTotal[i][topC12E2Index[index]].z);
+	}
+	
+	for (unsigned int index = 0; index < botC12E2Index.size(); index++) {
+	  DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2Index[index]].x, &inputTotal[i][botC12E2Index[index]].y, &inputTotal[i][botC12E2Index[index]].z);
+	}
+	
+	for (unsigned int index = 0; index < topC12E2MIndex.size(); index++) {
+	  DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2MIndex[index]].x, &inputTotal[i][topC12E2MIndex[index]].y, &inputTotal[i][topC12E2MIndex[index]].z);
+	}
+	for (unsigned int index = 0; index < tbotC12E2MIndex.size(); index++) {
+	  DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2MIndex[index]].x, &inputTotal[i][botC12E2MIndex[index]].y, &inputTotal[i][botC12E2MIndex[index]].z);
+
+	}
+      }
   }
   
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
-
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {
       double DIST, DIST2;
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
-
 	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
-
 	  DIST2 =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
-
 	  std::cout << i << " " << index << " " << newindex << " " << DIST <<  " " << DIST2 << " "  << std::endl; 
 	}
       }
@@ -448,29 +520,47 @@ private:
   // Vectors to store the Centers of Mass 
   std::vector<COMstruct> C12E2COM;
   std::vector<COMstruct> C12E2MCOM;
+
+  std::vector<phiStruct> phiCount;
+  std::vector<std::vector<phiStruct> > phiTotal; 
+  
   std::vector<std::vector<COMstruct> > C12E2TotalCOMArray;
   std::vector<std::vector<COMstruct> > C12E2MTotalCOMArray;
   
-  FILE *ipf; /* input file */
+  // top head groups C12E2
+  std::vector<int> topC12E2Index;
+  // top head groups C12E2M
+  std::vector<int> botC12E2Index;
+ 
+  // bot head groups C12E2M
+  std::vector<int> topC12E2MIndex;
+  // bot head groups C12E2M
+  std::vector<int> botC12E2MIndex;
+
+  
+  
+  FILE *ipf; /* input file */  
+
+  double tophead = 0;
+  double downhead = 0;
+  double mimictophead = 0;
+  double mimicdownhead = 0;
   
   int MimicCounter = 0;    
   int PolymerCounter = 0;    
   int atomtype; 
   int index, l, n;
   int nlines = numberofatoms + 9;      
-
-  double tophead = 0;
-  double downhead = 0;
-  double mimictophead = 0;
-  double mimicdownhead = 0;
   double x,y,z; /*coordinates for the atoms in the box*/
   double box1;
   double box2; 
-  double NPX, NPY, NPZ;  
+  double NPX, NPY, NPZ;
+  
   double boxlength[boxdim];
   char line[100];  
   inputCoord inputline;
-
+  double DistVec = 0.0;
+  
 };
 
 class testClass {
@@ -483,8 +573,8 @@ int main (int argc, char *argv[])  {
   A.check();
   A.headGroupVectorFormation();
   A.allocateCOM();
-  A.ComputeOrderphobic();
-
+  //  A.ComputeOrderphobic();
+  A.ComputePhi();
   return 0;    
 }
 
