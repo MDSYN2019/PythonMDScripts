@@ -427,15 +427,37 @@ public:
       }
   }
   void PhiPrint () {
+    double phi1, phi2;
+    double phip, phim;
+     
     for (unsigned int index = 0; index <= phiTotal.size()-1; index++) {
       for (unsigned int index2 = 0; index2 <= phiTotal[0].size(); index2++) {
-	std::cout << index << " " << index2 << " " <<  phiTotal[index][index2].topPhiC12E2Count << " " << phiTotal[index][index2].botPhiC12E2Count << " " << phiTotal[index][index2].topPhiC12E2MCount << " " << phiTotal[index][index2].botPhiC12E2MCount << std::endl;  
+
+	phi1 = 0.0;
+	phi2 = 0.0;
+	phip = 0.0;
+	phim = 0.0;
+
+	//std::cout << index << " " << index2 << " " <<  phiTotal[index][index2].topPhiC12E2Count << " " << phiTotal[index][index2].botPhiC12E2Count << " " << phiTotal[index][index2].topPhiC12E2MCount << " " << phiTotal[index][index2].botPhiC12E2MCount << std::endl;  
+	if ((double)(phiTotal[index][index2].topPhiC12E2Count + phiTotal[index][index2].topPhiC12E2MCount) == 0.0 || (double)(phiTotal[index][index2].botPhiC12E2Count + phiTotal[index][index2].botPhiC12E2MCount) == 0) {
+	  // Do nothing
+	} else  {
+	  phi1 = (double)(phiTotal[index][index2].topPhiC12E2Count - phiTotal[index][index2].topPhiC12E2MCount)/(double)(phiTotal[index][index2].topPhiC12E2Count + phiTotal[index][index2].topPhiC12E2MCount);  
+	  phi2 = (double)(phiTotal[index][index2].botPhiC12E2Count - phiTotal[index][index2].botPhiC12E2MCount)/(double)(phiTotal[index][index2].botPhiC12E2Count + phiTotal[index][index2].botPhiC12E2MCount);
+
+	}
+
+	phip = phi2 + phi1/2.0;
+	phim = phi2 - phi1/2.0; 
+   
+	std::cout << index << " " << index2 << " " << phip << " " << phim << std::endl;
       }
     }
-  }  
+  }
+  
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
+    double DIST, DIST2;
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {
-      double DIST, DIST2;
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
 	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
