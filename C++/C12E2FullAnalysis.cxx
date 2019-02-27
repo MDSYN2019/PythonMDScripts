@@ -376,7 +376,9 @@ public:
       	 
       phiStruct phitemplate;
 
+
       for (unsigned int i = 0; i <= inputTotal.size()-1; ++i) {   
+
 	for (unsigned phiIndex = 0; phiIndex <= 100; ++phiIndex) {
 	  phitemplate.dist = phiIndex;
 	  phitemplate.topPhiC12E2Count = 0;
@@ -393,50 +395,44 @@ public:
 	int topC12E2Counter, botC12E2Counter, topC12E2MCounter, botC12E2MCounter;
 	
 	for (unsigned int dist = 0; dist <= 100; ++dist) {
-
-	  topC12E2Counter = 0;
-	  botC12E2Counter = 0;
-	  topC12E2MCounter = 0;
-	  botC12E2MCounter = 0;
 	  
 	  for (unsigned int index = 0; index < topC12E2Index.size(); index++) {
-	    DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2Index[index]].x, &inputTotal[i][topC12E2Index[index]].y, &inputTotal[i][topC12E2Index[index]].z);
-	    if (DistVec <= dist + 0.5  && DistVec >= dist + 0.5) {
-	      topC12E2Counter++;
+	    DistVec1 = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2Index[index]].x, &inputTotal[i][topC12E2Index[index]].y, &inputTotal[i][topC12E2Index[index]].z);
+	    if (DistVec1 <= dist + 0.5  && DistVec1 >= dist - 0.5) {
+	      phiCount[dist].topPhiC12E2Count += 1;
 	    }
 	  }
 	
 	  for (unsigned int index = 0; index < botC12E2Index.size(); index++) {
-	    DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2Index[index]].x, &inputTotal[i][botC12E2Index[index]].y, &inputTotal[i][botC12E2Index[index]].z);
-	    if (DistVec <= dist + 0.5  && DistVec >= dist + 0.5) {
-	      botC12E2Counter++;
+	    DistVec2 = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2Index[index]].x, &inputTotal[i][botC12E2Index[index]].y, &inputTotal[i][botC12E2Index[index]].z);
+	    if (DistVec2 <= dist + 0.5  && DistVec2 >= dist - 0.5) {
+	      phiCount[dist].botPhiC12E2Count += 1;
 	    }
 	  }
-	
 	  for (unsigned int index = 0; index < topC12E2MIndex.size(); index++) {
-	    DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2MIndex[index]].x, &inputTotal[i][topC12E2MIndex[index]].y, &inputTotal[i][topC12E2MIndex[index]].z);
-	     if (DistVec <= dist + 0.5  && DistVec >= dist + 0.5) {
-	       topC12E2MCounter++;
+	    DistVec3 = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2MIndex[index]].x, &inputTotal[i][topC12E2MIndex[index]].y, &inputTotal[i][topC12E2MIndex[index]].z);
+	     if (DistVec3 <= dist + 0.5  && DistVec3 >= dist - 0.5) {
+	       phiCount[dist].topPhiC12E2MCount += 1;
 	     }
 	  }
-
 	  for (unsigned int index = 0; index < botC12E2MIndex.size(); index++) {
-	    DistVec = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2MIndex[index]].x, &inputTotal[i][botC12E2MIndex[index]].y, &inputTotal[i][botC12E2MIndex[index]].z);
-	    if (DistVec <= dist + 0.5  && DistVec >= dist + 0.5) {
-	      botC12E2MCounter++;
+	    DistVec4 = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2MIndex[index]].x, &inputTotal[i][botC12E2MIndex[index]].y, &inputTotal[i][botC12E2MIndex[index]].z);
+	    if (DistVec4 <= dist + 0.5  && DistVec4 >= dist - 0.5) {
+	      phiCount[dist].botPhiC12E2MCount += 1;
 	    }
-	  }
-	  
-	  phiCount[dist].topPhiC12E2Count = topC12E2Counter; 
-	  phiCount[dist].botPhiC12E2Count = botC12E2Counter; 
-	  phiCount[dist].topPhiC12E2MCount = topC12E2MCounter; 
-	  phiCount[dist].botPhiC12E2MCount = botC12E2MCounter; 
-	  
+	  } 
 	}
-
+	phiTotal.push_back(phiCount);
+	phiCount.clear();
       }
   }
- 
+  void PhiPrint () {
+    for (unsigned int index = 0; index <= phiTotal.size()-1; index++) {
+      for (unsigned int index2 = 0; index2 <= phiTotal[0].size(); index2++) {
+	std::cout << index << " " << index2 << " " <<  phiTotal[index][index2].topPhiC12E2Count << " " << phiTotal[index][index2].botPhiC12E2Count << " " << phiTotal[index][index2].topPhiC12E2MCount << " " << phiTotal[index][index2].botPhiC12E2MCount << std::endl;  
+      }
+    }
+  }  
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {
       double DIST, DIST2;
@@ -588,7 +584,7 @@ private:
   double boxlength[boxdim];
   char line[100];  
   inputCoord inputline;
-  double DistVec = 0.0;
+  double DistVec1, DistVec2, DistVec3, DistVec4;
   
 };
 
@@ -604,6 +600,7 @@ int main (int argc, char *argv[])  {
   A.allocateCOM();
   //  A.ComputeOrderphobic();
   A.ComputePhi();
+  A.PhiPrint();
   return 0;    
 }
 
