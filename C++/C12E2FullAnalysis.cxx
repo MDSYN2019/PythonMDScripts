@@ -441,11 +441,13 @@ public:
 	//std::cout << index << " " << index2 << " " <<  phiTotal[index][index2].topPhiC12E2Count << " " << phiTotal[index][index2].botPhiC12E2Count << " " << phiTotal[index][index2].topPhiC12E2MCount << " " << phiTotal[index][index2].botPhiC12E2MCount << std::endl;  
 	if ((double)(phiTotal[index][index2].topPhiC12E2Count + phiTotal[index][index2].topPhiC12E2MCount) == 0.0 || (double)(phiTotal[index][index2].botPhiC12E2Count + phiTotal[index][index2].botPhiC12E2MCount) == 0) {
 	  // Do nothing
+	
 	} else  {
+
 	  phi1 = (double)(phiTotal[index][index2].topPhiC12E2Count - phiTotal[index][index2].topPhiC12E2MCount)/(double)(phiTotal[index][index2].topPhiC12E2Count + phiTotal[index][index2].topPhiC12E2MCount);  
 	  phi2 = (double)(phiTotal[index][index2].botPhiC12E2Count - phiTotal[index][index2].botPhiC12E2MCount)/(double)(phiTotal[index][index2].botPhiC12E2Count + phiTotal[index][index2].botPhiC12E2MCount);
 
-	}
+      }
 
 	phip = phi2 + phi1/2.0;
 	phim = phi2 - phi1/2.0; 
