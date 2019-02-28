@@ -473,93 +473,7 @@ public:
   void allocateCOM() {
     CenterOfMass(&C12E2IndexVector, &C12E2MIndexVector, &inputTotal, &C12E2COM, &C12E2MCOM, &C12E2TotalCOMArray, &C12E2MTotalCOMArray);
   }
-  
-  /*
-void newProcess() {
-  for (unsigned int i = 0; i < xcoTotal.size(); ++i) {
-    aFormat.clear();
-    bFormat.clear();
-    xcoFormat.clear(); 
-    ycoFormat.clear(); 
-    zcoFormat.clear(); 
-    for (unsigned int j = 0; j < xcoTotal[1].size(); ++j) {
-      //std::cout << xcoTotal.size() << " " << xcoTotal[1].size() << "\n";
-      aFormat.insert(aFormat.begin() + aTotal[i][j].first, aTotal[i][j].second);    
-      bFormat.insert(bFormat.begin() + bTotal[i][j].first, bTotal[i][j].second);    
-      xcoFormat.insert(xcoFormat.begin() + xcoTotal[i][j].first, xcoTotal[i][j].second);    
-      ycoFormat.insert(ycoFormat.begin() + ycoTotal[i][j].first, ycoTotal[i][j].second);    
-      zcoFormat.insert(zcoFormat.begin() + zcoTotal[i][j].first, zcoTotal[i][j].second);    
-      std::cout << i << " " << " " << j << " " <<  aTotal[i][j].first << std::endl;
-    }
-    
-    aTotalFormat.push_back(aFormat);
-    bTotalFormat.push_back(bFormat);
-    xcoTotalFormat.push_back(xcoFormat); 
-    ycoTotalFormat.push_back(ycoFormat); 
-    zcoTotalFormat.push_back(zcoFormat); 
-    *  }
- 
-  // for (unsigned int i = 0; i < aTotalFormat.size(); ++i) {	
-  // for (unsigned int j = 0; j <= aTotalFormat[1].size(); j++) {
-  //    std::cout << i << " " << j << " " << aTotalFormat[i][j] << " " << bTotalFormat[i][j] << " " << xcoTotalFormat[i][j] <<  "\n";
-  // }
-  // }
-}
 
-  */
-
-  /*
-    std::vector<std::vector<std::vector< std::tuple<int,int, double> > > > vecOftup; // Damn ugly code!!! 
-    std::vector<std::vector< std::tuple<int,int, double> > > closestDistanceVector;     
-    std::tuple<int, int , double> foo; 
-    std::vector< std::pair<double,int> > closestDistanceVector;
-    
-    for (unsigned int i = 0; i < xcoTotal.size(); ++i) {      
-      for (unsigned int j = 0; j <= sizeof(C12E2M_struct)/sizeof(C12E2M_struct[1]); j++) { 	
-	for (unsigned int k = 0; k <= sizeof(C12E2M_struct)/sizeof(C12E2M_struct[1]); k++) { 
-	  dist = trueDist(&xcoTotal[i][C12E2_struct[j].index[3]], &ycoTotal[i][C12E2_struct[j].index[3]], &zcoTotal[i][C12E2_struct[j].index[3]],
-			  &xcoTotal[i][C12E2_struct[k].index[3]], &ycoTotal[i][C12E2_struct[k].index[3]], &zcoTotal[i][C12E2_struct[k].index[3]]);
-	  foo = std::make_tuple(j, k, dist);
-	  closestDistanceVector.append(foo);	  
-	}
-      }
-      vecOftup.append(closestDistanceVector);
-      closestDistanceVector.clear(); // Clear after accumulating
-    }
-    */
-  /*
-  double ChainOrderAnalysis(double* H7_x, double* H7_y, double* H7_z, double* H6_1_x, double* H6_1_y, double* H6_1_z,  double* H6_2_x, double* H6_2_y, double* H6_2_z, double* T3_1_x, double* T3_1_y, double* T3_1_z,  double* T3_2_x, double* T3_2_y, double* T3_2_z, double* T3_3_x, double* T3_3_y, double* T3_3_z, double* T4_x, double* T4_y, double* T4_z) {
-
-    // This bit is obsolete - needs to be modified
-
-    double H7coord = H7;
-    double H6coord_1 = H6_1;
-    double H6coord_2 = H6_2;
-    double T3coord_1 = T3_1; 
-    double T3coord_2 = T3_2; 
-    double T3coord_3 = T3_3; 
-    double T4coord = T4; 
-    double COM;
-  }
-  */
-  
-  /*
-  void clusterAnalysis(std::vector<double>* C12E2xCOM, vector<double>* C12E2yCOM, vector<double>* C12E2zCOM, std::vector<C12E2_skeleton>* values, double* distance, int* PolymerCounter) { 
-      for (unsigned i : indices(C12E2xCOM)) { // 
-	for (unsigned j : indices(C12E2xCOM)) { // 
-	  if (C12E2xCOM[i] != C12E2xCOM[j] && C12E2yCOM[i] != C12E2yCOM[j] && C12E2zCOM[i] != C12E2zCOM[j]) {	    
-	    if (C12E2xCOM[i] - C12E2xCOM[j] !=0 && sqrt(pow(C12E2xCOM[i] - C12E2xCOM[j],2)) <= distance) {
-	      if (C12E2yCOM[i] - C12E2yCOM[j] !=0 && sqrt(pow(C12E2yCOM[i] - C12E2xCOMy[j],2)) <= distance) {
-		if (C12E2zCOM[i] - C12E2zCOM[j] !=0 && sqrt(pow(C12E2zCOM[i] - C12E2zCOM[j],2)) <= distance) {
-		  PolymerCounter++; // Pointer as there will be two counters 
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  */
 private:    
   // Vectors to store trajectory values 
   std::vector<inputCoord> inputVector; // push back all structs
@@ -603,8 +517,7 @@ private:
   double x,y,z; /*coordinates for the atoms in the box*/
   double box1;
   double box2; 
-  double NPX, NPY, NPZ;
-  
+  double NPX, NPY, NPZ;  
   double boxlength[boxdim];
   char line[100];  
   inputCoord inputline;
@@ -614,9 +527,13 @@ private:
 
 class testClass {
 };
+
+// Intitiate test class
+
 compute A;
   
 int main (int argc, char *argv[])  {
+
   A.storeFile();
   A.sortVectors();
   A.check();
