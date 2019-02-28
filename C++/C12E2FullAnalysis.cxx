@@ -1,56 +1,12 @@
-/* --------------------------------------------------------------------------------
-   Calculate the Clustering of the Mixed Lipid Bilayer through a DBSCAN Algorithm  
-
-   How does the DBSCAN algorithm work?
-   
-   => Point P in a cluster is a 'core' point if there are a critical number of the same type of points within a distance E.
-   => Point Q is a point in the cluster if there is a clear vector towards that from any of the elements of the P vector 
-   => All points not reachable from any other points are outliers
-   
-   Two main algorithms are required, where there are 
-   
-   ----------------------------------
-   | DBSCAN algorithm -  Pseudocode:|
-   ----------------------------------
-
-   DBSCAN(D, eps, MinPts) {
-   C = 0
-   for each point P in dataset D {
-   if P is visited 
-   continue next point 
-   mark P as visited
-   NeighbourPts = regionQuery(P, eps)
-   if Sizeof(NeighbourPts) < MinPts
-   mark P as NOISE
-   else {
-   C = next cluster
-   expandCluster(P, NeighbourPts, C, eps, MinPits)
-   }
-   }
-}
-
-*/
 
 /*
 
- -------------------------------------------------------------------------- 
- |                      Array of the Center of Masses                     | 
- --------------------------------------------------------------------------
-
- We are implementing a pseudo DBSCAN algorithm
-    
- To measure the distance between the points, we measure the distances between 
- the centers of masses (COM). The DBSCAN algorithm originally requires to     
- calculate the `anchor' COMs, which are decided through a nearest neighbour   
- calculation. In the schematic below, 
-
- O  O  O ---> X  -|
-  \/ \/           | -- the O's show the 'anchor', and the X's show the increasing cluster
-  O  O ---- X   -|
-    
- Calculating the COM of the C12E2
+ ------------------------------------------------------------------------ 
+ |                    Analysis of C12E2 Mixed Bilayers                  | 
+ ------------------------------------------------------------------------
  
- The COM components are divided into the x, y, and z coordinates
+
+
 
 */
 
@@ -427,6 +383,7 @@ public:
       }
   }
   void PhiPrint () {
+
     double phi1, phi2;
     double phip, phim;
      
@@ -454,6 +411,8 @@ public:
    
 	std::cout << index << " " << index2 << " " << phip << " " << phim << std::endl;
       }
+
+      
     }
   }
   
