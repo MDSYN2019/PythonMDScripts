@@ -5,9 +5,9 @@
  |                    Analysis of C12E2 Mixed Bilayers                  | 
  ------------------------------------------------------------------------
  
-
-
-
+ Author = "Sang Young Noh"
+ Version = "0.0.1"
+ 
 */
 
 #include <iostream>
@@ -24,6 +24,7 @@
 #include <cmath>
 #include <tuple>
 #include <boost/progress.hpp>
+
 //#include <Eigen>
 //#include <Eigen/Dense>
 //using namespace Eigen;
@@ -59,6 +60,11 @@ typedef struct { // Used to input the center of masses for each lipid
   int botPhiC12E2Count;
   int botPhiC12E2MCount;
 } phiStruct;
+
+typedef struct { // Used to input the center of masses for each lipid
+  double phip;
+  double phim;
+} phipm;
 
 
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
@@ -383,11 +389,21 @@ public:
       }
   }
   void PhiPrint () {
+    phipm A; 
 
+    for (unsigned phiIndex = 0; phiIndex <= 100; ++phiIndex) {
+      A.phim = 0.0;
+      A.phip = 0.0;
+      NewNew.push_back(A);
+    }
+
+    
+    
     double phi1, phi2;
     double phip, phim;
      
     for (unsigned int index = 0; index <= phiTotal.size()-1; index++) {
+
       for (unsigned int index2 = 0; index2 <= phiTotal[0].size(); index2++) {
 
 	phi1 = 0.0;
@@ -408,11 +424,18 @@ public:
 
 	phip = phi2 + phi1/2.0;
 	phim = phi2 - phi1/2.0; 
-   
+
+	NewNew[index2].phim += phim;
+	NewNew[index2].phip += phip;
+	
 	std::cout << index << " " << index2 << " " << phip << " " << phim << std::endl;
       }
+    }
+  }
+  void blah() {
 
-      
+    for (std::vector<phipm>::iterator it = NewNew.begin(); it != NewNew.end(); it++) {
+      std::cout << " "  << it - NewNew.begin() << " " << (it->phim)/inputTotal.size() << " " << (it->phip)/inputTotal.size() << " " <<  std::endl;
     }
   }
   
@@ -459,7 +482,7 @@ private:
   // bot head groups C12E2M
   std::vector<int> botC12E2MIndex;
 
-  
+  std::vector<phipm> NewNew;
   
   FILE *ipf; /* input file */  
 
@@ -501,6 +524,8 @@ int main (int argc, char *argv[])  {
   //  A.ComputeOrderphobic();
   A.ComputePhi();
   A.PhiPrint();
+  A.blah();
+  
   return 0;    
 }
 
