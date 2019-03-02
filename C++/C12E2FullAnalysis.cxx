@@ -19,6 +19,8 @@
 
  3. "J. Wolff and S. Komura and D. Andelman, Budding of domains in mixed bilayer domains, 91, Physical Review E, 91, 012708, 2015" 
 
+ 4. "Lipid with bulky head groups generate large membrane curvatures by small compositional asymmetries, A. SreeKumari and R. Lipowsky, Journal of Chemical Physics, 149, 084901, 2018"
+ 
 */
 
 #include <iostream>
