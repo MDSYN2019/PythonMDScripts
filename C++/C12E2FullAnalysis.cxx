@@ -6,8 +6,19 @@
  ------------------------------------------------------------------------
  
  Author = "Sang Young Noh"
+
  Version = "0.0.1"
  
+ Updated = 02/03/2019 
+
+ The papers referenced for this work is:
+
+ 1. "F. C. MacKintosh and S. A. Safran, Phase Separation and curvature of bilayer membranes, Physical Review E, 47, 2, 1993"
+
+ 2. "R. Lipowsky, Domain-induced budding of fluid membranes, Biophysical Society, 64, 1993, 1133 - 1138"
+
+ 3. "J. Wolff and S. Komura and D. Andelman, Budding of domains in mixed bilayer domains, 91, Physical Review E, 91, 012708, 2015" 
+
 */
 
 #include <iostream>
@@ -531,3 +542,4 @@ int main (int argc, char *argv[])  {
 
 
 
+*
