@@ -1,5 +1,4 @@
-
-/*
+-/*
 
  ------------------------------------------------------------------------ 
  |                    Analysis of C12E2 Mixed Bilayers                  | 
@@ -19,8 +18,6 @@
 
  3. "J. Wolff and S. Komura and D. Andelman, Budding of domains in mixed bilayer domains, 91, Physical Review E, 91, 012708, 2015" 
 
- 4. "Lipid with bulky head groups generate large membrane curvatures by small compositional asymmetries, A. SreeKumari and R. Lipowsky, Journal of Chemical Physics, 149, 084901, 2018"
- 
 */
 
 #include <iostream>
@@ -38,14 +35,11 @@
 #include <tuple>
 #include <boost/progress.hpp>
 
+#include <complex> // Library for complex numbers
+
 //#include <Eigen>
 //#include <Eigen/Dense>
 //using namespace Eigen;
-
-#include <cppunit/CompilerOutputter.h>
-#include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/ui/text/TestRunner.h>
-
 
 const int numberOfPolymers = 998; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
@@ -84,6 +78,19 @@ typedef struct { // Used to input the center of masses for each lipid
   double phim;
 } phipm;
 
+typedef struct { // Used to identify the group and distance to compute the orderphobic effect  
+  double dist;
+  double Xcoord;
+  double Ycoord;
+  double Zcoord;
+} OPHstruct;
+
+
+double CalculateOrderphobicEffect() {  
+  std::complex<double>
+
+  return double;
+}
 
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
   double dist = pow((pow(*COM1x-*COM2x,2) + pow(*COM1y-*COM2y,2) + pow(*COM1z-*COM2z,2)),0.5);
@@ -317,9 +324,9 @@ public:
     /*
       Following Python's comment system """ """ 
 
-      We are explcitily ignoring flip-flops in the case of this study 
-      
+      We are explcitily ignoring flip-flops in the case of this study       
     */
+    
     for (unsigned int index = 0; index <= C12E2IndexVector.size(); index++) {	
 	if (inputTotal[0][C12E2IndexVector[index]].z > 160.0)  {
 	  topC12E2Index.push_back(C12E2IndexVector[index]);
@@ -414,8 +421,6 @@ public:
       A.phip = 0.0;
       NewNew.push_back(A);
     }
-
-    
     
     double phi1, phi2;
     double phip, phim;
@@ -459,12 +464,25 @@ public:
   
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
     double DIST, DIST2;
+    double DISTM, DISTM2;
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {
+
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
+
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
+
 	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
 	  DIST2 =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
+
+	  // TODO - Make sure to allocate properly 
+	  
+	  DISTM =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
+
+	  DISTM2 =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
+
+	  
 	  std::cout << i << " " << index << " " << newindex << " " << DIST <<  " " << DIST2 << " "  << std::endl; 
+
 	}
       }
     }
@@ -483,10 +501,8 @@ private:
   // Vectors to store the Centers of Mass 
   std::vector<COMstruct> C12E2COM;
   std::vector<COMstruct> C12E2MCOM;
-
   std::vector<phiStruct> phiCount;
-  std::vector<std::vector<phiStruct> > phiTotal; 
-  
+  std::vector<std::vector<phiStruct> > phiTotal;   
   std::vector<std::vector<COMstruct> > C12E2TotalCOMArray;
   std::vector<std::vector<COMstruct> > C12E2MTotalCOMArray;
   
@@ -494,13 +510,12 @@ private:
   std::vector<int> topC12E2Index;
   // top head groups C12E2M
   std::vector<int> botC12E2Index;
- 
   // bot head groups C12E2M
   std::vector<int> topC12E2MIndex;
   // bot head groups C12E2M
   std::vector<int> botC12E2MIndex;
-
-  std::vector<phipm> NewNew;
+  // TODO 
+  std::vector<phipm> NewNew; // TODO - need to rename 
   
   FILE *ipf; /* input file */  
 
@@ -549,4 +564,4 @@ int main (int argc, char *argv[])  {
 
 
 
-*
+
