@@ -1,4 +1,4 @@
--/*
+/*
 
  ------------------------------------------------------------------------ 
  |                    Analysis of C12E2 Mixed Bilayers                  | 
@@ -25,8 +25,7 @@
 #include <map>
 #include <algorithm>
 #include <functional>   // std::multiplies
-#include <numeric>      // std::adjacent_difference
-#include <cmath>
+#include <numeric>      // std::adjacent_differenc#include <cmath>
 #include <bits/stdc++.h> 
 #include <utility>
 #include <cerrno>
@@ -79,6 +78,7 @@ typedef struct { // Used to input the center of masses for each lipid
 } phipm;
 
 typedef struct { // Used to identify the group and distance to compute the orderphobic effect  
+  int index;
   double dist;
   double Xcoord;
   double Ycoord;
@@ -465,23 +465,69 @@ public:
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
     double DIST, DIST2;
     double DISTM, DISTM2;
+    OPHstruct C12E2sample;
+    OPHstruct C12E2Msample;
+    
+    std::vector<OPHstruct> c12E2orderphobic;
+    std::vector<OPHstruct> c12E2Morderphobic;
+
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {
-
+      
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
-
+	
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
 
 	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
-	  DIST2 =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
-
-	  // TODO - Make sure to allocate properly 
+	  C12E2sample.index = C12E2IndexVector[index];
+	  C12E2sample.dist = DIST;
+	  C12E2sample.Xcoord = inputTotal[i][C12E2IndexVector[newindex]+4].x;
+	  C12E2sample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].y;
+	  C12E2sample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].z;
+	  c12E2orderphobic.push_back(C12E2sample);
 	  
-	  DISTM =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
+	}
 
-	  DISTM2 =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
+	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
 
+	  DISTM =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
+
+	  C12E2sample.index = C12E2IndexVector[index];
+	  C12E2sample.dist = DISTM;
+	  C12E2sample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
+	  C12E2sample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].y;
+	  C12E2sample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].z;
+	  c12E2orderphobic.push_back(C12E2Msample);
+   
+	}
+
+	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
 	  
-	  std::cout << i << " " << index << " " << newindex << " " << DIST <<  " " << DIST2 << " "  << std::endl; 
+	    DIST2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
+
+	    C12E2Msample.index = C12E2MIndexVector[index];
+	    C12E2Msample.dist = DIST2;
+	    C12E2Msample.Xcoord = inputTotal[i][C12E2IndexVector[newindex]+4].x;
+	    C12E2Msample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].y;
+	    C12E2Msample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].z;
+	    c12E2Morderphobic.push_back(C12E2Msample);
+
+	}
+
+	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
+
+	
+	  DISTM2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
+
+	  C12E2Msample.index = C12E2MIndexVector[index];
+	  C12E2Msample.dist = DISTM2;
+	  C12E2Msample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
+	  C12E2Msample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].y;
+	  C12E2Msample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].z;
+	  c12E2Morderphobic.push_back(C12E2Msample);
+	  
+	}
+
+	std::cout << i << " " << index << " " << newindex << " " << DIST <<  " " << DIST2 << " "  << std::endl; 
 
 	}
       }
@@ -492,8 +538,22 @@ public:
     CenterOfMass(&C12E2IndexVector, &C12E2MIndexVector, &inputTotal, &C12E2COM, &C12E2MCOM, &C12E2TotalCOMArray, &C12E2MTotalCOMArray);
   }
 
+
+typedef struct { // Used to identify the group and distance to compute the orderphobic effect  
+  int index;
+  double dist;
+  double Xcoord;
+  double Ycoord;
+  double Zcoord;
+} OPHstruct;
+
+
+
 private:    
-  // Vectors to store trajectory values 
+
+  std::vector<OPHstruct> inputVector; // push back all structs
+
+// Vectors to store trajectory values 
   std::vector<inputCoord> inputVector; // push back all structs
   std::vector<std::vector<inputCoord> > inputTotal; // push back vector of structs 
   std::vector<int> C12E2IndexVector; // push back C12E2 bead 7 indices (headgroups) 
