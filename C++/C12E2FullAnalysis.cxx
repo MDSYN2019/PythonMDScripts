@@ -463,11 +463,15 @@ public:
   }
   
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
-    double DIST, DIST2;
-    double DISTM, DISTM2;
+
+    double DIST, DIST2; // TODO
+    double DISTM, DISTM2; // TODO
+
     OPHstruct C12E2sample;
     OPHstruct C12E2Msample;
-    
+
+    std::vector<std::vector<OPHstruct> > c12E2orderphobicVec; // TODO
+    std::vector<std::vector<OPHstruct> > c12E2MorderphobicVec; // TODO
     std::vector<OPHstruct> c12E2orderphobic;
     std::vector<OPHstruct> c12E2Morderphobic;
 
@@ -476,7 +480,6 @@ public:
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
 	
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
-
 	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
 	  C12E2sample.index = C12E2IndexVector[index];
 	  C12E2sample.dist = DIST;
@@ -484,55 +487,52 @@ public:
 	  C12E2sample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].y;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].z;
 	  c12E2orderphobic.push_back(C12E2sample);
-	  
 	}
 
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
-
 	  DISTM =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
-
 	  C12E2sample.index = C12E2IndexVector[index];
 	  C12E2sample.dist = DISTM;
 	  C12E2sample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].y;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].z;
 	  c12E2orderphobic.push_back(C12E2Msample);
-   
 	}
 
-	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
-	  
-	    DIST2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
+	c12E2orderphobicVec.push_back(c12E2orderphobic);
 
+	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
+	    DIST2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
 	    C12E2Msample.index = C12E2MIndexVector[index];
 	    C12E2Msample.dist = DIST2;
 	    C12E2Msample.Xcoord = inputTotal[i][C12E2IndexVector[newindex]+4].x;
 	    C12E2Msample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].y;
 	    C12E2Msample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].z;
 	    c12E2Morderphobic.push_back(C12E2Msample);
-
 	}
 
 	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
-
-	
 	  DISTM2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
-
 	  C12E2Msample.index = C12E2MIndexVector[index];
 	  C12E2Msample.dist = DISTM2;
 	  C12E2Msample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
 	  C12E2Msample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].y;
 	  C12E2Msample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].z;
-	  c12E2Morderphobic.push_back(C12E2Msample);
-	  
+	  c12E2Morderphobic.push_back(C12E2Msample);  
 	}
-
+      
+	c12E2MorderphobicVec.push_back(c12E2Morderphobic)
 	std::cout << i << " " << index << " " << newindex << " " << DIST <<  " " << DIST2 << " "  << std::endl; 
-
-	}
       }
+
+      // Final push_back 
+      orderphobicC12E2.push_back(c12E2orderphobicVec);
+      orderphobicC12E2M.push_back(c12E2MorderphobicVec);
+      
     }
+    
   }
+
 
   void allocateCOM() {
     CenterOfMass(&C12E2IndexVector, &C12E2MIndexVector, &inputTotal, &C12E2COM, &C12E2MCOM, &C12E2TotalCOMArray, &C12E2MTotalCOMArray);
@@ -552,8 +552,10 @@ typedef struct { // Used to identify the group and distance to compute the order
 private:    
 
   std::vector<OPHstruct> inputVector; // push back all structs
+  std::vector< std::vector<std::vector<OPHstruct> > > orderphobicC12E2; 
+  std::vector< std::vector<std::vector<OPHstruct> > > orderphobicC12E2M; 
 
-// Vectors to store trajectory values 
+  // Vectors to store trajectory values 
   std::vector<inputCoord> inputVector; // push back all structs
   std::vector<std::vector<inputCoord> > inputTotal; // push back vector of structs 
   std::vector<int> C12E2IndexVector; // push back C12E2 bead 7 indices (headgroups) 
