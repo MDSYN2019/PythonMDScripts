@@ -550,10 +550,9 @@ typedef struct { // Used to identify the group and distance to compute the order
 
 
 private:    
-
   std::vector<OPHstruct> inputVector; // push back all structs
-  std::vector< std::vector<std::vector<OPHstruct> > > orderphobicC12E2; 
-  std::vector< std::vector<std::vector<OPHstruct> > > orderphobicC12E2M; 
+  std::vector< std::vector<std::vector<OPHstruct> > > orderphobicC12E2;  // This needs to be a simplified 
+  std::vector< std::vector<std::vector<OPHstruct> > > orderphobicC12E2M; // This needs to be simplfied also..
 
   // Vectors to store trajectory values 
   std::vector<inputCoord> inputVector; // push back all structs
@@ -580,14 +579,6 @@ private:
   std::vector<phipm> NewNew; // TODO - need to rename 
   
   FILE *ipf; /* input file */  
-
-  double tophead = 0;
-  double downhead = 0;
-  double mimictophead = 0;
-  double mimicdownhead = 0;
-  
-  int MimicCounter = 0;    
-  int PolymerCounter = 0;    
   int atomtype; 
   int index, l, n;
   int nlines = numberofatoms + 9;      
@@ -599,7 +590,6 @@ private:
   char line[100];  
   inputCoord inputline;
   double DistVec1, DistVec2, DistVec3, DistVec4;
-  
 };
 
 class testClass {
