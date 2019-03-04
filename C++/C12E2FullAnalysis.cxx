@@ -43,7 +43,7 @@
 const int numberOfPolymers = 998; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
 const int indexCG = 7;
-int numberofSS = 100; /*The number of screenshots in the dump file*/
+int numberofSS = 140; /*The number of screenshots in the dump file*/
 const int boxdim = 3;
 
 typedef struct {                                                                                                                              
@@ -85,12 +85,13 @@ typedef struct { // Used to identify the group and distance to compute the order
   double Zcoord;
 } OPHstruct;
 
-
+/*
 double CalculateOrderphobicEffect() {  
   std::complex<double>
 
   return double;
 }
+*/
 
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
   double dist = pow((pow(*COM1x-*COM2x,2) + pow(*COM1y-*COM2y,2) + pow(*COM1z-*COM2z,2)),0.5);
@@ -111,7 +112,7 @@ void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<st
   COMstruct C12E2input; // struct to store COM coordinates for C12E2
   COMstruct C12E2Minput; // struct to store cOM coordinates for C12E2M
   
-  for (unsigned int i = 0; i < inputVec->size(); ++i) {
+  for (unsigned int i = 0; i <= inputVec->size()-1; ++i) {
     for (unsigned int index = 0; index <= vec1->size()-1; ++index) {
 
       C12E2comX = (inputVec->at(i).at(vec1->at(index)).x + inputVec->at(i).at((vec1->at(index))+1).x + inputVec->at(i).at((vec1->at(index))+2).x + inputVec->at(i).at((vec1->at(index))+3).x + inputVec->at(i).at((vec1->at(index))+4).x + inputVec->at(i).at((vec1->at(index))+5).x + inputVec->at(i).at((vec1->at(index))+6).x)/7.0;
@@ -126,7 +127,7 @@ void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<st
       COM1->push_back(C12E2input);     
     }
     
-    for (unsigned int index = 0; index < vec2->size()-1; ++index) {
+    for (unsigned int index = 0; index <= vec2->size()-1; ++index) {
 
       C12E2McomX = (inputVec->at(i).at(vec2->at(index)).x + inputVec->at(i).at((vec2->at(index))+1).x + inputVec->at(i).at((vec2->at(index))+2).x + inputVec->at(i).at((vec2->at(index))+3).x + inputVec->at(i).at((vec2->at(index))+4).x + inputVec->at(i).at((vec2->at(index))+5).x + inputVec->at(i).at((vec2->at(index))+6).x)/7.0;
 
@@ -314,12 +315,18 @@ public:
 	C12E2MIndexVector.push_back(inputTotal[1][j].a); // push back C12E2 bead 7 indices (headgroups) 	
       }
     }
-    for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
-      std::cout << C12E2IndexVector[index] << " " << C12E2MIndexVector[index]  << " " << std::endl; 
-    }    
+    
+    for (unsigned int index = 0; index <= C12E2IndexVector.size(); ++index) {
+      std::cout << C12E2IndexVector[index]  << std::endl; 
+    }
+
+    for (unsigned int index = 0; index <= C12E2MIndexVector.size(); ++index)  {
+      std::cout << C12E2MIndexVector[index]  << std::endl; 
+    }
   }
 
   void ComputePhi() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
+    //std::cout << C12E2IndexVector.size() << " " <<  C12E2MIndexVector.size() << " " << inputTotal.size() << std::endl;
 
     /*
       Following Python's comment system """ """ 
@@ -327,22 +334,23 @@ public:
       We are explcitily ignoring flip-flops in the case of this study       
     */
     
-    for (unsigned int index = 0; index <= C12E2IndexVector.size(); index++) {	
-	if (inputTotal[0][C12E2IndexVector[index]].z > 160.0)  {
+    for (unsigned int index = 0; index < C12E2IndexVector.size(); ++index) {	
+      if (inputTotal[1][C12E2IndexVector[index]].z > 120.0)  {
 	  topC12E2Index.push_back(C12E2IndexVector[index]);
-	} else if (inputTotal[0][C12E2IndexVector[index]].z < 160.0) {
-	  botC12E2Index.push_back(C12E2IndexVector[index]);
-	}
+	} else if (inputTotal[1][C12E2IndexVector[index]].z < 120.0) {
+	botC12E2Index.push_back(C12E2IndexVector[index]);
       }
+    }
 
-      for (unsigned int index = 0; index <= C12E2MIndexVector.size(); index++) {
-	
-	if (inputTotal[0][C12E2MIndexVector[index]].z > 160.0)  {
+      for (unsigned int index = 0; index < C12E2MIndexVector.size(); ++index) {
+	if (inputTotal[1][C12E2MIndexVector[index]].z > 120.0)  {
 	  topC12E2MIndex.push_back(C12E2MIndexVector[index]);
-	} else if (inputTotal[0][C12E2MIndexVector[index]].z < 160.0) {
+	} else if (inputTotal[1][C12E2MIndexVector[index]].z < 120.0) {
 	  botC12E2MIndex.push_back(C12E2MIndexVector[index]);
 	}
       }
+
+      std::cout << "check" << std::endl;
 
       for (std::vector<int>::iterator it = topC12E2Index.begin(); it != topC12E2Index.end(); it++) {
 	//std::cout << *it << " " << std::endl;
@@ -359,10 +367,10 @@ public:
 		
       std::cout << topC12E2MIndex.size() << std::endl;
       std::cout << botC12E2MIndex.size() << std::endl;
-      
-      	 
+            	 
       phiStruct phitemplate;
-
+      std::cout << "check" << std::endl;
+    
 
       for (unsigned int i = 0; i <= inputTotal.size()-1; ++i) {   
 
@@ -396,6 +404,7 @@ public:
 	      phiCount[dist].botPhiC12E2Count += 1;
 	    }
 	  }
+
 	  for (unsigned int index = 0; index < topC12E2MIndex.size(); index++) {
 	    DistVec3 = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][topC12E2MIndex[index]].x, &inputTotal[i][topC12E2MIndex[index]].y, &inputTotal[i][topC12E2MIndex[index]].z);
 	     if (DistVec3 <= dist + 0.5  && DistVec3 >= dist - 0.5) {
@@ -444,10 +453,9 @@ public:
 	  phi2 = (double)(phiTotal[index][index2].botPhiC12E2Count - phiTotal[index][index2].botPhiC12E2MCount)/(double)(phiTotal[index][index2].botPhiC12E2Count + phiTotal[index][index2].botPhiC12E2MCount);
 
       }
-
 	phip = phi2 + phi1/2.0;
 	phim = phi2 - phi1/2.0; 
-
+       
 	NewNew[index2].phim += phim;
 	NewNew[index2].phip += phip;
 	
@@ -521,10 +529,9 @@ public:
 	  c12E2Morderphobic.push_back(C12E2Msample);  
 	}
       
-	c12E2MorderphobicVec.push_back(c12E2Morderphobic)
-	std::cout << i << " " << index << " " << newindex << " " << DIST <<  " " << DIST2 << " "  << std::endl; 
+	c12E2MorderphobicVec.push_back(c12E2Morderphobic);
       }
-
+      
       // Final push_back 
       orderphobicC12E2.push_back(c12E2orderphobicVec);
       orderphobicC12E2M.push_back(c12E2MorderphobicVec);
@@ -550,7 +557,7 @@ typedef struct { // Used to identify the group and distance to compute the order
 
 
 private:    
-  std::vector<OPHstruct> inputVector; // push back all structs
+  std::vector<OPHstruct> inputVectorStruct; // push back all structs
   std::vector< std::vector<std::vector<OPHstruct> > > orderphobicC12E2;  // This needs to be a simplified 
   std::vector< std::vector<std::vector<OPHstruct> > > orderphobicC12E2M; // This needs to be simplfied also..
 
@@ -605,11 +612,11 @@ int main (int argc, char *argv[])  {
   A.sortVectors();
   A.check();
   A.headGroupVectorFormation();
-  A.allocateCOM();
+  // A.allocateCOM();
   //  A.ComputeOrderphobic();
   A.ComputePhi();
-  A.PhiPrint();
-  A.blah();
+  //A.PhiPrint();
+  //A.blah();
   
   return 0;    
 }
