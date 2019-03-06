@@ -43,7 +43,7 @@
 const int numberOfPolymers = 998; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
 const int indexCG = 7;
-int numberofSS = 140; /*The number of screenshots in the dump file*/
+int numberofSS = 30; /*The number of screenshots in the dump file*/
 const int boxdim = 3;
 
 typedef struct {                                                                                                                              
@@ -59,6 +59,7 @@ typedef struct {
 } inputCoord;
 
 typedef struct { // Used to input the center of masses for each lipid
+  int index;
   double x;
   double y;
   double z;
@@ -103,8 +104,13 @@ bool compareByIndex(const inputCoord &a, const inputCoord &b) {
     return a.a < b.a;
 }
 
-void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<std::vector<inputCoord> >* inputVec,   std::vector<COMstruct>* COM1, std::vector<COMstruct>* COM2, std::vector<std::vector<COMstruct> >* C12E2final, std::vector<std::vector<COMstruct> >* C12E2Mfinal) {
+bool compareByIndexOPh(const OPHstruct &a, const OPHstruct &b) {
+    return a.dist > b.dist;
+}
 
+void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<std::vector<inputCoord> >* inputVec,   std::vector<COMstruct>* COM1, std::vector<COMstruct>* COM2, std::vector<std::vector<COMstruct> >* C12E2final, std::vector<std::vector<COMstruct> >* C12E2Mfinal) {
+  //    CenterOfMass(&C12E2IndexVector, &C12E2MIndexVector, &inputTotal, &C12E2COM, &C12E2MCOM, &C12E2TotalCOMArray, &C12E2MTotalCOMArray);
+ 
   double C12E2comX, C12E2McomX; // X coordinate COM 
   double C12E2comY, C12E2McomY; // Y coordinate COM 
   double C12E2comZ, C12E2McomZ; // Z coordinate cCOM
@@ -113,6 +119,7 @@ void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<st
   COMstruct C12E2Minput; // struct to store cOM coordinates for C12E2M
   
   for (unsigned int i = 0; i <= inputVec->size()-1; ++i) {
+
     for (unsigned int index = 0; index <= vec1->size()-1; ++index) {
 
       C12E2comX = (inputVec->at(i).at(vec1->at(index)).x + inputVec->at(i).at((vec1->at(index))+1).x + inputVec->at(i).at((vec1->at(index))+2).x + inputVec->at(i).at((vec1->at(index))+3).x + inputVec->at(i).at((vec1->at(index))+4).x + inputVec->at(i).at((vec1->at(index))+5).x + inputVec->at(i).at((vec1->at(index))+6).x)/7.0;
@@ -121,6 +128,7 @@ void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<st
 
       C12E2comZ = (inputVec->at(i).at(vec1->at(index)).z + inputVec->at(i).at((vec1->at(index))+1).z + inputVec->at(i).at((vec1->at(index))+2).z + inputVec->at(i).at((vec1->at(index))+3).z + inputVec->at(i).at((vec1->at(index))+4).z + inputVec->at(i).at((vec1->at(index))+5).z + inputVec->at(i).at((vec1->at(index))+6).z)/7.0;
 
+      C12E2input.index = vec1->at(index);
       C12E2input.x = C12E2comX;
       C12E2input.y = C12E2comY;
       C12E2input.z = C12E2comZ;
@@ -134,17 +142,21 @@ void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<st
       C12E2McomY = (inputVec->at(i).at(vec2->at(index)).y + inputVec->at(i).at((vec2->at(index))+1).x + inputVec->at(i).at((vec2->at(index))+2).y + inputVec->at(i).at((vec2->at(index))+3).y + inputVec->at(i).at((vec2->at(index))+4).y + inputVec->at(i).at((vec2->at(index))+5).y + inputVec->at(i).at((vec2->at(index))+6).y)/7.0;
 
       C12E2McomZ = (inputVec->at(i).at(vec2->at(index)).z + inputVec->at(i).at((vec2->at(index))+1).z + inputVec->at(i).at((vec2->at(index))+2).z + inputVec->at(i).at((vec2->at(index))+3).z + inputVec->at(i).at((vec2->at(index))+4).z + inputVec->at(i).at((vec2->at(index))+5).z + inputVec->at(i).at((vec2->at(index))+6).z)/7.0;
+
+      C12E2Minput.index = vec2->at(index);
       C12E2Minput.x = C12E2comX;
       C12E2Minput.y = C12E2comY;
       C12E2Minput.z = C12E2comZ;
-      COM2->push_back(C12E2Minput);   
+      //TODO
+      COM1->push_back(C12E2Minput);   
     }
     
     C12E2final->push_back(*COM1);
+    //  C12E2final->push_back(*COM2);
+    //TODO 
     C12E2Mfinal->push_back(*COM2);
     COM1->clear();
     COM2->clear();
-
   }
 }
 
@@ -426,14 +438,15 @@ public:
     phipm A; 
 
     for (unsigned phiIndex = 0; phiIndex <= 100; ++phiIndex) {
+
       A.phim = 0.0;
       A.phip = 0.0;
       NewNew.push_back(A);
     }
-    
+
     double phi1, phi2;
     double phip, phim;
-     
+
     for (unsigned int index = 0; index <= phiTotal.size()-1; index++) {
 
       for (unsigned int index2 = 0; index2 <= phiTotal[0].size(); index2++) {
@@ -463,6 +476,7 @@ public:
       }
     }
   }
+
   void blah() {
 
     for (std::vector<phipm>::iterator it = NewNew.begin(); it != NewNew.end(); it++) {
@@ -486,8 +500,9 @@ public:
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {
       
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
-	
+		
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
+	  
 	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
 	  C12E2sample.index = C12E2IndexVector[index];
 	  C12E2sample.dist = DIST;
@@ -498,19 +513,21 @@ public:
 	}
 
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
+
 	  DISTM =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
 	  C12E2sample.index = C12E2IndexVector[index];
 	  C12E2sample.dist = DISTM;
 	  C12E2sample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].y;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].z;
-	  c12E2orderphobic.push_back(C12E2Msample);
+	  c12E2orderphobic.push_back(C12E2sample);
 	}
 
+	//	std::sort(c12E2orderphobic.begin(), c12E2orderphobic.end(), compareByIndexOPh);
 	c12E2orderphobicVec.push_back(c12E2orderphobic);
 
 	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
-	    DIST2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
+	  DIST2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
 	    C12E2Msample.index = C12E2MIndexVector[index];
 	    C12E2Msample.dist = DIST2;
 	    C12E2Msample.Xcoord = inputTotal[i][C12E2IndexVector[newindex]+4].x;
@@ -527,24 +544,38 @@ public:
 	  C12E2Msample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].y;
 	  C12E2Msample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].z;
 	  c12E2Morderphobic.push_back(C12E2Msample);  
+
 	}
-      
+
+	//std::sort(c12E2Morderphobic.begin(), c12E2Morderphobic.end(), compareByIndexOPh);
 	c12E2MorderphobicVec.push_back(c12E2Morderphobic);
+	c12E2orderphobic.clear();
+	c12E2Morderphobic.clear();
+	
       }
       
       // Final push_back 
       orderphobicC12E2.push_back(c12E2orderphobicVec);
       orderphobicC12E2M.push_back(c12E2MorderphobicVec);
-      
+
+      c12E2MorderphobicVec.clear();
+      c12E2orderphobicVec.clear();
     }
     
   }
 
 
+  void LargePrint() {
+    for (unsigned int i = 0; i != inputTotal.size(); ++i) {
+      for (unsigned int index = 0; index != C12E2TotalCOMArray[i].size(); ++index) {
+	std::cout << i << " " <<  index << " " << C12E2TotalCOMArray[i][index].x << " " << C12E2TotalCOMArray[i][index].y << " " << C12E2TotalCOMArray[i][index].z << "  " << C12E2TotalCOMArray[i][index].index << std::endl;
+      }
+    }
+  }
+  
   void allocateCOM() {
     CenterOfMass(&C12E2IndexVector, &C12E2MIndexVector, &inputTotal, &C12E2COM, &C12E2MCOM, &C12E2TotalCOMArray, &C12E2MTotalCOMArray);
   }
-
 
 typedef struct { // Used to identify the group and distance to compute the orderphobic effect  
   int index;
@@ -604,19 +635,19 @@ class testClass {
 
 // Intitiate test class
 
-compute A;
+compute C12E2PhiOrderphobic;
   
 int main (int argc, char *argv[])  {
 
-  A.storeFile();
-  A.sortVectors();
-  A.check();
-  A.headGroupVectorFormation();
-  // A.allocateCOM();
-  //  A.ComputeOrderphobic();
-  A.ComputePhi();
-  //A.PhiPrint();
-  //A.blah();
+  C12E2PhiOrderphobic.storeFile();
+  C12E2PhiOrderphobic.sortVectors();
+  C12E2PhiOrderphobic.check();
+  C12E2PhiOrderphobic.headGroupVectorFormation();
+  C12E2PhiOrderphobic.allocateCOM();
+  C12E2PhiOrderphobic.ComputePhi();
+  C12E2PhiOrderphobic.PhiPrint();
+  C12E2PhiOrderphobic.blah();
+  C12E2PhiOrderphobic.LargePrint();
   
   return 0;    
 }
