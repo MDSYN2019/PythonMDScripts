@@ -43,7 +43,7 @@
 const int numberOfPolymers = 998; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
 const int indexCG = 7;
-int numberofSS = 30; /*The number of screenshots in the dump file*/
+int numberofSS = 100; /*The number of screenshots in the dump file*/
 const int boxdim = 3;
 
 typedef struct {                                                                                                                              
@@ -76,6 +76,8 @@ typedef struct { // Used to input the center of masses for each lipid
 typedef struct { // Used to input the center of masses for each lipid
   double phip;
   double phim;
+  std::vector<double> phipVec;
+  std::vector<double> phimVec;
 } phipm;
 
 typedef struct { // Used to identify the group and distance to compute the orderphobic effect  
@@ -438,9 +440,10 @@ public:
     phipm A; 
 
     for (unsigned phiIndex = 0; phiIndex <= 100; ++phiIndex) {
-
       A.phim = 0.0;
       A.phip = 0.0;
+      A.phimVec.clear();
+      A.phipVec.clear();
       NewNew.push_back(A);
     }
 
@@ -462,26 +465,40 @@ public:
 	
 	} else  {
 
-	  phi1 = (double)(phiTotal[index][index2].topPhiC12E2Count - phiTotal[index][index2].topPhiC12E2MCount)/(double)(phiTotal[index][index2].topPhiC12E2Count + phiTotal[index][index2].topPhiC12E2MCount);  
+	  phi1 = (double)(phiTotal[index][index2].topPhiC12E2Count - phiTotal[index][index2].topPhiC12E2MCount)/(double)(phiTotal[index][index2].topPhiC12E2Count + phiTotal[index][index2].topPhiC12E2MCount);
+	  
 	  phi2 = (double)(phiTotal[index][index2].botPhiC12E2Count - phiTotal[index][index2].botPhiC12E2MCount)/(double)(phiTotal[index][index2].botPhiC12E2Count + phiTotal[index][index2].botPhiC12E2MCount);
 
-      }
+	}
 	phip = phi2 + phi1/2.0;
 	phim = phi2 - phi1/2.0; 
        
 	NewNew[index2].phim += phim;
 	NewNew[index2].phip += phip;
+	NewNew[index2].phimVec.push_back(phim);
+	NewNew[index2].phipVec.push_back(phip);
 	
 	std::cout << index << " " << index2 << " " << phip << " " << phim << std::endl;
       }
     }
   }
 
-  void blah() {
-
+  void ComputePhiStandardDev() {
+    double sum, mean, sq_sum, stdev;
     for (std::vector<phipm>::iterator it = NewNew.begin(); it != NewNew.end(); it++) {
-      std::cout << " "  << it - NewNew.begin() << " " << (it->phim)/inputTotal.size() << " " << (it->phip)/inputTotal.size() << " " <<  std::endl;
+      //std::cout << " "  << it - NewNew.begin() << " " << (it->phim)/inputTotal.size() << " " << (it->phip)/inputTotal.size() << " " <<  std::endl;
+      //std::cout << (it->phimVec).size() << " " << (it->phipVec).size() << std::endl;
+      for (unsigned int i = 0; i != NewNew[it - NewNew.begin()].phimVec.size(); ++i) {
+	sum = std::accumulate(NewNew[it - NewNew.begin()].phimVec.begin(), NewNew[it - NewNew.begin()].phimVec.end(),0.0);
+	mean = sum / NewNew[it - NewNew.begin()].phimVec.size();
+	sq_sum = std::inner_product(NewNew[it - NewNew.begin()].phimVec.begin(), NewNew[it - NewNew.begin()].phimVec.end(), NewNew[it - NewNew.begin()].phimVec.begin(), 0.0);
+	stdev = std::sqrt(sq_sum / NewNew[it - NewNew.begin()].phimVec.size() - mean * mean)/ (pow(numberofSS,0.5));
+      }
+      std::cout << " "  << it - NewNew.begin()  << " " << (it->phip)/inputTotal.size() << " " << stdev <<  std::endl;
+      
     }
+
+   
   }
   
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
@@ -497,10 +514,8 @@ public:
     std::vector<OPHstruct> c12E2orderphobic;
     std::vector<OPHstruct> c12E2Morderphobic;
 
-    for (unsigned int i = 0; i < inputTotal.size(); ++i) {
-      
+    for (unsigned int i = 0; i < inputTotal.size(); ++i) {      
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
-		
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
 	  
 	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
@@ -646,8 +661,8 @@ int main (int argc, char *argv[])  {
   C12E2PhiOrderphobic.allocateCOM();
   C12E2PhiOrderphobic.ComputePhi();
   C12E2PhiOrderphobic.PhiPrint();
-  C12E2PhiOrderphobic.blah();
-  C12E2PhiOrderphobic.LargePrint();
+  C12E2PhiOrderphobic.ComputePhiStandardDev();
+  //  C12E2PhiOrderphobic.LargePrint();
   
   return 0;    
 }
