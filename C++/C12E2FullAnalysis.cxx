@@ -109,9 +109,9 @@ double calcAngle(double* x1, double* x2, double* y1, double* y2) {
   firstVector[1] = *y2 - *y1;
   
   refVector[0] = 10.0;
-  refvVector[1] = 10.0;
+  refVector[1] = 10.0;
 
-  dot = (vector[0] * refvector[0]) + (vector[1] * refvector[1]);  
+  dot = (firstVector[0] * refVector[0]) + (firstVector[1] * refVector[1]);  
 }
 
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
@@ -687,7 +687,6 @@ private:
   std::vector<OPHstruct> C12E2orderphobic;
   std::vector<OPHstruct> C12E2Morderphobic;
 
-
 };
 
 class testClass {
@@ -698,6 +697,7 @@ class testClass {
 compute C12E2PhiOrderphobic;
   
 int main (int argc, char *argv[])  {
+
   C12E2PhiOrderphobic.storeFile();
   C12E2PhiOrderphobic.sortVectors();
   C12E2PhiOrderphobic.check();
@@ -708,7 +708,7 @@ int main (int argc, char *argv[])  {
   C12E2PhiOrderphobic.ComputePhiStandardDev();
   C12E2PhiOrderphobic.ComputeOrderphobic();
   C12E2PhiOrderphobic.OrderphobicSort();
-  C12E2PhiOrderphobic.printop();
+  //  C12E2PhiOrderphobic.printop();
   //  C12E2PhiOrderphobic.LargePrint();
   
   return 0;    
