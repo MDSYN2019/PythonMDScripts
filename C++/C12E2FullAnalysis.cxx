@@ -86,7 +86,11 @@ typedef struct { // Used to identify the group and distance to compute the order
   double Xcoord;
   double Ycoord;
   double Zcoord;
+  
 } OPHstruct;
+
+OPHstruct C12E2sample;
+OPHstruct C12E2Msample;
 
 /*
 double CalculateOrderphobicEffect() {  
@@ -95,6 +99,7 @@ double CalculateOrderphobicEffect() {
   return double;
 }
 */
+
 
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
   double dist = pow((pow(*COM1x-*COM2x,2) + pow(*COM1y-*COM2y,2) + pow(*COM1z-*COM2z,2)),0.5);
@@ -106,9 +111,10 @@ bool compareByIndex(const inputCoord &a, const inputCoord &b) {
     return a.a < b.a;
 }
 
-bool compareByIndexOPh(const OPHstruct &a, const OPHstruct &b) {
-    return a.dist > b.dist;
+bool compareByIndexOPh(const OPHstruct &a, const OPHstruct &b)  {
+    return a.dist < b.dist;
 }
+
 
 void CenterOfMass(std::vector<int>* vec1, std::vector<int>* vec2, std::vector<std::vector<inputCoord> >* inputVec,   std::vector<COMstruct>* COM1, std::vector<COMstruct>* COM2, std::vector<std::vector<COMstruct> >* C12E2final, std::vector<std::vector<COMstruct> >* C12E2Mfinal) {
   //    CenterOfMass(&C12E2IndexVector, &C12E2MIndexVector, &inputTotal, &C12E2COM, &C12E2MCOM, &C12E2TotalCOMArray, &C12E2MTotalCOMArray);
@@ -506,13 +512,6 @@ public:
     double DIST, DIST2; // TODO
     double DISTM, DISTM2; // TODO
 
-    OPHstruct C12E2sample;
-    OPHstruct C12E2Msample;
-
-    std::vector<std::vector<OPHstruct> > c12E2orderphobicVec; // TODO
-    std::vector<std::vector<OPHstruct> > c12E2MorderphobicVec; // TODO
-    std::vector<OPHstruct> c12E2orderphobic;
-    std::vector<OPHstruct> c12E2Morderphobic;
 
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {      
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
@@ -524,61 +523,97 @@ public:
 	  C12E2sample.Xcoord = inputTotal[i][C12E2IndexVector[newindex]+4].x;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].y;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].z;
-	  c12E2orderphobic.push_back(C12E2sample);
+	  C12E2orderphobic.push_back(C12E2sample);
+	  
 	}
 
+      
+	
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
 
 	  DISTM =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
+
 	  C12E2sample.index = C12E2IndexVector[index];
 	  C12E2sample.dist = DISTM;
 	  C12E2sample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].y;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].z;
-	  c12E2orderphobic.push_back(C12E2sample);
+	  C12E2orderphobic.push_back(C12E2sample);
 	}
 
-	//	std::sort(c12E2orderphobic.begin(), c12E2orderphobic.end(), compareByIndexOPh);
-	c12E2orderphobicVec.push_back(c12E2orderphobic);
-
-	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
-	  DIST2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
-	    C12E2Msample.index = C12E2MIndexVector[index];
-	    C12E2Msample.dist = DIST2;
-	    C12E2Msample.Xcoord = inputTotal[i][C12E2IndexVector[newindex]+4].x;
-	    C12E2Msample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].y;
-	    C12E2Msample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].z;
-	    c12E2Morderphobic.push_back(C12E2Msample);
-	}
-
+	sort(C12E2orderphobic.begin(), C12E2orderphobic.end(), compareByIndexOPh);
+	C12E2orderphobic.erase(C12E2orderphobic.begin());
+	C12E2orderphobic.erase(C12E2orderphobic.begin()+6, C12E2orderphobic.end());
+	//	C12E2orderphobic.resize(6);
+	C12E2orderphobicVec.push_back(C12E2orderphobic);
+	
+	
 	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
 	  DISTM2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
+
 	  C12E2Msample.index = C12E2MIndexVector[index];
 	  C12E2Msample.dist = DISTM2;
 	  C12E2Msample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
 	  C12E2Msample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].y;
 	  C12E2Msample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].z;
-	  c12E2Morderphobic.push_back(C12E2Msample);  
+	  C12E2Morderphobic.push_back(C12E2Msample);  
 
 	}
 
+	
+	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
+	  DIST2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
+	  C12E2Msample.index = C12E2MIndexVector[index];
+	  C12E2Msample.dist = DIST2;
+	  C12E2Msample.Xcoord = inputTotal[i][C12E2IndexVector[newindex]+4].x;
+	  C12E2Msample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].y;
+	  C12E2Msample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].z;
+	  C12E2Morderphobic.push_back(C12E2Msample);
+	}
+
+	
 	//std::sort(c12E2Morderphobic.begin(), c12E2Morderphobic.end(), compareByIndexOPh);
-	c12E2MorderphobicVec.push_back(c12E2Morderphobic);
-	c12E2orderphobic.clear();
-	c12E2Morderphobic.clear();
+	//std::sort(C12E2Morderphobic.begin(), C12E2Morderphobic.end(), std::greater<CustomStruct>());
+	//C12E2Morderphobic.erase(C12E2Morderphobic.begin());
+	//C12E2Morderphobic.resize(6);
+
+	sort(C12E2Morderphobic.begin(), C12E2Morderphobic.end(), compareByIndexOPh);
+	C12E2Morderphobic.erase(C12E2Morderphobic.begin());       
+	C12E2Morderphobic.erase(C12E2Morderphobic.begin()+6, C12E2Morderphobic.end());
+
+	//C12E2Morderphobic.resize(6);
+	
+	C12E2MorderphobicVec.push_back(C12E2Morderphobic);
+	
+	C12E2orderphobic.clear();
+	C12E2Morderphobic.clear();
 	
       }
       
       // Final push_back 
-      orderphobicC12E2.push_back(c12E2orderphobicVec);
-      orderphobicC12E2M.push_back(c12E2MorderphobicVec);
+      orderphobicC12E2.push_back(C12E2orderphobicVec);
+      orderphobicC12E2M.push_back(C12E2MorderphobicVec);
 
-      c12E2MorderphobicVec.clear();
-      c12E2orderphobicVec.clear();
+      C12E2MorderphobicVec.clear();
+      C12E2orderphobicVec.clear();
     }
     
   }
 
+  void OrderphobicSort() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
+
+    for (unsigned int i = 0; i < inputTotal.size(); ++i) {      
+      for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
+	std::cout << i << " " << index << " " << orderphobicC12E2[i][index].size() << " " << orderphobicC12E2[i][index][0].dist << " " << orderphobicC12E2[i][index][1].dist << " " << orderphobicC12E2[i][index][2].dist <<  "  " << orderphobicC12E2[i][index][3].dist << " " << orderphobicC12E2[i][index][4].dist << " " << orderphobicC12E2[i][index][5].dist << std::endl;
+      }
+    }
+  }
+  
+  void printop() {
+    for (unsigned int i = 0; i != orderphobicC12E2.size(); i++) {
+      std::cout << i << " " << orderphobicC12E2[i].size() << std::endl;
+    }
+  }
 
   void LargePrint() {
     for (unsigned int i = 0; i != inputTotal.size(); ++i) {
@@ -591,16 +626,6 @@ public:
   void allocateCOM() {
     CenterOfMass(&C12E2IndexVector, &C12E2MIndexVector, &inputTotal, &C12E2COM, &C12E2MCOM, &C12E2TotalCOMArray, &C12E2MTotalCOMArray);
   }
-
-typedef struct { // Used to identify the group and distance to compute the orderphobic effect  
-  int index;
-  double dist;
-  double Xcoord;
-  double Ycoord;
-  double Zcoord;
-} OPHstruct;
-
-
 
 private:    
   std::vector<OPHstruct> inputVectorStruct; // push back all structs
@@ -643,6 +668,13 @@ private:
   char line[100];  
   inputCoord inputline;
   double DistVec1, DistVec2, DistVec3, DistVec4;
+
+  std::vector<std::vector<OPHstruct> >  C12E2orderphobicVec; // TODO
+  std::vector<std::vector<OPHstruct> >  C12E2MorderphobicVec; // TODO
+  std::vector<OPHstruct> C12E2orderphobic;
+  std::vector<OPHstruct> C12E2Morderphobic;
+
+
 };
 
 class testClass {
@@ -662,6 +694,9 @@ int main (int argc, char *argv[])  {
   C12E2PhiOrderphobic.ComputePhi();
   C12E2PhiOrderphobic.PhiPrint();
   C12E2PhiOrderphobic.ComputePhiStandardDev();
+  C12E2PhiOrderphobic.ComputeOrderphobic();
+  C12E2PhiOrderphobic.OrderphobicSort();
+  C12E2PhiOrderphobic.printop();
   //  C12E2PhiOrderphobic.LargePrint();
   
   return 0;    
