@@ -99,7 +99,20 @@ double CalculateOrderphobicEffect() {
   return double;
 }
 */
+double calcAngle(double* x1, double* x2, double* y1, double* y2) {
 
+  double firstVector[2];
+  double refVector[2];
+  double dot;
+  
+  firstVector[0] = *x2 - *x1;
+  firstVector[1] = *y2 - *y1;
+  
+  refVector[0] = 10.0;
+  refvVector[1] = 10.0;
+
+  dot = (vector[0] * refvector[0]) + (vector[1] * refvector[1]);  
+}
 
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
   double dist = pow((pow(*COM1x-*COM2x,2) + pow(*COM1y-*COM2y,2) + pow(*COM1z-*COM2z,2)),0.5);
@@ -685,7 +698,6 @@ class testClass {
 compute C12E2PhiOrderphobic;
   
 int main (int argc, char *argv[])  {
-
   C12E2PhiOrderphobic.storeFile();
   C12E2PhiOrderphobic.sortVectors();
   C12E2PhiOrderphobic.check();
