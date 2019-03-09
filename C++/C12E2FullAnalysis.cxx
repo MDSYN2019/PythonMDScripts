@@ -652,24 +652,22 @@ public:
   }
 
   void OrderphobicSort() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
+
     double output;
+
     for (unsigned int i = 0; i < orderphobicC12E2.size()-1; ++i) {      
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
-	//	std::cout << i << " " << index << " " << orderphobicC12E2[i][index].size() << " " << orderphobicC12E2[i][index][0].dist << " " << orderphobicC12E2[i][index][1].dist << " " << orderphobicC12E2[i][index][2].dist <<  "  " << orderphobicC12E2[i][index][3].dist << " " << orderphobicC12E2[i][index][4].dist << " " << orderphobicC12E2[i][index][5].dist << std::endl;
-	
 	output = calcAngle(&orderphobicC12E2[i][index]);
-	
 	std::cout << output << " " << i << " "<< index << " " << orderphobicC12E2[i][index][0].selfXcoord << " " << orderphobicC12E2[i][index][0].selfYcoord << " " << orderphobicC12E2[i][index][0].selfZcoord  << std::endl; 
+
       }
     }
     
     for (unsigned int i = 0; i < orderphobicC12E2M.size()-1; ++i) {      
       for (unsigned int index = 0; index <  C12E2MIndexVector.size(); ++index) {
-	//	std::cout << i << " " << index << " " << orderphobicC12E2[i][index].size() << " " << orderphobicC12E2[i][index][0].dist << " " << orderphobicC12E2[i][index][1].dist << " " << orderphobicC12E2[i][index][2].dist <<  "  " << orderphobicC12E2[i][index][3].dist << " " << orderphobicC12E2[i][index][4].dist << " " << orderphobicC12E2[i][index][5].dist << std::endl;
-	
-	output = calcAngle(&orderphobicC12E2M[i][index]);
-	
+	output = calcAngle(&orderphobicC12E2M[i][index]);x
 	std::cout << output << " " << i << " "<< index << " " << orderphobicC12E2M[i][index][0].selfXcoord << " " << orderphobicC12E2M[i][index][0].selfYcoord << " " << orderphobicC12E2M[i][index][0].selfZcoord  << std::endl; 
+
       }
     }
   }
