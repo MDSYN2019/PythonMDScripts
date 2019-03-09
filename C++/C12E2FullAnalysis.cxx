@@ -33,6 +33,8 @@
 #include <cmath>
 #include <tuple>
 #include <boost/progress.hpp>
+#include <gsl/gsl_sf_bessel.h>
+#include <gsl>
 
 #include <complex> // Library for complex numbers
 
@@ -107,12 +109,12 @@ void calcAngle(std::vector<OPHstruct>* OPHInput) {
   double dot;  
   double newx;
   double newy;
-  double u, v, angle;
+  double u, v;
+  std::complex<double> angle;
   double phi; 
   refVector[0] = 10.0;
   refVector[1] = 10.0;
-  angle = 0.0;
-  //std::complex<double> mycomplex(0.0, 1.0); 
+  std::complex<double> mycomplex(0.0, 1.0); 
 
   for (unsigned int i = 0; i < OPHInput->size(); ++i) {
     newx = OPHInput->at(i).Xcoord;
@@ -122,7 +124,8 @@ void calcAngle(std::vector<OPHstruct>* OPHInput) {
     v = pow((pow(newx,2) + pow(newy,2)), 0.5);
 
     dot = (newx * refVector[0]) + (newy * refVector[1]);
-    angle = 180 * M_PI * acos((dot / (u * v)));   
+    //std::complex<double> placeholder(0, (180 * M_PI * acos((dot / (u * v))))); // TODO
+    angle = exp(6 * (180 * M_PI * acos((dot / (u * v))))*i);   
 
     std::cout << i << " " << angle << std::endl; 
   }
@@ -580,7 +583,7 @@ public:
 	
 	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
 	  DISTM2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
-
+*
 	  C12E2Msample.index = C12E2MIndexVector[index];
 	  C12E2Msample.dist = DISTM2;
 	  C12E2Msample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
