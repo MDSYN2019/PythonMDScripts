@@ -99,18 +99,18 @@ double CalculateOrderphobicEffect() {
   return double;
 }
 */
-double calcAngle(double* x1, double* x2, double* y1, double* y2) {
-
-  double firstVector[2];
-  double refVector[2];
-  double dot;
+double calcAngle(std::vector<OPHstruct>* OPHInput) {
   
-  firstVector[0] = *x2 - *x1;
-  firstVector[1] = *y2 - *y1;
+  double refVector[2];
+  double dot;  
   
   refVector[0] = 10.0;
   refVector[1] = 10.0;
 
+  for (unsigned int i = 0; i != OPHInput->size(); ++i) {
+    // TODO    
+  }
+  
   dot = (firstVector[0] * refVector[0]) + (firstVector[1] * refVector[1]);  
 }
 
@@ -508,13 +508,13 @@ public:
       //std::cout << " "  << it - NewNew.begin() << " " << (it->phim)/inputTotal.size() << " " << (it->phip)/inputTotal.size() << " " <<  std::endl;
       //std::cout << (it->phimVec).size() << " " << (it->phipVec).size() << std::endl;
       for (unsigned int i = 0; i != NewNew[it - NewNew.begin()].phimVec.size(); ++i) {
-	sum = std::accumulate(NewNew[it - NewNew.begin()].phimVec.begin(), NewNew[it - NewNew.begin()].phimVec.end(),0.0);
-	mean = sum / NewNew[it - NewNew.begin()].phimVec.size();
-	sq_sum = std::inner_product(NewNew[it - NewNew.begin()].phimVec.begin(), NewNew[it - NewNew.begin()].phimVec.end(), NewNew[it - NewNew.begin()].phimVec.begin(), 0.0);
+	sum = std::accumulate(NewNew[it - NewNew.begin()].phimVec.begin(), NewNew[it - NewNew.begin()].phimVec.end(),0.0); // Compute sum
+	mean = sum / NewNew[it - NewNew.begin()].phimVec.size(); // Compute Mean
+	sq_sum = std::inner_product(NewNew[it - NewNew.begin()].phimVec.begin(), NewNew[it - NewNew.begin()].phimVec.end(), NewNew[it - NewNew.begin()].phimVec.begin(), 0.0); // Compute square sum
 	stdev = std::sqrt(sq_sum / NewNew[it - NewNew.begin()].phimVec.size() - mean * mean)/ (pow(numberofSS,0.5));
       }
-      std::cout << " "  << it - NewNew.begin()  << " " << (it->phip)/inputTotal.size() << " " << stdev <<  std::endl;
       
+      std::cout << " "  << it - NewNew.begin()  << " " << (it->phip)/inputTotal.size() << " " << stdev <<  std::endl;
     }
 
    
@@ -614,10 +614,13 @@ public:
   }
 
   void OrderphobicSort() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
-
+    double output;
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {      
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
 	std::cout << i << " " << index << " " << orderphobicC12E2[i][index].size() << " " << orderphobicC12E2[i][index][0].dist << " " << orderphobicC12E2[i][index][1].dist << " " << orderphobicC12E2[i][index][2].dist <<  "  " << orderphobicC12E2[i][index][3].dist << " " << orderphobicC12E2[i][index][4].dist << " " << orderphobicC12E2[i][index][5].dist << std::endl;
+	
+	output = calcAngle(&orderphobicC12E2[i][index]);
+	
       }
     }
   }
