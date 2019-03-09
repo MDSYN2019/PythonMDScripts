@@ -17,6 +17,10 @@
  2. "R. Lipowsky, Domain-induced budding of fluid membranes, Biophysical Society, 64, 1993, 1133 - 1138"
 
  3. "J. Wolff and S. Komura and D. Andelman, Budding of domains in mixed bilayer domains, 91, Physical Review E, 91, 012708, 2015" 
+ 
+ 4. S. Katira and K. K. Madadapu and S. Vaikuntanathan and B. Smit and D. Chandler, Pre-transition effects mediate forces of assembly between transmembrane proteins, elife, 2016, 5, e13150 
+
+ 5. Physical Considerations of the Organization of Inclusions in Lipid Bilayer Systems, Spring 2015, Shachi Katira 
 
 */
 
@@ -671,25 +675,16 @@ public:
   }
   
   void printop() {
-
     for (unsigned int i = 0; i != orderphobicC12E2.size(); i++) {
-
       //std::cout << i << " " << orderphobicC12E2[i] << std::endl;
-
     }
-
   }
 
   void LargePrint() {
-
     for (unsigned int i = 0; i != inputTotal.size(); ++i) {
-
       for (unsigned int index = 0; index != C12E2TotalCOMArray[i].size(); ++index) {
-
 	std::cout << i << " " <<  index << " " << C12E2TotalCOMArray[i][index].x << " " << C12E2TotalCOMArray[i][index].y << " " << C12E2TotalCOMArray[i][index].z << "  " << C12E2TotalCOMArray[i][index].index << std::endl;
-
       }
-
     }
   }
   
@@ -713,7 +708,6 @@ private:
   std::vector<std::vector<phiStruct> > phiTotal;   
   std::vector<std::vector<COMstruct> > C12E2TotalCOMArray;
   std::vector<std::vector<COMstruct> > C12E2MTotalCOMArray;
-  
   // top head groups C12E2
   std::vector<int> topC12E2Index;
   // top head groups C12E2M
@@ -753,7 +747,6 @@ class testClass {
 compute C12E2PhiOrderphobic;
   
 int main (int argc, char *argv[])  {
-
   C12E2PhiOrderphobic.storeFile();
   C12E2PhiOrderphobic.sortVectors();
   C12E2PhiOrderphobic.check();
