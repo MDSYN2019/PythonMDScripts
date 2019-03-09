@@ -34,7 +34,6 @@
 #include <tuple>
 #include <boost/progress.hpp>
 #include <gsl/gsl_sf_bessel.h>
-#include <gsl>
 
 #include <complex> // Library for complex numbers
 
@@ -103,7 +102,7 @@ double CalculateOrderphobicEffect() {
   return double;
 }
 */
-void calcAngle(std::vector<OPHstruct>* OPHInput) {
+double calcAngle(std::vector<OPHstruct>* OPHInput) {
   
   double refVector[2];
   double dot;  
@@ -114,21 +113,24 @@ void calcAngle(std::vector<OPHstruct>* OPHInput) {
   double phi; 
   refVector[0] = 10.0;
   refVector[1] = 10.0;
-  std::complex<double> mycomplex(0.0, 1.0); 
-
+  std::complex<double> mycomplex(0.0, 0.0); 
+  std::complex<double> sixth((double)1/6, 0.0);
+  double absval;
   for (unsigned int i = 0; i < OPHInput->size(); ++i) {
     newx = OPHInput->at(i).Xcoord;
     newy = OPHInput->at(i).Ycoord;
-    
     u = pow((pow(refVector[0],2) + pow(refVector[1],2)), 0.5);
     v = pow((pow(newx,2) + pow(newy,2)), 0.5);
-
     dot = (newx * refVector[0]) + (newy * refVector[1]);
-    //std::complex<double> placeholder(0, (180 * M_PI * acos((dot / (u * v))))); // TODO
-    angle = exp(6 * (180 * M_PI * acos((dot / (u * v))))*i);   
-
-    std::cout << i << " " << angle << std::endl; 
+    std::complex<double> placeholder(0, ( 6 *  180 * M_PI * acos((dot / (u * v))))); // TODO
+    angle = exp(placeholder);   
+    mycomplex += angle;
+    //  std::cout << i << " " << absval << std::endl; 
   }
+  mycomplex = sixth * mycomplex;
+  absval = pow(abs(mycomplex),2);
+  //std::cout  << absval << std::endl; 
+  return absval;
 }
 
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
@@ -583,7 +585,7 @@ public:
 	
 	for (unsigned int newindex = 0; newindex <  C12E2MIndexVector.size(); ++newindex) {
 	  DISTM2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
-*
+
 	  C12E2Msample.index = C12E2MIndexVector[index];
 	  C12E2Msample.dist = DISTM2;
 	  C12E2Msample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
@@ -634,21 +636,34 @@ public:
   }
 
   void OrderphobicSort() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
-    //double output;
+    double output;
     for (unsigned int i = 0; i < orderphobicC12E2.size()-1; ++i) {      
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
 	//	std::cout << i << " " << index << " " << orderphobicC12E2[i][index].size() << " " << orderphobicC12E2[i][index][0].dist << " " << orderphobicC12E2[i][index][1].dist << " " << orderphobicC12E2[i][index][2].dist <<  "  " << orderphobicC12E2[i][index][3].dist << " " << orderphobicC12E2[i][index][4].dist << " " << orderphobicC12E2[i][index][5].dist << std::endl;
-
-	calcAngle(&orderphobicC12E2[i][index]);
 	
+	output = calcAngle(&orderphobicC12E2[i][index]);
+	std::cout << output << " " << i << " "<< index  << " " << std::endl; 
+      }
+    }
+    
+    for (unsigned int i = 0; i < orderphobicC12E2M.size()-1; ++i) {      
+      for (unsigned int index = 0; index <  C12E2MIndexVector.size(); ++index) {
+	//	std::cout << i << " " << index << " " << orderphobicC12E2[i][index].size() << " " << orderphobicC12E2[i][index][0].dist << " " << orderphobicC12E2[i][index][1].dist << " " << orderphobicC12E2[i][index][2].dist <<  "  " << orderphobicC12E2[i][index][3].dist << " " << orderphobicC12E2[i][index][4].dist << " " << orderphobicC12E2[i][index][5].dist << std::endl;
+	
+	output = calcAngle(&orderphobicC12E2M[i][index]);
+	std::cout << output << " " << i << " "<< index  << " " << std::endl; 
       }
     }
   }
   
   void printop() {
+
     for (unsigned int i = 0; i != orderphobicC12E2.size(); i++) {
+
       //std::cout << i << " " << orderphobicC12E2[i] << std::endl;
+
     }
+
   }
 
   void LargePrint() {
