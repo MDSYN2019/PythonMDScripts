@@ -36,6 +36,8 @@
 
 #include <complex> // Library for complex numbers
 
+#define _USE_MATH_DEFINES
+
 //#include <Eigen>
 //#include <Eigen/Dense>
 //using namespace Eigen;
@@ -43,7 +45,7 @@
 const int numberOfPolymers = 998; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
 const int indexCG = 7;
-int numberofSS = 100; /*The number of screenshots in the dump file*/
+int numberofSS = 40; /*The number of screenshots in the dump file*/
 const int boxdim = 3;
 
 typedef struct {                                                                                                                              
@@ -99,19 +101,31 @@ double CalculateOrderphobicEffect() {
   return double;
 }
 */
-double calcAngle(std::vector<OPHstruct>* OPHInput) {
+void calcAngle(std::vector<OPHstruct>* OPHInput) {
   
   double refVector[2];
   double dot;  
-  
+  double newx;
+  double newy;
+  double u, v, angle;
+  double phi; 
   refVector[0] = 10.0;
   refVector[1] = 10.0;
+  angle = 0.0;
+  //std::complex<double> mycomplex(0.0, 1.0); 
 
-  for (unsigned int i = 0; i != OPHInput->size(); ++i) {
-    // TODO    
+  for (unsigned int i = 0; i < OPHInput->size(); ++i) {
+    newx = OPHInput->at(i).Xcoord;
+    newy = OPHInput->at(i).Ycoord;
+    
+    u = pow((pow(refVector[0],2) + pow(refVector[1],2)), 0.5);
+    v = pow((pow(newx,2) + pow(newy,2)), 0.5);
+
+    dot = (newx * refVector[0]) + (newy * refVector[1]);
+    angle = 180 * M_PI * acos((dot / (u * v)));   
+
+    std::cout << i << " " << angle << std::endl; 
   }
-  
-  dot = (firstVector[0] * refVector[0]) + (firstVector[1] * refVector[1]);  
 }
 
 double trueDist(double* COM1x, double* COM1y, double* COM1z, double* COM2x, double* COM2y, double* COM2z) {
@@ -399,8 +413,7 @@ public:
       std::cout << botC12E2Index.size() << std::endl;
 		
       std::cout << topC12E2MIndex.size() << std::endl;
-      std::cout << botC12E2MIndex.size() << std::endl;
-            	 
+      std::cout << botC12E2MIndex.size() << std::endl;            	 
       phiStruct phitemplate;
       std::cout << "check" << std::endl;
     
@@ -489,6 +502,7 @@ public:
 	  phi2 = (double)(phiTotal[index][index2].botPhiC12E2Count - phiTotal[index][index2].botPhiC12E2MCount)/(double)(phiTotal[index][index2].botPhiC12E2Count + phiTotal[index][index2].botPhiC12E2MCount);
 
 	}
+
 	phip = phi2 + phi1/2.0;
 	phim = phi2 - phi1/2.0; 
        
@@ -508,16 +522,19 @@ public:
       //std::cout << " "  << it - NewNew.begin() << " " << (it->phim)/inputTotal.size() << " " << (it->phip)/inputTotal.size() << " " <<  std::endl;
       //std::cout << (it->phimVec).size() << " " << (it->phipVec).size() << std::endl;
       for (unsigned int i = 0; i != NewNew[it - NewNew.begin()].phimVec.size(); ++i) {
+
 	sum = std::accumulate(NewNew[it - NewNew.begin()].phimVec.begin(), NewNew[it - NewNew.begin()].phimVec.end(),0.0); // Compute sum
+
 	mean = sum / NewNew[it - NewNew.begin()].phimVec.size(); // Compute Mean
+
 	sq_sum = std::inner_product(NewNew[it - NewNew.begin()].phimVec.begin(), NewNew[it - NewNew.begin()].phimVec.end(), NewNew[it - NewNew.begin()].phimVec.begin(), 0.0); // Compute square sum
+
 	stdev = std::sqrt(sq_sum / NewNew[it - NewNew.begin()].phimVec.size() - mean * mean)/ (pow(numberofSS,0.5));
+
       }
       
       std::cout << " "  << it - NewNew.begin()  << " " << (it->phip)/inputTotal.size() << " " << stdev <<  std::endl;
     }
-
-   
   }
   
   void ComputeOrderphobic() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
@@ -527,7 +544,9 @@ public:
 
 
     for (unsigned int i = 0; i < inputTotal.size(); ++i) {      
+
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
+
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
 	  
 	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
@@ -540,8 +559,6 @@ public:
 	  
 	}
 
-      
-	
 	for (unsigned int newindex = 0; newindex <  C12E2IndexVector.size(); ++newindex) {
 
 	  DISTM =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2MIndexVector[newindex]+4].x, &inputTotal[i][C12E2MIndexVector[newindex]+4].y, &inputTotal[i][C12E2MIndexVector[newindex]+4].z);
@@ -614,12 +631,12 @@ public:
   }
 
   void OrderphobicSort() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
-    double output;
-    for (unsigned int i = 0; i < inputTotal.size(); ++i) {      
+    //double output;
+    for (unsigned int i = 0; i < orderphobicC12E2.size()-1; ++i) {      
       for (unsigned int index = 0; index <  C12E2IndexVector.size(); ++index) {
-	std::cout << i << " " << index << " " << orderphobicC12E2[i][index].size() << " " << orderphobicC12E2[i][index][0].dist << " " << orderphobicC12E2[i][index][1].dist << " " << orderphobicC12E2[i][index][2].dist <<  "  " << orderphobicC12E2[i][index][3].dist << " " << orderphobicC12E2[i][index][4].dist << " " << orderphobicC12E2[i][index][5].dist << std::endl;
-	
-	output = calcAngle(&orderphobicC12E2[i][index]);
+	//	std::cout << i << " " << index << " " << orderphobicC12E2[i][index].size() << " " << orderphobicC12E2[i][index][0].dist << " " << orderphobicC12E2[i][index][1].dist << " " << orderphobicC12E2[i][index][2].dist <<  "  " << orderphobicC12E2[i][index][3].dist << " " << orderphobicC12E2[i][index][4].dist << " " << orderphobicC12E2[i][index][5].dist << std::endl;
+
+	calcAngle(&orderphobicC12E2[i][index]);
 	
       }
     }
@@ -627,15 +644,20 @@ public:
   
   void printop() {
     for (unsigned int i = 0; i != orderphobicC12E2.size(); i++) {
-      std::cout << i << " " << orderphobicC12E2[i].size() << std::endl;
+      //std::cout << i << " " << orderphobicC12E2[i] << std::endl;
     }
   }
 
   void LargePrint() {
+
     for (unsigned int i = 0; i != inputTotal.size(); ++i) {
+
       for (unsigned int index = 0; index != C12E2TotalCOMArray[i].size(); ++index) {
+
 	std::cout << i << " " <<  index << " " << C12E2TotalCOMArray[i][index].x << " " << C12E2TotalCOMArray[i][index].y << " " << C12E2TotalCOMArray[i][index].z << "  " << C12E2TotalCOMArray[i][index].index << std::endl;
+
       }
+
     }
   }
   
@@ -647,7 +669,6 @@ private:
   std::vector<OPHstruct> inputVectorStruct; // push back all structs
   std::vector< std::vector<std::vector<OPHstruct> > > orderphobicC12E2;  // This needs to be a simplified 
   std::vector< std::vector<std::vector<OPHstruct> > > orderphobicC12E2M; // This needs to be simplfied also..
-
   // Vectors to store trajectory values 
   std::vector<inputCoord> inputVector; // push back all structs
   std::vector<std::vector<inputCoord> > inputTotal; // push back vector of structs 
