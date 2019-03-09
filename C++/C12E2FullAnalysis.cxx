@@ -46,7 +46,7 @@
 const int numberOfPolymers = 998; // The number of polymers of each type - C12E2 or mimic 
 const int numberofatoms = 71313; // Total number of beads in the simulation
 const int indexCG = 7;
-int numberofSS = 40; /*The number of screenshots in the dump file*/
+int numberofSS = 100; /*The number of screenshots in the dump file*/
 const int boxdim = 3;
 
 typedef struct {                                                                                                                              
@@ -86,6 +86,9 @@ typedef struct { // Used to input the center of masses for each lipid
 typedef struct { // Used to identify the group and distance to compute the orderphobic effect  
   int index;
   double dist;
+  double selfXcoord;
+  double selfYcoord;
+  double selfZcoord;
   double Xcoord;
   double Ycoord;
   double Zcoord;
@@ -501,11 +504,8 @@ public:
 	  // Do nothing
 	
 	} else  {
-
 	  phi1 = (double)(phiTotal[index][index2].topPhiC12E2Count - phiTotal[index][index2].topPhiC12E2MCount)/(double)(phiTotal[index][index2].topPhiC12E2Count + phiTotal[index][index2].topPhiC12E2MCount);
-	  
 	  phi2 = (double)(phiTotal[index][index2].botPhiC12E2Count - phiTotal[index][index2].botPhiC12E2MCount)/(double)(phiTotal[index][index2].botPhiC12E2Count + phiTotal[index][index2].botPhiC12E2MCount);
-
 	}
 
 	phip = phi2 + phi1/2.0;
@@ -557,6 +557,9 @@ public:
 	  DIST =  trueDist(&inputTotal[i][C12E2IndexVector[index]+4].x, &inputTotal[i][C12E2IndexVector[index]+4].y, &inputTotal[i][C12E2IndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
 	  C12E2sample.index = C12E2IndexVector[index];
 	  C12E2sample.dist = DIST;
+	  C12E2sample.selfXcoord = inputTotal[i][C12E2IndexVector[index]+4].x;
+	  C12E2sample.selfYcoord = inputTotal[i][C12E2IndexVector[index]+4].y;
+	  C12E2sample.selfZcoord = inputTotal[i][C12E2IndexVector[index]+4].z;
 	  C12E2sample.Xcoord = inputTotal[i][C12E2IndexVector[newindex]+4].x;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].y;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].z;
@@ -570,6 +573,9 @@ public:
 
 	  C12E2sample.index = C12E2IndexVector[index];
 	  C12E2sample.dist = DISTM;
+	  C12E2sample.selfXcoord = inputTotal[i][C12E2IndexVector[index]+4].x;
+	  C12E2sample.selfYcoord = inputTotal[i][C12E2IndexVector[index]+4].y;
+	  C12E2sample.selfZcoord = inputTotal[i][C12E2IndexVector[index]+4].z;
 	  C12E2sample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].y;
 	  C12E2sample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].z;
@@ -588,6 +594,9 @@ public:
 
 	  C12E2Msample.index = C12E2MIndexVector[index];
 	  C12E2Msample.dist = DISTM2;
+	  C12E2Msample.selfXcoord = inputTotal[i][C12E2MIndexVector[index]+4].x;
+	  C12E2Msample.selfYcoord = inputTotal[i][C12E2MIndexVector[index]+4].y;
+	  C12E2Msample.selfZcoord = inputTotal[i][C12E2MIndexVector[index]+4].z;
 	  C12E2Msample.Xcoord = inputTotal[i][C12E2MIndexVector[newindex]+4].x;
 	  C12E2Msample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].y;
 	  C12E2Msample.Ycoord = inputTotal[i][C12E2MIndexVector[newindex]+4].z;
@@ -600,6 +609,9 @@ public:
 	  DIST2 =  trueDist(&inputTotal[i][C12E2MIndexVector[index]+4].x, &inputTotal[i][C12E2MIndexVector[index]+4].y, &inputTotal[i][C12E2MIndexVector[index]+4].z, &inputTotal[i][C12E2IndexVector[newindex]+4].x, &inputTotal[i][C12E2IndexVector[newindex]+4].y, &inputTotal[i][C12E2IndexVector[newindex]+4].z);
 	  C12E2Msample.index = C12E2MIndexVector[index];
 	  C12E2Msample.dist = DIST2;
+	  C12E2Msample.selfXcoord = inputTotal[i][C12E2MIndexVector[index]+4].x;
+	  C12E2Msample.selfYcoord = inputTotal[i][C12E2MIndexVector[index]+4].y;
+	  C12E2Msample.selfZcoord = inputTotal[i][C12E2MIndexVector[index]+4].z;
 	  C12E2Msample.Xcoord = inputTotal[i][C12E2IndexVector[newindex]+4].x;
 	  C12E2Msample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].y;
 	  C12E2Msample.Ycoord = inputTotal[i][C12E2IndexVector[newindex]+4].z;
@@ -642,7 +654,8 @@ public:
 	//	std::cout << i << " " << index << " " << orderphobicC12E2[i][index].size() << " " << orderphobicC12E2[i][index][0].dist << " " << orderphobicC12E2[i][index][1].dist << " " << orderphobicC12E2[i][index][2].dist <<  "  " << orderphobicC12E2[i][index][3].dist << " " << orderphobicC12E2[i][index][4].dist << " " << orderphobicC12E2[i][index][5].dist << std::endl;
 	
 	output = calcAngle(&orderphobicC12E2[i][index]);
-	std::cout << output << " " << i << " "<< index  << " " << std::endl; 
+	
+	std::cout << output << " " << i << " "<< index << " " << orderphobicC12E2[i][index][0].selfXcoord << " " << orderphobicC12E2[i][index][0].selfYcoord << " " << orderphobicC12E2[i][index][0].selfZcoord  << std::endl; 
       }
     }
     
@@ -651,7 +664,8 @@ public:
 	//	std::cout << i << " " << index << " " << orderphobicC12E2[i][index].size() << " " << orderphobicC12E2[i][index][0].dist << " " << orderphobicC12E2[i][index][1].dist << " " << orderphobicC12E2[i][index][2].dist <<  "  " << orderphobicC12E2[i][index][3].dist << " " << orderphobicC12E2[i][index][4].dist << " " << orderphobicC12E2[i][index][5].dist << std::endl;
 	
 	output = calcAngle(&orderphobicC12E2M[i][index]);
-	std::cout << output << " " << i << " "<< index  << " " << std::endl; 
+	
+	std::cout << output << " " << i << " "<< index << " " << orderphobicC12E2M[i][index][0].selfXcoord << " " << orderphobicC12E2M[i][index][0].selfYcoord << " " << orderphobicC12E2M[i][index][0].selfZcoord  << std::endl; 
       }
     }
   }
