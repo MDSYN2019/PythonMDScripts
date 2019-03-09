@@ -99,8 +99,6 @@ typedef struct { // Used to identify the group and distance to compute the order
   
 } OPHstruct;
 
-OPHstruct C12E2sample;
-OPHstruct C12E2Msample;
 
 /*
 double CalculateOrderphobicEffect() {  
@@ -665,7 +663,7 @@ public:
     
     for (unsigned int i = 0; i < orderphobicC12E2M.size()-1; ++i) {      
       for (unsigned int index = 0; index <  C12E2MIndexVector.size(); ++index) {
-	output = calcAngle(&orderphobicC12E2M[i][index]);x
+	output = calcAngle(&orderphobicC12E2M[i][index]);
 	std::cout << output << " " << i << " "<< index << " " << orderphobicC12E2M[i][index][0].selfXcoord << " " << orderphobicC12E2M[i][index][0].selfYcoord << " " << orderphobicC12E2M[i][index][0].selfZcoord  << std::endl; 
 
       }
@@ -729,6 +727,9 @@ private:
   char line[100];  
   inputCoord inputline;
   double DistVec1, DistVec2, DistVec3, DistVec4;
+
+  OPHstruct C12E2sample;
+  OPHstruct C12E2Msample;
 
   std::vector<std::vector<OPHstruct> >  C12E2orderphobicVec; // TODO
   std::vector<std::vector<OPHstruct> >  C12E2MorderphobicVec; // TODO
