@@ -87,6 +87,13 @@ typedef struct { // Used to input the center of masses for each lipid
   std::vector<double> phimVec;
 } phipm;
 
+typedef struct { // Used to input the center of masses for each lipid
+  double X, Y, Z;
+  double orderphobicVal;
+  // std::vector<double> orderphobicVal;
+} OPVal;
+
+
 typedef struct { // Used to identify the group and distance to compute the orderphobic effect  
   int index;
   double dist;
@@ -650,7 +657,8 @@ public:
   }
 
   void OrderphobicSort() { // Computes the phi, or the mismatch between the bilayer leaflets around the NP
-
+    OPVal Val;
+    std::vector<OPVal> tempVal;
     double output;
 
     for (unsigned int i = 0; i < orderphobicC12E2.size()-1; ++i) {      
@@ -658,21 +666,35 @@ public:
 	output = calcAngle(&orderphobicC12E2[i][index]);
 	std::cout << output << " " << i << " "<< index << " " << orderphobicC12E2[i][index][0].selfXcoord << " " << orderphobicC12E2[i][index][0].selfYcoord << " " << orderphobicC12E2[i][index][0].selfZcoord  << std::endl; 
 
+	Val.X = orderphobicC12E2[i][index][0].selfXcoord;
+	Val.Y = orderphobicC12E2[i][index][0].selfYcoord;
+	Val.Z = orderphobicC12E2[i][index][0].selfZcoord;
+        Val.orderphobicVal = output;
+	tempVal.push_back(Val);
       }
+    
+    
+    for (unsigned int index = 0; index <  C12E2MIndexVector.size(); ++index) {
+      output = calcAngle(&orderphobicC12E2M[i][index]);
+      std::cout << output << " " << i << " "<< index << " " << orderphobicC12E2M[i][index][0].selfXcoord << " " << orderphobicC12E2M[i][index][0].selfYcoord << " " << orderphobicC12E2M[i][index][0].selfZcoord  << std::endl; 
+      Val.X = orderphobicC12E2M[i][index][0].selfXcoord;
+      Val.Y = orderphobicC12E2M[i][index][0].selfYcoord;
+      Val.Z = orderphobicC12E2M[i][index][0].selfZcoord;
+      Val.orderphobicVal = output;
+      tempVal.push_back(Val);	
     }
     
-    for (unsigned int i = 0; i < orderphobicC12E2M.size()-1; ++i) {      
-      for (unsigned int index = 0; index <  C12E2MIndexVector.size(); ++index) {
-	output = calcAngle(&orderphobicC12E2M[i][index]);
-	std::cout << output << " " << i << " "<< index << " " << orderphobicC12E2M[i][index][0].selfXcoord << " " << orderphobicC12E2M[i][index][0].selfYcoord << " " << orderphobicC12E2M[i][index][0].selfZcoord  << std::endl; 
-
-      }
+    orderphobicVectorFinal.push_back(tempVal);
+    tempVal.clear();
     }
   }
   
   void printop() {
-    for (unsigned int i = 0; i != orderphobicC12E2.size(); i++) {
-      //std::cout << i << " " << orderphobicC12E2[i] << std::endl;
+    for (unsigned int i = 0; i != orderphobicVectorFinal.size(); i++) {
+      for (unsigned int j = 0; j != orderphobicVectorFinal[i].size(); j++) {
+	std::cout <<  i << " " << j << " " << orderphobicVectorFinal[i][j].X << " " << orderphobicVectorFinal[i][j].Y << " " << orderphobicVectorFinal[i][j].Z << " " << orderphobicVectorFinal[i][j].orderphobicVal << std::endl; 
+
+      }
     }
   }
 
@@ -730,11 +752,12 @@ private:
 
   OPHstruct C12E2sample;
   OPHstruct C12E2Msample;
-
+  
   std::vector<std::vector<OPHstruct> >  C12E2orderphobicVec; // TODO
   std::vector<std::vector<OPHstruct> >  C12E2MorderphobicVec; // TODO
   std::vector<OPHstruct> C12E2orderphobic;
   std::vector<OPHstruct> C12E2Morderphobic;
+  std::vector<std::vector<OPVal> > orderphobicVectorFinal; // TODO
 
 };
 
@@ -746,6 +769,7 @@ class testClass {
 compute C12E2PhiOrderphobic;
   
 int main (int argc, char *argv[])  {
+
   C12E2PhiOrderphobic.storeFile();
   C12E2PhiOrderphobic.sortVectors();
   C12E2PhiOrderphobic.check();
@@ -756,7 +780,7 @@ int main (int argc, char *argv[])  {
   C12E2PhiOrderphobic.ComputePhiStandardDev();
   C12E2PhiOrderphobic.ComputeOrderphobic();
   C12E2PhiOrderphobic.OrderphobicSort();
-  //  C12E2PhiOrderphobic.printop();
+  C12E2PhiOrderphobic.printop();
   //  C12E2PhiOrderphobic.LargePrint();
   
   return 0;    
