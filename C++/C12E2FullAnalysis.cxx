@@ -692,8 +692,13 @@ public:
   void printop() {
     for (unsigned int i = 0; i != orderphobicVectorFinal.size(); i++) {
       for (unsigned int j = 0; j != orderphobicVectorFinal[i].size(); j++) {
-	std::cout <<  i << " " << j << " " << orderphobicVectorFinal[i][j].X << " " << orderphobicVectorFinal[i][j].Y << " " << orderphobicVectorFinal[i][j].Z << " " << orderphobicVectorFinal[i][j].orderphobicVal << std::endl; 
 
+	NPX = inputTotal[i][71312].x; // x coordinate of the NP  
+	NPY = inputTotal[i][71312].y; // y coordinate of the NP
+	NPZ = inputTotal[i][71312].z; // z coordinate of the NP 	
+
+	std::cout <<  i << " " << j << " " << orderphobicVectorFinal[i][j].X << " " << orderphobicVectorFinal[i][j].Y << " " << orderphobicVectorFinal[i][j].Z << " " << orderphobicVectorFinal[i][j].orderphobicVal << " "  << NPX << " " << NPY << " " << NPZ << std::endl; 
+      	
       }
     }
   }
@@ -701,7 +706,13 @@ public:
   void LargePrint() {
     for (unsigned int i = 0; i != inputTotal.size(); ++i) {
       for (unsigned int index = 0; index != C12E2TotalCOMArray[i].size(); ++index) {
-	std::cout << i << " " <<  index << " " << C12E2TotalCOMArray[i][index].x << " " << C12E2TotalCOMArray[i][index].y << " " << C12E2TotalCOMArray[i][index].z << "  " << C12E2TotalCOMArray[i][index].index << std::endl;
+
+	//NPX = inputTotal[i][71312].x; // x coordinate of the NP  
+	//NPY = inputTotal[i][71312].y; // y coordinate of the NP
+	//NPZ = inputTotal[i][71312].z; // z coordinate of the NP 	
+	
+	//	std::cout << i << " " <<  index << " " << C12E2TotalCOMArray[i][index].x << " " << C12E2TotalCOMArray[i][index].y << " " << C12E2TotalCOMArray[i][index].z << "  " << C12E2TotalCOMArray[i][index].index << " " << NPX << " " << NPY << " " << NPZ << std::endl;
+
       }
     }
   }
