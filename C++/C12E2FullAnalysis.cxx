@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <vector>
+
 #include <map>
 #include <algorithm>
 #include <functional>   // std::multiplies
@@ -90,7 +91,7 @@ typedef struct { // Used to input the center of masses for each lipid
 typedef struct { // Used to input the center of masses for each lipid
   double X, Y, Z;
   double orderphobicVal;
-  // std::vector<double> orderphobicVal;
+  std::vector<double> VV;
 } OPVal;
 
 
@@ -226,11 +227,10 @@ class compute {
 public:
   compute() {}; // Default constructor
   compute(std::string file) {}; // constructor reading file
-
   void storeFile() {    
     boost::progress_display show_progress(numberofSS);
     // open file for reading 
-    ipf = fopen("dump.final", "r");  // Needs correction 
+    ipf = fopen("dump.mixed2", "r");  // Needs correction 
     // check for error opening file */
 
     if (ipf == NULL) {  
@@ -474,6 +474,7 @@ public:
 	       phiCount[dist].topPhiC12E2MCount += 1;
 	     }
 	  }
+
 	  for (unsigned int index = 0; index < botC12E2MIndex.size(); index++) {
 	    DistVec4 = trueDist(&NPX, &NPY, &NPZ, &inputTotal[i][botC12E2MIndex[index]].x, &inputTotal[i][botC12E2MIndex[index]].y, &inputTotal[i][botC12E2MIndex[index]].z);
 	    if (DistVec4 <= dist + 0.5  && DistVec4 >= dist - 0.5) {
@@ -690,6 +691,15 @@ public:
   }
   
   void printop() {
+    OPVal PlaceHolder;
+    double distP;
+    for (unsigned int dist = 0; dist <= 100; ++dist) {
+      PlaceHolder.X = 0.0;
+      PlaceHolder.Y = 0.0;
+      PlaceHolder.Z = 0.0;
+      ABC.push_back(PlaceHolder);
+    }
+    
     for (unsigned int i = 0; i != orderphobicVectorFinal.size(); i++) {
       for (unsigned int j = 0; j != orderphobicVectorFinal[i].size(); j++) {
 
@@ -697,23 +707,27 @@ public:
 	NPY = inputTotal[i][71312].y; // y coordinate of the NP
 	NPZ = inputTotal[i][71312].z; // z coordinate of the NP 	
 
-	std::cout <<  i << " " << j << " " << orderphobicVectorFinal[i][j].X << " " << orderphobicVectorFinal[i][j].Y << " " << orderphobicVectorFinal[i][j].Z << " " << orderphobicVectorFinal[i][j].orderphobicVal << " "  << NPX << " " << NPY << " " << NPZ << std::endl; 
-      	
+	//std::cout <<  i << " " << j << " " << orderphobicVectorFinal[i][j].X << " " << orderphobicVectorFinal[i][j].Y << " " << orderphobicVectorFinal[i][j].Z << " " << orderphobicVectorFinal[i][j].orderphobicVal << " "  << NPX << " " << NPY << " " << NPZ << std::endl;
+	
+	distP = trueDist(&NPX, &NPY, &NPZ, &orderphobicVectorFinal[i][j].X, &orderphobicVectorFinal[i][j].Y, &orderphobicVectorFinal[i][j].Z);
+      
+	  for (unsigned int dist = 0; dist <= 100; ++dist) {
+	    if (distP >= dist - 0.5 && distP <= dist + 0.5) {
+	      ABC[dist].VV.push_back(orderphobicVectorFinal[i][j].orderphobicVal); 
+	    }
+	  }
       }
     }
   }
 
   void LargePrint() {
-    for (unsigned int i = 0; i != inputTotal.size(); ++i) {
-      for (unsigned int index = 0; index != C12E2TotalCOMArray[i].size(); ++index) {
+    double sum, mean;
+    
+    for (unsigned int i = 0; i != ABC.size(); i++) {
+      sum = std::accumulate(ABC[i].VV.begin(), ABC[i].VV.end(),0.0); // Compute sum
+      mean = sum / ABC[i].VV.size(); // Compute Mean
+      std::cout << i << " " <<  mean  << " " << std::endl;
 
-	//NPX = inputTotal[i][71312].x; // x coordinate of the NP  
-	//NPY = inputTotal[i][71312].y; // y coordinate of the NP
-	//NPZ = inputTotal[i][71312].z; // z coordinate of the NP 	
-	
-	//	std::cout << i << " " <<  index << " " << C12E2TotalCOMArray[i][index].x << " " << C12E2TotalCOMArray[i][index].y << " " << C12E2TotalCOMArray[i][index].z << "  " << C12E2TotalCOMArray[i][index].index << " " << NPX << " " << NPY << " " << NPZ << std::endl;
-
-      }
     }
   }
   
@@ -769,7 +783,7 @@ private:
   std::vector<OPHstruct> C12E2orderphobic;
   std::vector<OPHstruct> C12E2Morderphobic;
   std::vector<std::vector<OPVal> > orderphobicVectorFinal; // TODO
-
+  std::vector<OPVal> ABC;
 };
 
 class testClass {
@@ -792,7 +806,7 @@ int main (int argc, char *argv[])  {
   C12E2PhiOrderphobic.ComputeOrderphobic();
   C12E2PhiOrderphobic.OrderphobicSort();
   C12E2PhiOrderphobic.printop();
-  //  C12E2PhiOrderphobic.LargePrint();
+  C12E2PhiOrderphobic.LargePrint();
   
   return 0;    
 }
