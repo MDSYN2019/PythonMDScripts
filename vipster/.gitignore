@@ -1,0 +1,41 @@
+# C++ build files
+*.o
+*.so*
+# Emscripten
+*.js
+*.html
+*.wasm
+# Qt
+Makefile
+qrc_*
+ui_*
+moc_*
+*.moc
+
+# Test files
+*.xyz
+*.pwi
+*.pwo
+*.png
+*.cub
+*.cpi
+*.emp
+*.sum
+*.lmp
+
+# vim swap files
+*.swp
+*.swo
+
+# qt-creator stuff
+*.user
+*.autosave
+
+# IDEs / editors
+.idea/
+.vscode/
+.eslintrc.json
+
+# NPM packages
+node_modules/
+package-lock.json

@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/shaders">
+        <file>atom.frag</file>
+        <file>atom.vert</file>
+        <file>bond.frag</file>
+        <file>bond.vert</file>
+        <file>cell.frag</file>
+        <file>cell.vert</file>
+        <file>select.vert</file>
+        <file>select.frag</file>
+        <file>selection.frag</file>
+        <file>selection.vert</file>
+        <file>mesh.frag</file>
+        <file>mesh.vert</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file>vipster.png</file>
+    </qresource>
+</RCC>
