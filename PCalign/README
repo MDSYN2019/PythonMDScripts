@@ -1,0 +1,34 @@
+############################## README for PCalign ##############################
+This is the README file for the program PCalign. PCalign identifies a structural
+alignment between two interfaces of a given pair of protein dimers, and gives a 
+PC-score that quantifies the extent to which the local physical and chemical en-
+vironment between the two interfaces match.
+
+Before running the program PCalign, the input PDB files need to be pre-processed 
+by PCprepare. For large-scale calculations on a set of PDB files, all PDB files 
+can be pre-processed once and for all. An input PDB file needs to contain 2 sep-
+arate chains.
+
+To pre-process an input PDB file, say input.pdb, run the following:
+
+PCprepare input.pdb
+
+PCprepare generates 4 auxiliary files, input_contacting.pdb, input_contact.map, 
+input_contacting_labeled.points and input.hash, all of which are required for
+interface comparison. Together with the original file, input.pdb, these 5 files
+need to be put in the same directory where PCalign runs.
+
+After all PDB files of interest are pre-processed, a given pair of protein dime-
+rs, say input1.pdb and input2.pdb, can be compared using:
+
+PCalign input1.pdb input2.pdb
+
+If the user wishes to compare the geometric properties of interfaces only, the
+following can be run:
+
+PCalign input1.pdb input2.pdb -chem off
+
+Other than the standard output PCalign prints, it also creates an additional fi-
+le, transformed_input2.pdb.for.input1.pdb, which is the second input PDB file a-
+ligned with the first input PDB file.
+################################################################################
