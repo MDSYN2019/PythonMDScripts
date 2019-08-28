@@ -154,10 +154,3 @@ for res in PETAtoms.residues:
 ## Making Angular restraints for the hydrophilic ligands
 
 	
-print ('[ angles ]')
-for res in PETAtoms.residues:
-	# First index is ST, second SC1, third SC2 and fourth SC4
-	ligandResIDS = res.atoms.ids 	
-	print (ligandResIDS[0], ligandResIDS[1], ligandResIDS[2], 1, 120, 25)
-	print (ligandResIDS[1], ligandResIDS[2], ligandResIDS[3], 1, 120, 25)
-	print (ligandResIDS[3], ligandResIDS[1], ligandResIDS[2], 1, 120, 25)
