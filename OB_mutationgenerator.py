@@ -6,17 +6,19 @@ OPTIMUS BIND
 
 Version: 0.0.1
 
-Description: 
+Description: Functions which generate a database to plug into the machine learning framework 
+             (Needs to be expanded)
 
-Contributors: 
+Contributors:  
 
-Contact:
-
+Contact: 
 """
 import sys
 import os
+from os import listdir
+from os.path import isfile, join
+import glob
 
-# Biopython modules
 
 import click
 import logging
@@ -37,6 +39,9 @@ import scipy
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+# tqdm
+
+import tqdm as tqdm 
 
 def SKEMPItoPandas(SKEMPI_loc):
     '''
@@ -151,7 +156,36 @@ FoldxPath = "/home/oohnohnoh1/Desktop/ACADEMIA/Papermaking/OPTIMUS_BIND/FoldX/fo
 
 #subprocess.call(IalignPath)
 
-def callialign(folder, pdb1, chain1, pdb2, chain2, Ialignpath = None): # Default None for Ialignpath for now
+def align(PDB, mutfolder, output):
+	"""
+	Purpose: 
+	
+	
+	#Run "run_align.pl" to generate interface multiple sequence alignment file
+
+	#run_align.pl DIMER_PDB_FILE IS-SCORE_CUTOFF ALIGNMENT_OUTPUT_FILE
+
+	#Example:
+
+	#run_align.pl demo/1A22.pdb 0.5 demo/align.out
+	
+	Parameters
+	----------
+	
+
+	"""
+	print ("Running run_align...")
+	alignPath = "/home/oohnohnoh1/Desktop/ACADEMIA/Papermaking/OPTIMUS_BIND/BindProfX/bin/XBindProf/run_align.pl"
+	try: 
+		p = subprocess.Popen("{} {}/{} {} {}/{}".format(alignPath, mutfolder, PDB, score, mutfolder, output), shell = True) # Ok this works
+		stdout, stderr = p.communicate()
+	except subprocess.CalledProcessError as e:
+		print ("ERROR: Cannot read run_align properly. Please check the input file/chain/pdb files, or check the path to the ialign binary")
+	else:
+		print ("Running run_align sucessfully..")
+	
+
+def callialign(folder, pdb1, chain1, pdb2, chain2, mut, Ialignpath = None): # Default None for Ialignpath for now
 	"""
 	Purpose:
 	
@@ -177,18 +211,25 @@ def callialign(folder, pdb1, chain1, pdb2, chain2, Ialignpath = None): # Default
 		import os
 		from os import path
 	except ImportError:
-		print ("..")
+		print ("ERROR: Cannot import Python modules")
 	IalignPath = "/home/oohnohnoh1/Desktop/ACADEMIA/Papermaking/OPTIMUS_BIND/ialign/bin/ialign.pl"
 	print ("Running ialign...")
-	outputFile = ">> {}.dat"
 	try: 
-		p = subprocess.Popen([IalignPath, "-w", folder, pdb1, chain1, pdb2, chain2, outputFile], stdout = subprocess.PIPE) # Ok this works
+		p = subprocess.Popen("{} --w {} {} {} {} {} >> {}_align_output.dat".format(IalignPath,folder, pdb1, chain1, pdb2, chain2, mut), shell = True) # Ok this works
 		stdout, stderr = p.communicate()
 	except subprocess.CalledProcessError as e:
 		print ("ERROR: Cannot read ialign properly. Please check the input file/chain/pdb files, or check the path to the ialign binary")
 	else:
 		print ("Running ialign sucessfully..")
+	print ("Storing the ialign scores in an array..." )
 
+	# TODO - move ialign output to folder, and write the dimer.lst file for run_align to read
+	# align(PDB, mutfolder, output)
+	try:
+		ialign_data = function_to_read_ialign_profiles("{}_align_output.dat".format(mut), mut) # placeholder
+	except ValueError: # It might not be ValueError - need to check
+		print ("ERROR: cannot read ialign score data properly")
+	
 		
 def callfoldx(pdb, foldxpath = None): # Default None for Ialignpath for now
 	"""
@@ -211,8 +252,9 @@ def callfoldx(pdb, foldxpath = None): # Default None for Ialignpath for now
 	except ImportError:
 		print ("..")
 	FoldxPath = "/home/oohnohnoh1/Desktop/ACADEMIA/Papermaking/OPTIMUS_BIND/FoldX/foldx"
-	print ("Running foldx ...")
-
+	print ("---------------------")
+	print ("... Running foldx ...")
+	print ("---------------------")
 	try:
 		pdbstring = "--pdb={}".format(str(pdb))
 		p = subprocess.Popen([FoldxPath, "--command=Optimize", pdbstring], stdout = subprocess.PIPE) # Need to check if this works -works
@@ -220,8 +262,10 @@ def callfoldx(pdb, foldxpath = None): # Default None for Ialignpath for now
 	except subprocess.CalledProcessError as e:
 		print ("ERROR: Cannot run foldx properly. Please check the input file/chain/pdb files, or check the path to the foldx binary")             
 	else:
-		print ("Running foldx successfully")
-
+		print ("------------------------------")
+		print ("... Ran foldx successfully ...")
+		print ("------------------------------")
+		
 	# -------------------------------------------------
 	# Check if the optimized files have been produced |
 	# -------------------------------------------------
@@ -231,8 +275,9 @@ def callfoldx(pdb, foldxpath = None): # Default None for Ialignpath for now
 	rotabase = "rotabase.txt" # rotabase.txt required for foldx
 
 	# Exception conditionals for the rotabase file
+
 	if os.path.isfile(rotabase) is True:
-		print ("rotabase.txt is there - required for foldx")
+		print ("rotabase.txt is present.")
 	else:
 		raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), rotabase)
 	
@@ -248,7 +293,50 @@ def callfoldx(pdb, foldxpath = None): # Default None for Ialignpath for now
 	else:
 		raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), output_PDB)
 
-def function_to_read_ialign_profiles(outputdata, PDBname, foldPandasInput):
+def ReadEnergy(PATH):
+	"""
+	Purpose:
+	
+	placeholder
+
+	Parameters
+	----------
+	PATH:
+	   The path to where the fxout files are stored
+	"""
+	# Find fxout files and parse the results within them
+	try:
+		import itertools
+		import pandas as pd
+		import numpy as np
+	except ImportError:
+		print ("Error")
+		
+	COLNAMES = ["PDB", "Total", "BackHbond","SideHbond", "Energy_VdW", "Electro", "Energy_SolvP", "Energy_SolvH", "Energy_vdwclash", "Entropy_sidec", "Entropy_mainc", "A", "B", "cis_bond energy_torsion", "energy_torsion", "backbone_vdwclash", "helix dipole", "C", "disulfide", "kn_electrostatic", "partial covalent interactions", "Energy_Ionisation", "F", 'IS-score', 'P-value', 'Z-score', 'Number of aligned residues', 'Number of aligned Contacts', 'RMSD', 'Seq Identity']
+
+	#iAlignEntries = ['IS-score', 'P-value', 'Z-score', 'Number of aligned residues', 'Number of aligned Contacts', 'RMSD', 'Seq Identity']
+
+	OutputVec = [] # Output list to store the datafiles which we will use to convert into a pandas table
+	FxoutFileArray = [] # pathway list for the fxout files, which we will store and read one by one 
+	for file in os.listdir(PATH): # List the fxout files in the directory, and store them in the array 
+		if file.endswith(".fxout"):
+			FileLocation = os.path.join(PATH, file)
+			FxoutFileArray.append(FileLocation)
+			
+	for file in FxoutFileArray:
+		PDBName = (file.split('/'))[-1] # From the filepath, take the pdb fxout name 
+		TextFile = open(str(file), "r")   # Open the file 
+		data = []
+		for num, line in enumerate(TextFile):
+			if num == 4: # Optimized values
+				data.append(PDBName)
+				for col in line.split("\t"):
+					data.append(col)
+		OutputVec.append(data)
+	return OutputVec
+
+	
+def function_to_read_ialign_profiles(outputdata, PDBname, foldPandasInput = None):
 	"""
 	Purpose:
 
@@ -268,8 +356,7 @@ def function_to_read_ialign_profiles(outputdata, PDBname, foldPandasInput):
 	    PLaceholder
 	foldPandasInput: 
 	    Placeholder
-	"""
-	
+	"""	
 	Entries = ['IS-score', 'P-value', 'Z-score', 'Number of aligned residues', 'Number of aligned Contacts', 'RMSD', 'Seq Identity']
 	ialignOutput = open(str(outputdata), "r")
 	ialignLines = ialignOutput.readlines()
@@ -285,15 +372,13 @@ def function_to_read_ialign_profiles(outputdata, PDBname, foldPandasInput):
 	datBlock  = ','.join(datBlock)
 	datBlock = datBlock.split(',')
 	print (datBlock)
+	
 	for entry in datBlock:
 		output.append([entry.split(' = ')[0].strip(), float(entry.split(' = ')[1])])
-	print ("The WT vs mutation ialign results for {}.pdb is as follows:".format(PDBname))
+	print ("The WT vs mutation ialign results for {} is as follows:".format(PDBname))
 	return output
-
-		
-
-			   
-def GenerateMutations(DataFrame, PDB):
+		   
+def GenerateMutations(DataFrame, PDB, PATH):
 	"""
 	Purpose:
 	
@@ -303,7 +388,7 @@ def GenerateMutations(DataFrame, PDB):
 	Both single mutations and multiple comma separated mutations 
 	are taken in to account. 
 
->	If there are multiple mutation indices for the same protein, 
+	If there are multiple mutation indices for the same protein, 
 	then this will generate multiple pdb files.
 
 	Parameters
@@ -318,35 +403,59 @@ def GenerateMutations(DataFrame, PDB):
 		from Bio.PDB.PDBParser import PDBParser
 		from Bio.Data.IUPACData import protein_letters
 		from Bio.SeqUtils.ProtParam import ProteinAnalysis
-		from Bio.PDB.Polypeptide import PPBuilder # important 
-		from Bio.PDB.Polypeptide import standard_aa_names # Standard amino acid names - https://biopython.org/DIST/docs/api/Bio.PDB.Polypeptide-module.html#standard_aa_names
+		from Bio.PDB.Polypeptide import PPBuilder  
+		from Bio.PDB.Polypeptide import standard_aa_names # Standard amino acid names - https://biopython.org/DIST/docs/api/Bio.PDB.Polypeptide-module.html 
 		from Bio.PDB.Polypeptide import aa1 #  aa1 = 'ACDEFGHIKLMNPQRSTVWY'
-		from Bio.PDB.Polypeptide import aa3 #  aa3 = ['ALA', 'CYS', 'ASP', 'GLU', 'PHE', 'GLY', 'HIS', 'ILE',... 
+		from Bio.PDB.Polypeptide import aa3 #  aa3 = ['ALA', 'CYS', 'ASP', 'GLU', 'PHE', 'GLY', 'HIS', 'ILE',... ]
+		import tqdm as tqdm # tqdm - useful for estimating computing times for long for loops 
+
 	except ImportError:
 		print ("ERROR: Need to check Biopython imports!")
-		
+
+	# Before running anything, call foldx on the WT to get the optimized structure to mutate
+	title = PDB.split('.')
+	name = title[0]
+	callfoldx(PDB) # Call FoldX on the WT 
+
+	# Path to where the WT PDBs are stored
+	WTArray = []
+	nameArray = []
+	
+	for file in os.listdir(PATH): # List the fxout files in the directory, and store them in the array 
+		if file.endswith(".pdb"):
+			FileLocation = os.path.join(PATH, file)
+			WTArray.append(FileLocation)
+			nameArray.append(file)
+
+	# Subprocessing block for WT
+	subprocess.Popen("mkdir {}".format(name), shell = True) # Make directory
+	subprocess.Popen("mv OP_{}.fxout {}/.".format(name,name), shell = True)	 # Move optmiized fxout file to directory	   
+	subprocess.Popen("mv Optimized_{}.pdb {}".format(name,PDB), shell = True) 	# Rename file from Optimized_PDB.pdb to the same name as the original file to make our lives easier
+ 		   
+
+	MutationSpecies = [] # List to store the names of the mutated speices 
 	AminoAcidListDict = {} # Dictionary to assign alpabetical letters to amino acids
 	for index, code in enumerate(standard_aa_names):
 		AminoAcidListDict[aa1[index]] = aa3[index] # Building the mutation dictionary for each code
 	parser = PDBParser(PERMISSIVE=1) # Standard PDB parser
-	title = PDB.split('.')
 	PDBList = set()	
+
 	for pdb in DataFrame['#Pdb']:
 		pdbname = pdb.split('_')[0]
 		string = "{}.pdb".format(pdbname)
 		PDBList.add(string)
 		
 	if PDB not in PDBList:
-		raise Exception("The PDB is not in the SKEMPI list") # Not in the PDB list we expect - i.e. from the SKEMPI list 
-
+		raise Exception("The PDB is not in the SKEMPI list") # Not in the PDB list we expect - i.e. from the SKEMPI list
+	
 	# Search for PDB mutations that contain the PDB string - e.g. the 1CSE mutations will have the format 1CSE_E_I
-	# where it indicates the mutations were made in the 1CSE E and I chains 
+# where it indicates the mutations were made in the 1CSE E and I chains
 
-    # Check that the mutation in the pandas column is comma separated or not
 	MutationList = DataFrame.loc[(DataFrame['NAME'] == PDB.split('.')[0])] # This should get the PDB mutations 
 	MutationList = MutationList.reset_index()
+	print (MutationList)
+	
 	# Make a dictionary (hash map) with the mutation name and the residue lists to change
-	# This part below - WIP
 	for index, entry in MutationList.iterrows():
 		structure = parser.get_structure(str(title[0]),PDB) # reset structure each time 
 		model = structure[0]  # Switch back to the unchanged one 
@@ -359,11 +468,43 @@ def GenerateMutations(DataFrame, PDB):
 			assert(model[chain][int(loc)].resname == AminoAcidListDict[str(mutAA)]) # This will check that the mutation was successful
 		mutanttotalstring = '_'.join(entry['MutCleanSplit'])
 		mutatedname = "{}_{}_{}.pdb".format(entry['#Pdb'], mutanttotalstring, index)
+		MutationSpecies.append(mutatedname)
 		io = PDBIO(structure)
 		io.set_structure(model)
 		io.save(mutatedname) # This should print out the name of protein, the mutaton list, and the index on the pandas file 
 		print ("Produced new mutation PDB file {}".format(mutatedname)) # Printing out sign to say the pdb was produced
-			   
+
+	# Call foldx on the mutatied species
+
+	print (" -----------------------------------------------")
+	print ("The following mutant species are to be optimized")
+	print (" -----------------------------------------------")
+
+	for mutant in MutationSpecies:
+		print ("PDB file: {}".format(mutant))
+	ANS = []
+
+	for species in MutationSpecies:
+		callfoldx(species) # Call FoldX on each mutated species
+		subprocess.Popen("mv {} {}/.".format(species, name), shell = True)
+		subprocess.Popen("mv OP_{}.fxout {}/.".format(species.split(".")[0], name), shell = True)
+		subprocess.Popen("mv Optimized_{}.pdb {}/.".format(species.split(".")[0], name), shell = True)
+		ANS.extend(ReadEnergy("{}/".format(name)))
+		print (ANS)
+		
+	print ("Finished Optimization")
+	print ("Running Ialign..")
+
+	# This part needs to be fixed
+	
+#	OptimizedMutationList = ["Optimized_{}".format(mutant) for mutant in MutationSpecies] # Make new list for Optimized_PDB.pdb names
+
+#	for species in OptimizedMutationList:
+#		chain = species.split('_')[2]
+#		output_name = species.split(".")[0]
+#		print ("Running ialign for mutant PDB: {} with {}".format(species, name))
+#		callialign('output_{}'.format(name), PDB, chain, species, chain, output_name)
+
 		
 def mapped_index(pdb, chain, index, basis='FASTA_index'):
 	names = ["Residue", "Chain", "FASTA_index", "PDB_index"]
@@ -399,7 +540,6 @@ def mapped_index(pdb, chain, index, basis='FASTA_index'):
 #    main()
 
 
-			   
 #@click.command()
 # fix this patchwork later
 #@click.argument('input_filepath', type=click.Path(exists=True))
@@ -410,8 +550,102 @@ def mapped_index(pdb, chain, index, basis='FASTA_index'):
 #    """
 #    input_filepath = 'data/raw/'
 #    SKEMPItoPandas('skempi_v2.csv')  # GENERALIZE!
-#
+
 #    logger = logging.getLogger(__name__)
 #    logger.info('making final data set from raw data')
 	
 
+"""
+Some notes on psi-blast for my own sake
+
+Basic Local Alignment Search Tool (BLAST)  is a sequence similarity search program
+used to compare a user's query to a database of sequences.  Given a DNA
+or amino acid sequence, the BLAST heuristic algorithm finds short matches 
+between two sequences and attempts to start alignments from these "hot spots". 
+BLAST also provides statistical information about an alignment such as the "expectation"
+value. Note that BLAST is not a single program, but a family of programs. 
+
+All BLAST programs search for match between sequences, but there is a specialized 
+BLAST program for each type of sequence search. 
+
+---------------------------------------------------------------------------------
+BLAST is one of the most widely used bioinformatics research tools,  since it has
+several applications, here is a list of typical BLAST applications
+---------------------------------------------------------------------------------
+
+1. Following the discovery of a previously unknown gene in one species, search other genomes 
+   to see if other species carry a similar gene.
+
+2. Finding functinoal and evolutionary relationships between sequences
+
+3 Search for consensus regulatory patterns such as promoter signals, splicing sites and transcription
+  factor binding sites
+
+4. Infer protein structure based on previously crystallized proteins
+
+5. Help identify members of gene families
+
+If you work in bioinformatics, chances are that you will need to run some BLAST querues or face the need to process BLAST queries
+generated by you or by another person. Biopython proves tools for both taskss.
+
+blastn 
+
+"""
+
+def psiBlastScoring():
+	"""
+	JB's instructions on psi-blast
+	
+	1. We find all similar interfaces.
+	
+	2. Make a MSA of structurally aligned sequences (multiple sequence alignment) 
+
+
+	3. Form a score from the probability of a particular mutation showing up in the 
+	   MSA 
+
+	4. Evaluate the mutation with this score  - This is where we need the mutation
+
+	
+	Notes:
+	
+	-> Should not require an HPC to run each blast computation
+	
+
+	Some biopython options for blast:
+	---------------------------------------------------------
+	blastn -> nucleotide vs nucleotide
+	blastp -> protein vs protein 
+	blastx -> translated nucleotide vs protein
+	tblastn -> protein vs translcated nucleotide
+	tblastx -> translated nucelotide vs translated nucleotide
+	---------------------------------------------------------
+	"""
+	try:
+		# imports from previous functions
+		from Bio.PDB.PDBIO import PDBIO
+		from Bio.PDB.PDBParser import PDBParser
+		from Bio.Data.IUPACData import protein_letters
+		from Bio.SeqUtils.ProtParam import ProteinAnalysis
+		from Bio.PDB.Polypeptide import PPBuilder  
+		from Bio.PDB.Polypeptide import standard_aa_names # Standard amino acid names - https://biopython.org/DIST/docs/api/Bio.PDB.Polypeptide-module.html 
+		from Bio.PDB.Polypeptide import aa1 #  aa1 = 'ACDEFGHIKLMNPQRSTVWY'
+		from Bio.PDB.Polypeptide import aa3 #  aa3 = ['ALA', 'CYS', 'ASP', 'GLU', 'PHE', 'GLY', 'HIS', 'ILE',... ]
+
+		# Basic Local Alignment Search Tool (BLAST) reader
+	
+		from Bio.Blast.Applications import NcbiblastformatterCommandline as blastn
+		from Bio.Blast import NCBIXML # For reaidng the BLAST output 
+	except ImportError:
+		print ("Error - cannot imoort")
+
+	BLAST_EXE = '/home/oohnohnoh1/Desktop/ACADEMIA/Papermaking/OPTIMUS_BIND/ZIP/ncbi-blast-2.9.0+/bin/blastn' # The example given is /home/sb/opt/ncbi-blast-2.6.0+/bin/blastn
+	#f_in = 'seq3.txt'
+	b_db = 'db/samples/TAIR8cds'
+	blastn_cline = blastn(cmd = BLAST_EXE, query = f_in, db = b_db, evalue = .0005, outfmt=5)
+	rh,eh = blastn.cline()
+
+	rh.readline()
+
+	
+		
