@@ -1,0 +1,30 @@
+import sys
+import os
+import click
+import subprocess
+from subprocess import call
+
+# Example: -w output 1lyl.pdb AC 12as.pdb AB
+
+#
+
+IalignPath = "/home/oohnohnoh1/Desktop/ACADEMIA/Papermaking/OPTIMUS_BIND/ialign/bin/ialign.pl"
+
+
+# Calling perl for ialign
+
+subprocess.call(IalignPath) 
+def callialign(folder, pdb1, chain1, pdb2, chain2):
+	IalignPath = "/home/oohnohnoh1/Desktop/ACADEMIA/Papermaking/OPTIMUS_BIND/ialign/bin/ialign.pl"
+	p = subprocess.Popen([IalignPath, "-w", folder, pdb1, chain1, pdb2, chain2], stdout = subprocess.PIPE)
+	p.communicate()
+
+#@click.command()
+#@click.option('--ialignbin', default = IalignPath, help = "The path to where ialign.pl is located on your computer")
+#@click.argument('ialignpath')
+#def call_ialign(ialignpath):
+#	""" Simple program that calls ialign """
+#	click.echo("Calling from path {}".format(str(ialignbin)))
+#	subprocess.call(ialignbin)
+
+
