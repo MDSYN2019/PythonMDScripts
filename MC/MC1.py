@@ -1,10 +1,13 @@
 try:
 	import glob
 	import matplotlib.pyplot as plt
-	import numpy as np
-	import pandas as pd
 	import scipy.stats as stats
 	import seaborn as sns
+	import scipy.linalg as la
+	import numpy as np
+	import scipy.optimize as opt
+	import matplotlib.pyplot as plt
+	import pandas as pd
 except ImportError:
 	print (".")
 
@@ -26,8 +29,15 @@ using these uniform random deviates.
 
 """
 
+def f(x):
+	return x**3 - 3*x + 1
 
-def rng(m = 2**32, a = 1103515, c= 12345):
-	rng.current = (a * rng.current + c) % m
-	return rng.current/m
+x = np.linspace(-3,3,100)
+plt.axhline(0, c='red')
+plt.plot(x, f(x));
 
+from scipy.optimize import brentq, newton
+
+bq1, bq2, bq3 = brentq(f, -3, 0), brentq(f, 0, 1), brentq(f, 1,3)
+
+print(bq1, bq2, bq3)
