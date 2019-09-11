@@ -1,5 +1,0 @@
-ignore:
-    - "python"
-    - "vipster"
-    - "tests"
-    - "external"
