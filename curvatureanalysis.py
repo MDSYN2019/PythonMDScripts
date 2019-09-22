@@ -47,11 +47,15 @@ ba.add_analysis('ndcorr ndcorr_1')
 u = mda.Universe('../replicate.gro','../md.xtc')
 lipids = u.select_atoms("resname DPPC DUPC")
 lipidindices = lipids.indices
-G = [u.select_atoms("resid {}".format(index)) for index in lipidindices]
-COM = [i.center_of_mass() for i in G]
-
+#G = [u.select_atoms("resid {}".format(index)) for index in lipidindices]
+#COM = [i.center_of_mass() for i in G]
 bilayer = u.select_atoms("resname DPPC DUPC")
 com_traj = COMTraj.COMTraj(u.trajectory, bilayer)
+
+# -----------------------
+# Need a list of analyses
+# -----------------------
+
 #for ts in tqdm(u.trajectory):
 #	print (COM)
 	#print(lipidindices.center_of_mass())
@@ -61,6 +65,6 @@ com_traj = COMTraj.COMTraj(u.trajectory, bilayer)
 
 for frame_idx in tqdm(range(com_traj.nframes)):
 	lgs = LipidGrids(com_traj.frame[frame_idx], com_traj.leaflets, [0,1], area_per_bin=5.0)
-	apl_vals = lgs.curvature()
-	print (apl_vals)
+	curv = lgs.curvature() # Returns a 2 item tuple with the 2d numpy arrays of the curvatures with format (mean curvature, Gaussian curvature)
+	print (curv)
 #    print("frame: ",frame_idx, " composite APL: ",apl_vals[0], " partial for DPPC: ", apl_vals[1]['DPPC'][0], " DUPC: ", apl_vals[1]['DUPC'][0])
